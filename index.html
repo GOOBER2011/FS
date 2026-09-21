@@ -1,18 +1,67 @@
 <!DOCTYPE html>
 <html>
-<head><meta charset="utf-8"><title>Supatest</title></head>
+<head>
+<meta charset="utf-8">
+<title>Monochat</title>
+<style>
+  * { box-sizing: border-box; font-family: system-ui, sans-serif; }
+  body { background:#000; color:#fff; margin:0; padding:20px; }
+  #app { max-width:800px; margin:auto; }
+  h2, h3 { border-bottom:1px solid #333; padding-bottom:8px; }
+  input, button {
+    background:#111; color:#fff; border:1px solid #444;
+    padding:10px; border-radius:6px; font-size:14px;
+  }
+  button { cursor:pointer; }
+  button:hover { background:#222; }
+  button:disabled { opacity:0.4; cursor:not-allowed; }
+  #msgs {
+    border:1px solid #333; height:280px; overflow-y:auto;
+    padding:10px; background:#0a0a0a; margin:10px 0;
+  }
+  .msg { margin:6px 0; font-size:14px; }
+  .who { font-weight:700; margin-right:6px; }
+  .call-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:10px 0; }
+  .meter {
+    display:flex; gap:3px; height:30px; align-items:flex-end;
+    background:#111; padding:4px; border-radius:6px; border:1px solid #333;
+  }
+  .bar { width:6px; background:#444; border-radius:2px; transition:height 0.05s; }
+  #callStatus { font-size:13px; color:#888; margin-left:8px; }
+</style>
+</head>
 <body>
-  <h3>Sign up / Sign in</h3>
+<div id="app">
+
+  <h2>Monochat</h2>
+
+  <h3>Account</h3>
   <input id="email" placeholder="email">
   <input id="pass" type="password" placeholder="password">
   <button id="signup">Sign up</button>
   <button id="signin">Sign in</button>
-  <p id="status">Not signed in</p>
+  <button id="signout">Sign out</button>
+  <p id="status" style="color:#888">Not signed in</p>
 
   <h3>Chat</h3>
-  <div id="msgs" style="border:1px solid #ccc;height:200px;overflow-y:auto;padding:8px"></div>
-  <input id="msg" placeholder="message">
+  <div id="msgs"></div>
+  <input id="msg" placeholder="message..." style="width:70%">
   <button id="send">Send</button>
+
+  <h3>Voice Call</h3>
+  <div class="call-row">
+    <button id="startCall">📞 Start call</button>
+    <button id="hangUp" disabled>🔇 Hang up</button>
+    <div class="meter" id="meter">
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    </div>
+    <span id="callStatus">idle</span>
+  </div>
+  <audio id="remoteAudio" autoplay></audio>
+
+</div>
 
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
@@ -24,7 +73,7 @@ const supabase = createClient(
 
 const $ = id => document.getElementById(id)
 
-// Show who's signed in
+// ================= AUTH =================
 async function refreshUser() {
   const { data: { user } } = await supabase.auth.getUser()
   $('status').textContent = user ? `Signed in as ${user.email}` : 'Not signed in'
@@ -36,10 +85,9 @@ $('signup').onclick = async () => {
   const { error } = await supabase.auth.signUp({
     email: $('email').value, password: $('pass').value
   })
-  alert(error ? error.message : 'Signed up! Check status below.')
+  alert(error ? error.message : 'Signed up!')
   refreshUser()
 }
-
 $('signin').onclick = async () => {
   const { error } = await supabase.auth.signInWithPassword({
     email: $('email').value, password: $('pass').value
@@ -47,14 +95,19 @@ $('signin').onclick = async () => {
   alert(error ? error.message : 'Signed in!')
   refreshUser()
 }
+$('signout').onclick = async () => {
+  await supabase.auth.signOut()
+  refreshUser()
+}
 
+// ================= CHAT =================
 async function loadMessages() {
   const { data, error } = await supabase.from('messages')
     .select('*').order('created_at').limit(50)
-  if (error) { console.error('load error:', error); return }
+  if (error) return console.error(error)
   $('msgs').innerHTML = ''
   data?.forEach(m => {
-    $('msgs').innerHTML += `<div><b>${m.user_email}:</b> ${m.content}</div>`
+    $('msgs').innerHTML += `<div class="msg"><span class="who">${m.user_email}:</span>${m.content}</div>`
   })
   $('msgs').scrollTop = $('msgs').scrollHeight
 }
@@ -62,28 +115,175 @@ loadMessages()
 
 supabase.channel('room')
   .on('postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'messages' },
-      (payload) => {
-        const m = payload.new
-        $('msgs').innerHTML += `<div><b>${m.user_email}:</b> ${m.content}</div>`
-        $('msgs').scrollTop = $('msgs').scrollHeight
-      })
+    { event: 'INSERT', schema: 'public', table: 'messages' },
+    ({ new: m }) => {
+      $('msgs').innerHTML += `<div class="msg"><span class="who">${m.user_email}:</span>${m.content}</div>`
+      $('msgs').scrollTop = $('msgs').scrollHeight
+    })
   .subscribe()
 
 $('send').onclick = async () => {
-  console.log('send clicked, text =', $('msg').value)
   const user = await refreshUser()
-  if (!user) { alert('Sign in first'); return }
-  if (!$('msg').value.trim()) { alert('Type something first'); return }
-  
-  const { data, error } = await supabase.from('messages').insert({
-    content: $('msg').value,
-    user_email: user.email
+  if (!user) return alert('Sign in first')
+  if (!$('msg').value.trim()) return
+  const { error } = await supabase.from('messages').insert({
+    content: $('msg').value, user_email: user.email
   })
-  console.log('insert result:', data, error)
-  if (error) { alert('Insert failed: ' + error.message); return }
+  if (error) alert(error.message)
   $('msg').value = ''
 }
+
+// ================= CALLING =================
+let pc = null
+let localStream = null
+let callChannel = null
+let audioCtx = null
+let analyser = null
+let meterRAF = null
+
+const rtcConfig = {
+  iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+}
+
+function setCallStatus(text) { $('callStatus').textContent = text }
+
+async function ensureLocalStream() {
+  if (localStream) return localStream
+  localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+  startMeter(localStream)
+  return localStream
+}
+
+function startMeter(stream) {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+  const src = audioCtx.createMediaStreamSource(stream)
+  analyser = audioCtx.createAnalyser()
+  analyser.fftSize = 64
+  src.connect(analyser)
+  const bars = $('meter').children
+  const data = new Uint8Array(analyser.frequencyBinCount)
+
+  function tick() {
+    analyser.getByteFrequencyData(data)
+    for (let i = 0; i < bars.length; i++) {
+      const v = data[i * 2] || 0
+      const h = 4 + (v / 255) * 26
+      bars[i].style.height = h + 'px'
+      bars[i].style.background = v > 15 ? '#fff' : '#444'
+    }
+    meterRAF = requestAnimationFrame(tick)
+  }
+  tick()
+}
+
+function stopMeter() {
+  if (meterRAF) cancelAnimationFrame(meterRAF)
+  meterRAF = null
+  for (const b of $('meter').children) { b.style.height = '4px'; b.style.background = '#444' }
+}
+
+function createPeer() {
+  pc = new RTCPeerConnection(rtcConfig)
+
+  pc.onicecandidate = (e) => {
+    if (e.candidate && callChannel) {
+      callChannel.send({ type: 'broadcast', event: 'ice', payload: e.candidate })
+    }
+  }
+
+  pc.ontrack = (e) => {
+    $('remoteAudio').srcObject = e.streams[0]
+    setCallStatus('connected — audio flowing')
+  }
+
+  pc.onconnectionstatechange = () => {
+    if (pc.connectionState === 'connected') setCallStatus('connected')
+    if (['failed', 'disconnected', 'closed'].includes(pc.connectionState)) {
+      setCallStatus('call ended')
+    }
+  }
+
+  if (localStream) {
+    localStream.getTracks().forEach(t => pc.addTrack(t, localStream))
+  }
+  return pc
+}
+
+async function joinCallChannel() {
+  if (callChannel) return
+  const user = await refreshUser()
+  if (!user) throw new Error('Sign in first')
+
+  callChannel = supabase.channel('call:lobby', {
+    config: { broadcast: { self: false } }
+  })
+
+  callChannel
+    .on('broadcast', { event: 'offer' }, async ({ payload }) => {
+      if (!pc) {
+        await ensureLocalStream()
+        createPeer()
+      }
+      await pc.setRemoteDescription(payload.sdp)
+      const answer = await pc.createAnswer()
+      await pc.setLocalDescription(answer)
+      callChannel.send({ type: 'broadcast', event: 'answer', payload: { sdp: answer } })
+      setCallStatus('incoming call — answered')
+    })
+    .on('broadcast', { event: 'answer' }, async ({ payload }) => {
+      if (pc && pc.signalingState === 'have-local-offer') {
+        await pc.setRemoteDescription(payload.sdp)
+        setCallStatus('connecting...')
+      }
+    })
+    .on('broadcast', { event: 'ice' }, async ({ payload }) => {
+      if (pc) {
+        try { await pc.addIceCandidate(payload) } catch (e) { console.warn(e) }
+      }
+    })
+    .on('broadcast', { event: 'hangup' }, () => {
+      endCall(false)
+    })
+    .subscribe()
+}
+
+async function startCall() {
+  try {
+    await ensureLocalStream()
+    await joinCallChannel()
+    createPeer()
+
+    const offer = await pc.createOffer()
+    await pc.setLocalDescription(offer)
+    callChannel.send({ type: 'broadcast', event: 'offer', payload: { sdp: offer } })
+
+    $('startCall').disabled = true
+    $('hangUp').disabled = false
+    setCallStatus('calling...')
+  } catch (e) {
+    alert('Call failed: ' + e.message)
+    console.error(e)
+  }
+}
+
+function endCall(notify = true) {
+  if (notify && callChannel) {
+    callChannel.send({ type: 'broadcast', event: 'hangup', payload: {} })
+  }
+  if (pc) { pc.close(); pc = null }
+  if (localStream) {
+    localStream.getTracks().forEach(t => t.stop())
+    localStream = null
+  }
+  stopMeter()
+  $('remoteAudio').srcObject = null
+  $('startCall').disabled = false
+  $('hangUp').disabled = true
+  setCallStatus('idle')
+}
+
+$('startCall').onclick = startCall
+$('hangUp').onclick = () => endCall(true)
 </script>
 </body>
 </html>
