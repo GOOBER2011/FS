@@ -2,66 +2,260 @@
 <html>
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Monochat</title>
 <style>
-  * { box-sizing: border-box; font-family: system-ui, sans-serif; }
-  body { background:#000; color:#fff; margin:0; padding:20px; }
-  #app { max-width:800px; margin:auto; }
-  h2, h3 { border-bottom:1px solid #333; padding-bottom:8px; }
-  input, button {
-    background:#111; color:#fff; border:1px solid #444;
-    padding:10px; border-radius:6px; font-size:14px;
+  * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; margin: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body { background: #000; color: #fff; }
+
+  /* ---------- LOGIN WALL ---------- */
+  #login {
+    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(circle at center, #111 0%, #000 70%);
+    z-index: 100;
   }
-  button { cursor:pointer; }
-  button:hover { background:#222; }
-  button:disabled { opacity:0.4; cursor:not-allowed; }
-  #msgs {
-    border:1px solid #333; height:280px; overflow-y:auto;
-    padding:10px; background:#0a0a0a; margin:10px 0;
+  .login-box {
+    background: #0d0d0d; border: 1px solid #2a2a2a; padding: 40px; border-radius: 16px;
+    width: 360px; max-width: 90vw; box-shadow: 0 20px 60px rgba(0,0,0,0.8);
   }
-  .msg { margin:6px 0; font-size:14px; }
-  .who { font-weight:700; margin-right:6px; }
-  .call-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:10px 0; }
+  .login-box h1 { font-size: 24px; margin-bottom: 4px; letter-spacing: 2px; text-transform: uppercase; }
+  .login-box p { color: #666; font-size: 13px; margin-bottom: 24px; }
+  .login-box input {
+    width: 100%; background: #111; color: #fff; border: 1px solid #333;
+    padding: 12px 14px; border-radius: 8px; font-size: 14px; margin-bottom: 10px; outline: none;
+  }
+  .login-box input:focus { border-color: #666; }
+  .login-box button {
+    width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444;
+    background: #fff; color: #000; font-weight: 600; cursor: pointer; font-size: 14px;
+    margin-top: 4px;
+  }
+  .login-box button.ghost { background: transparent; color: #fff; margin-top: 8px; }
+  .login-box button:hover { opacity: 0.85; }
+  #loginMsg { color: #f66; font-size: 13px; min-height: 18px; margin-top: 8px; }
+
+  /* ---------- APP LAYOUT ---------- */
+  #app { display: none; height: 100vh; width: 100vw; }
+
+  .sidebar {
+    width: 280px; background: #0a0a0a; border-right: 1px solid #1e1e1e;
+    display: flex; flex-direction: column; height: 100%;
+  }
+  .sidebar-header {
+    padding: 18px 16px; border-bottom: 1px solid #1e1e1e;
+    font-weight: 700; font-size: 15px; letter-spacing: 1.5px; text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sidebar-header::before { content: "◉"; color: #fff; font-size: 18px; }
+
+  .sidebar-scroll { flex: 1; overflow-y: auto; padding: 12px 8px; }
+  .sidebar-scroll::-webkit-scrollbar { width: 6px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+
+  .section-label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+    color: #666; padding: 12px 10px 6px; font-weight: 600;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .section-label button {
+    background: none; border: none; color: #888; cursor: pointer; font-size: 16px;
+    padding: 0 4px; line-height: 1;
+  }
+  .section-label button:hover { color: #fff; }
+
+  .sidebar-item {
+    padding: 8px 12px; border-radius: 6px; cursor: pointer;
+    display: flex; align-items: center; gap: 10px; font-size: 14px;
+    color: #b0b0b0; margin: 1px 0;
+  }
+  .sidebar-item:hover { background: #161616; color: #fff; }
+  .sidebar-item.active { background: #1c1c1c; color: #fff; }
+  .sidebar-item .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: #2a2a2a;
+  }
+  .sidebar-item.online .dot { background: #3fff7a; }
+  .sidebar-item .hash { color: #666; font-weight: 700; width: 14px; text-align: center; }
+  .sidebar-item .pending { font-size: 10px; color: #f6a; margin-left: auto; }
+
+  .user-panel {
+    padding: 12px 16px; border-top: 1px solid #1e1e1e;
+    display: flex; align-items: center; gap: 10px; background: #0d0d0d;
+  }
+  .user-avatar {
+    width: 32px; height: 32px; border-radius: 50%; background: #222;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; border: 1px solid #333;
+  }
+  .user-panel .info { flex: 1; font-size: 13px; overflow: hidden; }
+  .user-panel .info .name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-panel .info .sub { color: #666; font-size: 11px; }
+  .user-panel button {
+    background: none; border: none; color: #666; cursor: pointer; font-size: 16px;
+  }
+  .user-panel button:hover { color: #f66; }
+
+  .main {
+    flex: 1; display: flex; flex-direction: column; height: 100%; background: #000;
+  }
+  .main-header {
+    padding: 14px 24px; border-bottom: 1px solid #1e1e1e;
+    display: flex; align-items: center; justify-content: space-between;
+    background: #0a0a0a; min-height: 60px;
+  }
+  .main-header .title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .main-header .title .hash { color: #666; }
+  .main-header .sub { color: #666; font-size: 12px; margin-left: 8px; font-weight: 400; }
+  .call-actions { display: flex; gap: 8px; }
+  .call-actions button {
+    background: #111; border: 1px solid #333; color: #fff; padding: 8px 14px;
+    border-radius: 30px; cursor: pointer; font-size: 13px; font-weight: 500;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .call-actions button:hover { background: #1e1e1e; border-color: #555; }
+  .call-actions button.active { background: #fff; color: #000; border-color: #fff; }
+  .call-actions button:disabled { opacity: 0.4; cursor: not-allowed; }
+
   .meter {
-    display:flex; gap:3px; height:30px; align-items:flex-end;
-    background:#111; padding:4px; border-radius:6px; border:1px solid #333;
+    display: flex; gap: 2px; height: 24px; align-items: flex-end;
+    background: #111; padding: 3px; border-radius: 4px; border: 1px solid #222;
   }
-  .bar { width:6px; background:#444; border-radius:2px; transition:height 0.05s; }
-  #callStatus { font-size:13px; color:#888; margin-left:8px; }
+  .bar { width: 4px; background: #333; border-radius: 1px; height: 4px; }
+
+  .messages {
+    flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 14px;
+  }
+  .messages::-webkit-scrollbar { width: 8px; }
+  .messages::-webkit-scrollbar-thumb { background: #1e1e1e; border-radius: 4px; }
+  .msg { display: flex; gap: 12px; }
+  .msg .avatar {
+    width: 36px; height: 36px; border-radius: 50%; background: #1a1a1a;
+    display: flex; align-items: center; justify-content: center; font-weight: 700;
+    font-size: 13px; border: 1px solid #2a2a2a; flex-shrink: 0;
+  }
+  .msg .body { flex: 1; min-width: 0; }
+  .msg .meta { display: flex; align-items: baseline; gap: 8px; margin-bottom: 2px; }
+  .msg .name { font-weight: 600; font-size: 14px; }
+  .msg .time { font-size: 11px; color: #666; }
+  .msg .text { color: #ddd; font-size: 14px; line-height: 1.5; word-break: break-word; }
+
+  .composer {
+    padding: 14px 24px 18px; border-top: 1px solid #1e1e1e;
+    display: flex; gap: 10px; background: #0a0a0a;
+  }
+  .composer input {
+    flex: 1; background: #141414; border: 1px solid #2a2a2a; color: #fff;
+    padding: 12px 16px; border-radius: 24px; font-size: 14px; outline: none;
+  }
+  .composer input:focus { border-color: #555; }
+  .composer button {
+    background: #fff; color: #000; border: none; padding: 0 22px;
+    border-radius: 24px; font-weight: 600; cursor: pointer; font-size: 13px;
+  }
+  .composer button:hover { background: #ddd; }
+
+  /* ---------- FRIEND MODAL ---------- */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    display: none; align-items: center; justify-content: center; z-index: 90;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    background: #0d0d0d; border: 1px solid #2a2a2a; padding: 24px;
+    border-radius: 14px; width: 400px; max-width: 90vw;
+  }
+  .modal h3 { margin-bottom: 12px; font-size: 16px; }
+  .modal input {
+    width: 100%; background: #111; color: #fff; border: 1px solid #333;
+    padding: 10px 12px; border-radius: 8px; margin-bottom: 10px; font-size: 14px; outline: none;
+  }
+  .modal input:focus { border-color: #666; }
+  .modal button {
+    padding: 10px 16px; border-radius: 8px; border: 1px solid #444;
+    background: #fff; color: #000; font-weight: 600; cursor: pointer; font-size: 13px;
+    margin-right: 8px;
+  }
+  .modal button.ghost { background: transparent; color: #fff; }
+  .modal .msg { font-size: 12px; color: #f66; min-height: 16px; margin-top: 6px; }
 </style>
 </head>
 <body>
+
+<!-- LOGIN WALL -->
+<div id="login">
+  <div class="login-box">
+    <h1>◉ Monochat</h1>
+    <p>Sign in or create an account to continue</p>
+    <input id="email" type="email" placeholder="email">
+    <input id="pass" type="password" placeholder="password">
+    <button id="btnSignin">Sign in</button>
+    <button id="btnSignup" class="ghost">Create account</button>
+    <div id="loginMsg"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
 <div id="app">
 
-  <h2>Monochat</h2>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">Monochat</div>
+    <div class="sidebar-scroll">
+      <div class="section-label">Channels</div>
+      <div id="channelList"></div>
 
-  <h3>Account</h3>
-  <input id="email" placeholder="email">
-  <input id="pass" type="password" placeholder="password">
-  <button id="signup">Sign up</button>
-  <button id="signin">Sign in</button>
-  <button id="signout">Sign out</button>
-  <p id="status" style="color:#888">Not signed in</p>
-
-  <h3>Chat</h3>
-  <div id="msgs"></div>
-  <input id="msg" placeholder="message..." style="width:70%">
-  <button id="send">Send</button>
-
-  <h3>Voice Call</h3>
-  <div class="call-row">
-    <button id="startCall">📞 Start call</button>
-    <button id="hangUp" disabled>🔇 Hang up</button>
-    <div class="meter" id="meter">
-      <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-      <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-      <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="section-label">
+        Friends
+        <button id="addFriendBtn" title="Add friend">+</button>
+      </div>
+      <div id="friendsList"></div>
     </div>
-    <span id="callStatus">idle</span>
-  </div>
-  <audio id="remoteAudio" autoplay></audio>
+    <div class="user-panel">
+      <div class="user-avatar" id="myAvatar">?</div>
+      <div class="info">
+        <div class="name" id="myName">—</div>
+        <div class="sub">online</div>
+      </div>
+      <button id="btnSignout" title="Sign out">⎋</button>
+    </div>
+  </aside>
 
+  <!-- MAIN -->
+  <main class="main">
+    <div class="main-header">
+      <div class="title" id="channelTitle"><span class="hash">#</span> general</div>
+      <div class="call-actions">
+        <div class="meter" id="meter">
+          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        </div>
+        <button id="btnCall">📞 Start call</button>
+        <button id="btnHangup" disabled>🔇 Hang up</button>
+      </div>
+    </div>
+
+    <div class="messages" id="messages"></div>
+
+    <div class="composer">
+      <input id="msgInput" placeholder="Message...">
+      <button id="btnSend">Send</button>
+    </div>
+  </main>
 </div>
+
+<!-- ADD FRIEND MODAL -->
+<div class="modal-backdrop" id="friendModal">
+  <div class="modal">
+    <h3>Add a friend</h3>
+    <input id="friendEmail" placeholder="friend@example.com">
+    <button id="btnSendRequest">Send request</button>
+    <button id="btnCloseModal" class="ghost">Cancel</button>
+    <div class="msg" id="friendMsg"></div>
+  </div>
+</div>
+
+<audio id="remoteAudio" autoplay></audio>
 
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
@@ -72,84 +266,248 @@ const supabase = createClient(
 )
 
 const $ = id => document.getElementById(id)
+const initial = s => (s || '?').charAt(0).toUpperCase()
+const shortName = email => (email || '').split('@')[0]
+
+let me = null
+let activeRoom = { id: 'general', type: 'channel', label: 'general' }
+let chatChannel = null
+let friendsChannel = null
+let friendships = []   // [{id, user_a, user_b, status, requested_by}]
 
 // ================= AUTH =================
-async function refreshUser() {
-  const { data: { user } } = await supabase.auth.getUser()
-  $('status').textContent = user ? `Signed in as ${user.email}` : 'Not signed in'
-  return user
-}
-refreshUser()
-
-$('signup').onclick = async () => {
-  const { error } = await supabase.auth.signUp({
-    email: $('email').value, password: $('pass').value
-  })
-  alert(error ? error.message : 'Signed up!')
-  refreshUser()
-}
-$('signin').onclick = async () => {
+$('btnSignin').onclick = async () => {
+  $('loginMsg').textContent = ''
   const { error } = await supabase.auth.signInWithPassword({
     email: $('email').value, password: $('pass').value
   })
-  alert(error ? error.message : 'Signed in!')
-  refreshUser()
+  if (error) $('loginMsg').textContent = error.message
 }
-$('signout').onclick = async () => {
+$('btnSignup').onclick = async () => {
+  $('loginMsg').textContent = ''
+  const { error } = await supabase.auth.signUp({
+    email: $('email').value, password: $('pass').value
+  })
+  if (error) $('loginMsg').textContent = error.message
+  else $('loginMsg').style.color = '#6f6'
+  if (!error) $('loginMsg').textContent = 'Account created — signing you in...'
+}
+$('btnSignout').onclick = async () => {
+  await cleanupCall()
   await supabase.auth.signOut()
-  refreshUser()
+}
+
+supabase.auth.onAuthStateChange((event, session) => {
+  if (session?.user) {
+    me = session.user
+    $('login').style.display = 'none'
+    $('app').style.display = 'flex'
+    $('myName').textContent = shortName(me.email)
+    $('myAvatar').textContent = initial(me.email)
+    boot()
+  } else {
+    me = null
+    $('login').style.display = 'flex'
+    $('app').style.display = 'none'
+    if (chatChannel) { supabase.removeChannel(chatChannel); chatChannel = null }
+    if (friendsChannel) { supabase.removeChannel(friendsChannel); friendsChannel = null }
+  }
+})
+
+// ================= BOOT =================
+async function boot() {
+  renderChannels()
+  await loadFriendships()
+  listenFriendships()
+  openRoom('general', 'channel', 'general')
+}
+
+function renderChannels() {
+  const el = $('channelList')
+  el.innerHTML = ''
+  const chans = ['general', 'random']
+  for (const c of chans) {
+    const div = document.createElement('div')
+    div.className = 'sidebar-item' + (activeRoom.id === c ? ' active' : '')
+    div.innerHTML = `<span class="hash">#</span>${c}`
+    div.onclick = () => openRoom(c, 'channel', c)
+    el.appendChild(div)
+  }
+}
+
+// ================= FRIENDS =================
+async function loadFriendships() {
+  const { data, error } = await supabase
+    .from('friendships')
+    .select('*')
+    .or(`user_a.eq.${me.email},user_b.eq.${me.email}`)
+  if (error) { console.error(error); return }
+  friendships = data || []
+  renderFriends()
+}
+
+function listenFriendships() {
+  if (friendsChannel) return
+  friendsChannel = supabase.channel('friends:' + me.email)
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'friendships' },
+      async () => { await loadFriendships() })
+    .subscribe()
+}
+
+function renderFriends() {
+  const el = $('friendsList')
+  el.innerHTML = ''
+  if (friendships.length === 0) {
+    const empty = document.createElement('div')
+    empty.style.cssText = 'color:#555;font-size:12px;padding:8px 12px'
+    empty.textContent = 'No friends yet — click + to add one'
+    el.appendChild(empty)
+    return
+  }
+  for (const f of friendships) {
+    const other = f.user_a === me.email ? f.user_b : f.user_a
+    const isPending = f.status === 'pending' && f.requested_by !== me.email
+    const outgoing = f.status === 'pending' && f.requested_by === me.email
+
+    const div = document.createElement('div')
+    div.className = 'sidebar-item online'
+    div.innerHTML = `
+      <div class="dot"></div>
+      <span>${shortName(other)}</span>
+      ${isPending ? '<span class="pending">NEW</span>' : ''}
+      ${outgoing ? '<span class="pending" style="color:#888">…</span>' : ''}
+    `
+    if (isPending) {
+      div.onclick = async () => {
+        await supabase.from('friendships').update({ status: 'accepted' }).eq('id', f.id)
+        await loadFriendships()
+      }
+      div.title = 'Click to accept friend request'
+    } else if (f.status === 'accepted') {
+      const roomId = dmRoomId(me.email, other)
+      div.onclick = () => openRoom(roomId, 'dm', other)
+    }
+    el.appendChild(div)
+  }
+}
+
+function dmRoomId(a, b) {
+  return 'dm:' + [a, b].sort().join('|')
+}
+
+// Add friend modal
+$('addFriendBtn').onclick = () => {
+  $('friendModal').classList.add('show')
+  $('friendMsg').textContent = ''
+  $('friendEmail').value = ''
+  $('friendEmail').focus()
+}
+$('btnCloseModal').onclick = () => $('friendModal').classList.remove('show')
+$('btnSendRequest').onclick = async () => {
+  const target = $('friendEmail').value.trim().toLowerCase()
+  if (!target || target === me.email) {
+    $('friendMsg').textContent = 'Enter a valid email (not your own)'
+    return
+  }
+  const { error } = await supabase.from('friendships').insert({
+    user_a: me.email, user_b: target, status: 'pending', requested_by: me.email
+  })
+  if (error) $('friendMsg').textContent = error.message
+  else {
+    $('friendMsg').style.color = '#6f6'
+    $('friendMsg').textContent = 'Request sent!'
+    await loadFriendships()
+    setTimeout(() => $('friendModal').classList.remove('show'), 800)
+  }
 }
 
 // ================= CHAT =================
-async function loadMessages() {
-  const { data, error } = await supabase.from('messages')
-    .select('*').order('created_at').limit(50)
-  if (error) return console.error(error)
-  $('msgs').innerHTML = ''
-  data?.forEach(m => {
-    $('msgs').innerHTML += `<div class="msg"><span class="who">${m.user_email}:</span>${m.content}</div>`
-  })
-  $('msgs').scrollTop = $('msgs').scrollHeight
+async function openRoom(roomId, type, label) {
+  activeRoom = { id: roomId, type, label }
+  renderChannels()
+
+  const title = $('channelTitle')
+  if (type === 'dm') {
+    title.innerHTML = `<span class="hash">@</span>${label} <span class="sub">direct message</span>`
+  } else {
+    title.innerHTML = `<span class="hash">#</span>${label} <span class="sub">channel</span>`
+  }
+
+  if (chatChannel) { await supabase.removeChannel(chatChannel); chatChannel = null }
+
+  // load history
+  const { data } = await supabase.from('messages')
+    .select('*').eq('room_id', roomId)
+    .order('created_at', { ascending: true }).limit(100)
+
+  $('messages').innerHTML = ''
+  ;(data || []).forEach(renderMessage)
+
+  // live updates
+  chatChannel = supabase.channel('chat:' + roomId)
+    .on('postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_id=eq.${roomId}` },
+      ({ new: m }) => renderMessage(m))
+    .subscribe()
 }
-loadMessages()
 
-supabase.channel('room')
-  .on('postgres_changes',
-    { event: 'INSERT', schema: 'public', table: 'messages' },
-    ({ new: m }) => {
-      $('msgs').innerHTML += `<div class="msg"><span class="who">${m.user_email}:</span>${m.content}</div>`
-      $('msgs').scrollTop = $('msgs').scrollHeight
-    })
-  .subscribe()
+function renderMessage(m) {
+  const wrap = document.createElement('div')
+  wrap.className = 'msg'
+  const t = new Date(m.created_at)
+  const time = t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  wrap.innerHTML = `
+    <div class="avatar">${initial(m.user_email)}</div>
+    <div class="body">
+      <div class="meta">
+        <span class="name">${shortName(m.user_email)}</span>
+        <span class="time">${time}</span>
+      </div>
+      <div class="text"></div>
+    </div>
+  `
+  wrap.querySelector('.text').textContent = m.content
+  $('messages').appendChild(wrap)
+  $('messages').scrollTop = $('messages').scrollHeight
+}
 
-$('send').onclick = async () => {
-  const user = await refreshUser()
-  if (!user) return alert('Sign in first')
-  if (!$('msg').value.trim()) return
+async function sendMessage() {
+  if (!me) return
+  const text = $('msgInput').value.trim()
+  if (!text) return
+  $('msgInput').value = ''
   const { error } = await supabase.from('messages').insert({
-    content: $('msg').value, user_email: user.email
+    room_id: activeRoom.id,
+    content: text,
+    user_email: me.email
   })
-  if (error) alert(error.message)
-  $('msg').value = ''
+  if (error) { alert(error.message); $('msgInput').value = text }
 }
+
+$('btnSend').onclick = sendMessage
+$('msgInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() }
+})
 
 // ================= CALLING =================
 let pc = null
 let localStream = null
 let callChannel = null
-let audioCtx = null
-let analyser = null
-let meterRAF = null
+let audioCtx = null, analyser = null, meterRAF = null
 
-const rtcConfig = {
-  iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+
+function setCallButtonState(inCall) {
+  $('btnCall').disabled = inCall
+  $('btnHangup').disabled = !inCall
+  $('btnCall').classList.toggle('active', inCall)
+  $('btnCall').textContent = inCall ? '📞 In call' : '📞 Start call'
 }
-
-function setCallStatus(text) { $('callStatus').textContent = text }
 
 async function ensureLocalStream() {
   if (localStream) return localStream
-  localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+  localStream = await navigator.mediaDevices.getUserMedia({ audio: true })
   startMeter(localStream)
   return localStream
 }
@@ -162,14 +520,12 @@ function startMeter(stream) {
   src.connect(analyser)
   const bars = $('meter').children
   const data = new Uint8Array(analyser.frequencyBinCount)
-
-  function tick() {
+  const tick = () => {
     analyser.getByteFrequencyData(data)
     for (let i = 0; i < bars.length; i++) {
       const v = data[i * 2] || 0
-      const h = 4 + (v / 255) * 26
-      bars[i].style.height = h + 'px'
-      bars[i].style.background = v > 15 ? '#fff' : '#444'
+      bars[i].style.height = (4 + (v / 255) * 20) + 'px'
+      bars[i].style.background = v > 15 ? '#fff' : '#333'
     }
     meterRAF = requestAnimationFrame(tick)
   }
@@ -179,71 +535,51 @@ function startMeter(stream) {
 function stopMeter() {
   if (meterRAF) cancelAnimationFrame(meterRAF)
   meterRAF = null
-  for (const b of $('meter').children) { b.style.height = '4px'; b.style.background = '#444' }
+  for (const b of $('meter').children) { b.style.height = '4px'; b.style.background = '#333' }
+}
+
+function callRoomId() {
+  if (activeRoom.type === 'dm') return 'call:' + activeRoom.id
+  return 'call:channel:' + activeRoom.id
 }
 
 function createPeer() {
   pc = new RTCPeerConnection(rtcConfig)
-
-  pc.onicecandidate = (e) => {
-    if (e.candidate && callChannel) {
-      callChannel.send({ type: 'broadcast', event: 'ice', payload: e.candidate })
-    }
+  pc.onicecandidate = e => {
+    if (e.candidate && callChannel) callChannel.send({
+      type: 'broadcast', event: 'ice', payload: e.candidate
+    })
   }
-
-  pc.ontrack = (e) => {
-    $('remoteAudio').srcObject = e.streams[0]
-    setCallStatus('connected — audio flowing')
-  }
-
+  pc.ontrack = e => { $('remoteAudio').srcObject = e.streams[0] }
   pc.onconnectionstatechange = () => {
-    if (pc.connectionState === 'connected') setCallStatus('connected')
-    if (['failed', 'disconnected', 'closed'].includes(pc.connectionState)) {
-      setCallStatus('call ended')
-    }
+    if (pc.connectionState === 'connected') $('btnCall').textContent = '📞 Connected'
+    if (['failed', 'disconnected', 'closed'].includes(pc.connectionState)) cleanupCall()
   }
-
-  if (localStream) {
-    localStream.getTracks().forEach(t => pc.addTrack(t, localStream))
-  }
+  if (localStream) localStream.getTracks().forEach(t => pc.addTrack(t, localStream))
   return pc
 }
 
 async function joinCallChannel() {
-  if (callChannel) return
-  const user = await refreshUser()
-  if (!user) throw new Error('Sign in first')
-
-  callChannel = supabase.channel('call:lobby', {
-    config: { broadcast: { self: false } }
-  })
+  if (callChannel) await supabase.removeChannel(callChannel)
+  callChannel = supabase.channel(callRoomId(), { config: { broadcast: { self: false } } })
 
   callChannel
     .on('broadcast', { event: 'offer' }, async ({ payload }) => {
-      if (!pc) {
-        await ensureLocalStream()
-        createPeer()
-      }
+      if (!pc) { await ensureLocalStream(); createPeer() }
       await pc.setRemoteDescription(payload.sdp)
       const answer = await pc.createAnswer()
       await pc.setLocalDescription(answer)
       callChannel.send({ type: 'broadcast', event: 'answer', payload: { sdp: answer } })
-      setCallStatus('incoming call — answered')
     })
     .on('broadcast', { event: 'answer' }, async ({ payload }) => {
       if (pc && pc.signalingState === 'have-local-offer') {
         await pc.setRemoteDescription(payload.sdp)
-        setCallStatus('connecting...')
       }
     })
     .on('broadcast', { event: 'ice' }, async ({ payload }) => {
-      if (pc) {
-        try { await pc.addIceCandidate(payload) } catch (e) { console.warn(e) }
-      }
+      if (pc) { try { await pc.addIceCandidate(payload) } catch (e) {} }
     })
-    .on('broadcast', { event: 'hangup' }, () => {
-      endCall(false)
-    })
+    .on('broadcast', { event: 'hangup' }, () => cleanupCall())
     .subscribe()
 }
 
@@ -252,38 +588,33 @@ async function startCall() {
     await ensureLocalStream()
     await joinCallChannel()
     createPeer()
-
     const offer = await pc.createOffer()
     await pc.setLocalDescription(offer)
     callChannel.send({ type: 'broadcast', event: 'offer', payload: { sdp: offer } })
-
-    $('startCall').disabled = true
-    $('hangUp').disabled = false
-    setCallStatus('calling...')
+    setCallButtonState(true)
   } catch (e) {
     alert('Call failed: ' + e.message)
     console.error(e)
   }
 }
 
-function endCall(notify = true) {
-  if (notify && callChannel) {
-    callChannel.send({ type: 'broadcast', event: 'hangup', payload: {} })
-  }
+async function cleanupCall() {
+  try {
+    if (callChannel) {
+      await callChannel.send({ type: 'broadcast', event: 'hangup', payload: {} })
+      await supabase.removeChannel(callChannel)
+      callChannel = null
+    }
+  } catch (e) {}
   if (pc) { pc.close(); pc = null }
-  if (localStream) {
-    localStream.getTracks().forEach(t => t.stop())
-    localStream = null
-  }
+  if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null }
   stopMeter()
   $('remoteAudio').srcObject = null
-  $('startCall').disabled = false
-  $('hangUp').disabled = true
-  setCallStatus('idle')
+  setCallButtonState(false)
 }
 
-$('startCall').onclick = startCall
-$('hangUp').onclick = () => endCall(true)
+$('btnCall').onclick = startCall
+$('btnHangup').onclick = cleanupCall
 </script>
 </body>
 </html>
