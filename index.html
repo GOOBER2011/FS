@@ -180,6 +180,16 @@
   }
   .mini-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
+  .presence-dot {
+    position: absolute;
+    bottom: -1px; right: -1px;
+    width: 9px; height: 9px;
+    background: #3fff7a;
+    border: 2px solid #000;
+    border-radius: 50%;
+    box-sizing: content-box;
+  }
+
   .user-panel {
     padding: 10px 12px; border-top: 1px solid var(--line);
     display: flex; align-items: center; gap: 8px; background: #000;
@@ -424,9 +434,7 @@
     overflow: hidden;
   }
   .attach-preview img,
-  .attach-preview video {
-    display: block; width: 100%; height: auto;
-  }
+  .attach-preview video { display: block; width: 100%; height: auto; }
   .attach-preview audio {
     display: block; width: 100%;
     filter: invert(1) hue-rotate(180deg);
@@ -453,8 +461,12 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 36px; font-weight: 500; color: #fff;
     overflow: hidden; margin: 0 auto 16px;
+    position: relative;
   }
   .profile-pic img { width: 100%; height: 100%; object-fit: cover; }
+  .profile-pic .presence-dot {
+    width: 16px; height: 16px; bottom: 4px; right: 4px;
+  }
   .profile-name {
     font-size: 18px; font-weight: 600; color: #fff;
     text-align: center;
@@ -593,6 +605,7 @@
   <symbol id="i-star" viewBox="0 0 24 24"><polygon points="12 2 15 9 22 9.3 16.5 14 18.5 21 12 17 5.5 21 7.5 14 2 9.3 9 9 12 2"/></symbol>
   <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
   <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></symbol>
 </svg>
 
 <div id="loader">
@@ -777,6 +790,18 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="editModal">
+  <div class="modal">
+    <h3>Edit Message</h3>
+    <textarea id="editText" placeholder="edit message..."></textarea>
+    <div class="row">
+      <button id="btnSaveEdit" class="primary">Save</button>
+      <button id="btnCancelEdit">Cancel</button>
+    </div>
+    <div class="msg" id="editMsg"></div>
+  </div>
+</div>
+
 <audio id="remoteAudio" autoplay></audio>
 
 <script type="module">
@@ -802,6 +827,8 @@ let profileCache = {}
 let activeRoom = { id: 'general', type: 'channel', label: 'general' }
 let chatChannel = null
 let friendsChannel = null
+let presenceChannel = null
+let onlineEmails = new Set()
 let friendships = []
 let messagesCache = {}
 let pendingAvatarFile = null
@@ -812,6 +839,7 @@ let openPickerFor = null
 let pendingAttachment = null
 let mediaRecorder = null
 let recordedChunks = []
+let editingMessageId = null
 
 window.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
@@ -877,6 +905,7 @@ $('btnSignup').onclick = async () => {
 }
 $('btnSignout').onclick = async () => {
   await cleanupCall()
+  if (presenceChannel) { await supabase.removeChannel(presenceChannel); presenceChannel = null }
   await supabase.auth.signOut()
 }
 
@@ -889,10 +918,12 @@ supabase.auth.onAuthStateChange((event, session) => {
     boot()
   } else {
     me = null; myProfile = null; profileCache = {}; messagesCache = {}
+    onlineEmails = new Set()
     $('login').style.display = 'flex'
     $('app').style.display = 'none'
     if (chatChannel) { supabase.removeChannel(chatChannel); chatChannel = null }
     if (friendsChannel) { supabase.removeChannel(friendsChannel); friendsChannel = null }
+    if (presenceChannel) { supabase.removeChannel(presenceChannel); presenceChannel = null }
   }
 })
 
@@ -964,12 +995,50 @@ function updateMySidebar() {
   $('myPronouns').textContent = myProfile.pronouns || 'present'
 }
 
+// ===== PRESENCE =====
+function trackPresence() {
+  if (!me || presenceChannel) return
+  presenceChannel = supabase.channel('presence:lobby', {
+    config: { presence: { key: me.email } }
+  })
+  presenceChannel
+    .on('presence', { event: 'sync' }, () => {
+      const state = presenceChannel.presenceState()
+      onlineEmails = new Set(Object.keys(state))
+      renderFriends()
+      if (activeRoom.type === 'dm') {
+        const title = $('channelTitle')
+        const label = activeRoom.label
+        const status = onlineEmails.has(label) ? 'online' : 'offline'
+        const prof = profileCache[label]
+        title.innerHTML = `<span class="hash">@</span>${displayNameFor(label)} <span class="sub">${status}</span>`
+        if (isVerified(label)) title.appendChild(makeVerifiedBadge())
+        const tag = makeTag(prof)
+        if (tag) title.appendChild(tag)
+      }
+    })
+    .on('presence', { event: 'join' }, ({ key }) => {
+      onlineEmails.add(key)
+      renderFriends()
+    })
+    .on('presence', { event: 'leave' }, ({ key }) => {
+      onlineEmails.delete(key)
+      renderFriends()
+    })
+    .subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        await presenceChannel.track({ online_at: new Date().toISOString() })
+      }
+    })
+}
+
 async function boot() {
   await ensureMyProfile()
   updateMySidebar()
   renderChannels()
   await loadFriendships()
   listenFriendships()
+  trackPresence()
   openRoom('general', 'channel', 'general')
 }
 function renderChannels() {
@@ -1029,10 +1098,18 @@ function renderFriends() {
       const div = document.createElement('div')
       div.className = 'sidebar-item'
 
+      const avatarWrap = document.createElement('div')
+      avatarWrap.style.cssText = 'position:relative;flex-shrink:0;display:flex;'
       const avatarBox = document.createElement('div')
       avatarBox.className = 'mini-avatar'
       renderAvatar(avatarBox, profileCache[other], other)
-      div.appendChild(avatarBox)
+      avatarWrap.appendChild(avatarBox)
+      if (onlineEmails.has(other)) {
+        const dot = document.createElement('span')
+        dot.className = 'presence-dot'
+        avatarWrap.appendChild(dot)
+      }
+      div.appendChild(avatarWrap)
 
       const label = document.createElement('span')
       label.className = 'label-text'
@@ -1100,7 +1177,8 @@ async function openRoom(roomId, type, label) {
 
   const title = $('channelTitle')
   if (type === 'dm') {
-    title.innerHTML = `<span class="hash">@</span>${displayNameFor(label)} <span class="sub">whisper</span>`
+    const status = onlineEmails.has(label) ? 'online' : 'offline'
+    title.innerHTML = `<span class="hash">@</span>${displayNameFor(label)} <span class="sub">${status}</span>`
     if (isVerified(label)) title.appendChild(makeVerifiedBadge())
     const prof = profileCache[label]
     const tag = makeTag(prof)
@@ -1193,7 +1271,9 @@ function buildMessageEl(m) {
   if (tag) nameSpan.appendChild(tag)
   const timeSpan = document.createElement('span')
   timeSpan.className = 'time'
-  timeSpan.textContent = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  let timeText = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  if (m.edited && !m.deleted) timeText += ' (edited)'
+  timeSpan.textContent = timeText
   meta.appendChild(nameSpan)
   meta.appendChild(timeSpan)
 
@@ -1279,6 +1359,12 @@ function buildMessageEl(m) {
     actions.appendChild(reactBtn)
 
     if (m.user_email === me.email) {
+      const editBtn = document.createElement('button')
+      editBtn.title = 'Edit'
+      editBtn.innerHTML = '<svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-edit"/></svg>'
+      editBtn.onclick = (e) => { e.stopPropagation(); editMessage(m) }
+      actions.appendChild(editBtn)
+
       const delBtn = document.createElement('button')
       delBtn.title = 'Delete'
       delBtn.innerHTML = '<svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-trash"/></svg>'
@@ -1362,6 +1448,30 @@ async function softDelete(msgId) {
   const { error } = await supabase.from('messages')
     .update({ deleted: true, content: '' }).eq('id', msgId)
   if (error) { console.error(error); alert('Could not delete: ' + error.message) }
+}
+
+// ===== EDIT =====
+function editMessage(m) {
+  editingMessageId = m.id
+  $('editText').value = m.content || ''
+  $('editMsg').textContent = ''
+  $('editModal').classList.add('show')
+  setTimeout(() => $('editText').focus(), 50)
+}
+$('btnCancelEdit').onclick = () => {
+  $('editModal').classList.remove('show')
+  editingMessageId = null
+}
+$('btnSaveEdit').onclick = async () => {
+  const newText = $('editText').value.trim()
+  if (!newText) { $('editMsg').textContent = 'cannot be empty'; return }
+  if (!editingMessageId) return
+  const { error } = await supabase.from('messages')
+    .update({ content: newText, edited: true })
+    .eq('id', editingMessageId)
+  if (error) { $('editMsg').textContent = error.message; return }
+  $('editModal').classList.remove('show')
+  editingMessageId = null
 }
 
 function setPendingAttachment(file, type) {
@@ -1469,6 +1579,11 @@ async function openProfilePanel(email) {
   const p = profileCache[email] || await fetchProfileByEmail(email)
   if (!p) return
   renderAvatar($('panelPic'), p, email)
+  if (onlineEmails.has(email)) {
+    const dot = document.createElement('span')
+    dot.className = 'presence-dot'
+    $('panelPic').appendChild(dot)
+  }
   const nameEl = $('panelName')
   nameEl.innerHTML = ''
   const nameText = document.createElement('span')
@@ -1478,7 +1593,8 @@ async function openProfilePanel(email) {
   if (p.verified) nameEl.appendChild(makeVerifiedBadge())
   const tag = makeTag(p)
   if (tag) nameEl.appendChild(tag)
-  $('panelPronouns').textContent = p.pronouns || ''
+  const onlineTag = onlineEmails.has(email) ? ' · online' : ' · offline'
+  $('panelPronouns').textContent = (p.pronouns || '') + onlineTag
   const bio = $('panelBio')
   bio.textContent = p.bio || 'no inscription'
   bio.classList.toggle('empty', !p.bio)
