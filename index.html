@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SUN CHAT</title>
+<title>SUN CHAT v2</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg stroke='%23ffffff' fill='none' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='50' cy='50' r='18'/%3E%3Cpath d='M50 6 Q53 14 50 22'/%3E%3Cpath d='M50 94 Q47 86 50 78'/%3E%3Cpath d='M6 50 Q14 47 22 50'/%3E%3Cpath d='M94 50 Q86 53 78 50'/%3E%3C/g%3E%3C/svg%3E">
 <style>
   :root {
@@ -124,7 +124,7 @@
 
   .member-strip { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 8px 22px; border-bottom: 1px solid var(--line); background: #050505; font-size: 11px; color: var(--ink-3); flex-shrink: 0; min-height: 34px; }
   .member-strip .label { text-transform: uppercase; letter-spacing: 2px; margin-right: 6px; font-weight: 600; color: var(--ink-3); }
-  .member-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border: 1px solid var(--line-2); border-radius: 12px; background: #0a0a0a; font-size: 11px; color: var(--ink-2); cursor: pointer; animation: fadeIn 0.3s var(--ease); }
+  .member-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border: 1px solid var(--line-2); border-radius: 12px; background: #0a0a0a; font-size: 11px; color: var(--ink-2); cursor: pointer; }
   .member-chip:hover { border-color: var(--ink-2); color: #fff; transform: translateY(-1px); background: var(--bg-3); }
   .member-chip .dot { width: 6px; height: 6px; border-radius: 50%; background: #3fff7a; box-shadow: 0 0 6px rgba(63, 255, 122, 0.6); }
   .member-chip.offline { opacity: 0.45; }
@@ -389,10 +389,7 @@
         <div class="name" id="myName">—</div>
         <div class="sub" id="myPronouns">present</div>
       </div>
-      <button class="icon-btn" id="btnNotifications" title="Notifications">
-        <svg class="ico" viewBox="0 0 24 24"><use href="#i-bell"/></svg>
-        <span class="badge" id="notifBadge">0</span>
-      </button>
+      <button class="icon-btn" id="btnNotifications" title="Notifications"><svg class="ico" viewBox="0 0 24 24"><use href="#i-bell"/></svg><span class="badge" id="notifBadge">0</span></button>
       <button class="icon-btn" id="btnSettings" title="Settings"><svg class="ico" viewBox="0 0 24 24"><use href="#i-gear"/></svg></button>
       <button class="icon-btn" id="btnSignout" title="Sign out"><svg class="ico" viewBox="0 0 24 24"><use href="#i-out"/></svg></button>
     </div>
@@ -402,11 +399,7 @@
     <div class="main-header">
       <div class="title" id="channelTitle"><span class="hash">#</span> general</div>
       <div class="call-actions">
-        <div class="meter" id="meter">
-          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-        </div>
+        <div class="meter" id="meter"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
         <button id="btnCall"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-phone"/></svg> Audio</button>
         <button id="btnVideo"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-video"/></svg> Video</button>
         <button id="btnScreen"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-screen"/></svg> Screen</button>
@@ -416,10 +409,7 @@
 
     <div class="call-dock" id="callDock">
       <div class="drag-header" id="callDragHeader">
-        <div class="grip">
-          <span class="grip-icon"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-grip"/></svg></span>
-          <span id="dragTitle">Call</span>
-        </div>
+        <div class="grip"><span class="grip-icon"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-grip"/></svg></span><span id="dragTitle">Call</span></div>
         <div style="display:flex;align-items:center;gap:8px;">
           <span class="call-status-pill" id="callStatusPill">connecting</span>
           <div class="header-actions">
@@ -452,14 +442,8 @@
       <div class="chat-col">
         <div class="messages" id="messages"></div>
         <div class="composer">
-          <div class="reply-banner" id="replyBanner">
-            <span class="rb-text" id="replyBannerText"></span>
-            <button id="replyBannerCancel" title="Cancel reply"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-x"/></svg></button>
-          </div>
-          <div class="attach-bar" id="attachBar">
-            <span id="attachBarContent" class="name"></span>
-            <button id="attachBarCancel" title="Remove"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-x"/></svg></button>
-          </div>
+          <div class="reply-banner" id="replyBanner"><span class="rb-text" id="replyBannerText"></span><button id="replyBannerCancel" title="Cancel reply"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-x"/></svg></button></div>
+          <div class="attach-bar" id="attachBar"><span id="attachBarContent" class="name"></span><button id="attachBarCancel" title="Remove"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-x"/></svg></button></div>
           <div class="input-row">
             <input type="text" id="msgInput" placeholder="message...">
             <input type="file" id="imgInput" accept="image/*" style="display:none">
@@ -525,7 +509,7 @@
         <label for="avatarInput" class="pick">Choose File</label>
       </div>
     </div>
-    <label>Name Color (hex, e.g. #ff6b6b)</label>
+    <label>Name Color (hex)</label>
     <input id="pfNameColor" type="text" placeholder="#ffffff" maxlength="7">
     <label>Tag (max 10 characters)</label>
     <input id="pfTagText" type="text" placeholder="MOD" maxlength="10">
@@ -612,7 +596,6 @@ let micOn = true, camOn = false, screenOn = false
 let ringtoneCtx = null, ringtoneInterval = null, ringTimeout = null
 let callDockFloating = false, dragState = null
 
-// ===== DEBUG HELPER =====
 function dbg(msg) {
   const el = document.getElementById('debugText')
   if (el) el.textContent = '[call] ' + msg
@@ -660,7 +643,7 @@ async function ensureNotifyPermission() {
 function browserNotify(title, body, tag) {
   if (!notifyReady) return
   if (document.visibilityState === 'visible' && document.hasFocus()) return
-  try { new Notification(title, { body, tag, icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='18' fill='none' stroke='%23ffffff' stroke-width='3'/%3E%3C/svg%3E" }) } catch (e) {}
+  try { new Notification(title, { body, tag }) } catch (e) {}
 }
 function toast(title, body) {
   const t = document.createElement('div')
@@ -860,22 +843,14 @@ function renderNotifications() {
       if (n.kind === 'friend_request') iconId = 'i-plus'
       item.innerHTML = `
         <div class="np-icon"><svg class="ico" viewBox="0 0 24 24"><use href="#${iconId}"/></svg></div>
-        <div class="np-body">
-          <div class="np-title"></div>
-          <div class="np-text"></div>
-          <div class="np-time"></div>
-        </div>
+        <div class="np-body"><div class="np-title"></div><div class="np-text"></div><div class="np-time"></div></div>
         <button class="np-dismiss" title="Dismiss"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-x"/></svg></button>
       `
       item.querySelector('.np-title').textContent = n.title || n.kind
       item.querySelector('.np-text').textContent = n.body || ''
       item.querySelector('.np-time').textContent = new Date(n.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit' })
       item.onclick = async (e) => {
-        if (e.target.closest('.np-dismiss')) {
-          e.stopPropagation()
-          await supabase.from('notifications').delete().eq('id', n.id)
-          return
-        }
+        if (e.target.closest('.np-dismiss')) { e.stopPropagation(); await supabase.from('notifications').delete().eq('id', n.id); return }
         if (n.room_id) openRoom(n.room_id, n.room_id.startsWith('dm:') ? 'dm' : 'channel', n.room_id.startsWith('dm:') ? n.from_email : n.room_id.replace('dm:', ''))
         if (!n.read) await supabase.from('notifications').update({ read: true }).eq('id', n.id)
         $('notifPanel').classList.remove('show')
@@ -1391,9 +1366,7 @@ $('btnSaveProfile').onclick = async () => {
   setTimeout(() => $('settingsModal').classList.remove('show'), 700)
 }
 
-// =========================================================
-// ======================== CALLING ========================
-// =========================================================
+// ===== CALLING =====
 const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
 function newCallId() { return 'call_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) }
 
@@ -1765,7 +1738,6 @@ function listenIncomingCalls() {
     .subscribe((status) => { dbg('channel: ' + status) })
 }
 
-// Test button — simulates an incoming call to verify the modal works
 setTimeout(() => {
   const btn = document.getElementById('testIncoming')
   if (btn) {
