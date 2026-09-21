@@ -10,6 +10,7 @@
     --bg: #000;
     --bg-2: #0a0a0a;
     --bg-3: #141414;
+    --bg-4: #1c1c1c;
     --line: #1e1e1e;
     --line-2: #2e2e2e;
     --line-3: #444;
@@ -18,14 +19,18 @@
     --ink-3: #777;
     --ink-4: #4a4a4a;
     --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
   }
   * { box-sizing: border-box; margin: 0; font-family: var(--sans); }
   html, body { height: 100%; overflow: hidden; }
-  body { background: var(--bg); color: var(--ink); }
+  body {
+    background: var(--bg); color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
 
   ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; transition: background 0.2s; }
   ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
 
   .ico {
@@ -33,16 +38,52 @@
     vertical-align: middle; flex-shrink: 0;
     stroke: currentColor; fill: none;
     stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    transition: transform 0.2s var(--ease);
   }
   .ico-sm { width: 14px; height: 14px; }
   .ico-lg { width: 20px; height: 20px; }
 
+  /* Global smooth transitions for interactive elements */
+  button { transition: all 0.18s var(--ease); }
+  input, textarea { transition: border-color 0.18s var(--ease), background 0.18s var(--ease); }
+
+  /* Fade-in animation utility */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slideInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
+    50% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(255,255,255,0); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-12deg); }
+    75% { transform: rotate(12deg); }
+  }
+  @keyframes ripple {
+    to { transform: scale(2.5); opacity: 0; }
+  }
+
+  /* ============ LOADER ============ */
   #loader {
     position: fixed; inset: 0; z-index: 200; background: #000;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    transition: opacity 0.7s ease;
+    transition: opacity 0.7s var(--ease), visibility 0.7s var(--ease);
   }
-  #loader.hide { opacity: 0; pointer-events: none; }
+  #loader.hide { opacity: 0; visibility: hidden; pointer-events: none; }
   #loader .load-sun { margin-bottom: 30px; animation: slow-spin 24s linear infinite; }
   @keyframes slow-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
   #loader .load-title {
@@ -60,15 +101,20 @@
   }
   @keyframes load-fill { from { transform: translateX(-100%); } to { transform: translateX(0); } }
 
+  /* ============ LOGIN ============ */
   #login {
     position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
     z-index: 100; padding: 24px;
+    animation: fadeIn 0.5s var(--ease);
   }
   .login-box {
     background: #000; border: 1px solid var(--line-2);
     padding: 54px 46px 44px; width: 460px; max-width: 100%;
     box-shadow: 0 40px 100px rgba(0,0,0,0.95); text-align: center;
+    animation: fadeInScale 0.5s var(--ease);
+    transition: border-color 0.3s var(--ease);
   }
+  .login-box:hover { border-color: var(--line-3); }
   .login-logo { display: flex; justify-content: center; margin-bottom: 20px; }
   .login-box .year {
     font-size: 11px; letter-spacing: 5px; color: var(--ink-3); margin-bottom: 20px;
@@ -84,29 +130,31 @@
   .login-box input {
     width: 100%; background: #000; color: #fff;
     border: 1px solid var(--line-2); padding: 13px 16px;
-    font-size: 14px; margin-bottom: 12px; outline: none; transition: 0.15s;
+    font-size: 14px; margin-bottom: 12px; outline: none;
     border-radius: 4px;
   }
   .login-box input::placeholder { color: var(--ink-3); font-size: 11px; letter-spacing: 2px; }
-  .login-box input:focus { border-color: var(--ink-2); }
+  .login-box input:focus { border-color: var(--ink-2); background: #0a0a0a; }
   .login-box button {
     width: 100%; padding: 14px; border: 1px solid var(--line-2);
     background: transparent; color: #fff;
     font-size: 12px; font-weight: 500;
     letter-spacing: 4px; text-transform: uppercase;
-    cursor: pointer; margin-top: 6px; transition: 0.15s;
+    cursor: pointer; margin-top: 6px;
     border-radius: 4px;
   }
-  .login-box button:hover { background: var(--bg-3); border-color: var(--ink-2); }
+  .login-box button:hover { background: var(--bg-3); border-color: var(--ink-2); transform: translateY(-1px); }
+  .login-box button:active { transform: translateY(0); }
   .login-box button.primary { background: #fff; color: #000; border-color: #fff; }
-  .login-box button.primary:hover { background: #ddd; }
+  .login-box button.primary:hover { background: #ddd; box-shadow: 0 8px 24px rgba(255,255,255,0.15); }
   #loginMsg { font-size: 12px; min-height: 16px; margin-top: 14px; }
 
+  /* ============ APP ============ */
   #app { display: none; height: 100vh; width: 100vw; }
   .sidebar {
     width: 240px; background: #000; border-right: 1px solid var(--line);
     display: flex; flex-direction: column; height: 100%;
-    transition: width 0.2s ease; overflow: hidden; flex-shrink: 0;
+    transition: width 0.25s var(--ease); overflow: hidden; flex-shrink: 0;
   }
   .sidebar.collapsed { width: 48px; }
   .sidebar-header {
@@ -117,13 +165,14 @@
   .sidebar-header .brand {
     font-weight: 500; font-size: 15px; letter-spacing: 5px;
     text-transform: uppercase; color: #fff; white-space: nowrap;
+    transition: opacity 0.2s var(--ease);
   }
   .sidebar.collapsed .brand { display: none; }
   .sidebar-toggle {
     background: none; border: none; color: var(--ink-3);
-    cursor: pointer; padding: 4px; transition: 0.15s; flex-shrink: 0;
+    cursor: pointer; padding: 4px; flex-shrink: 0;
   }
-  .sidebar-toggle:hover { color: #fff; }
+  .sidebar-toggle:hover { color: #fff; transform: scale(1.1); }
 
   .sidebar-scroll { flex: 1; overflow-y: auto; padding: 10px 6px; }
   .sidebar.collapsed .sidebar-scroll { padding: 10px 4px; }
@@ -137,8 +186,12 @@
     display: flex; justify-content: space-between; align-items: center;
     cursor: pointer; user-select: none;
   }
+  .section-label:hover { color: var(--ink-2); }
   .section-label .left { display: flex; align-items: center; gap: 6px; }
-  .section-label .chev { font-size: 10px; transition: transform 0.2s; }
+  .section-label .chev {
+    font-size: 10px;
+    transition: transform 0.25s var(--ease);
+  }
   .section-label.collapsed .chev { transform: rotate(-90deg); }
   .section-label button {
     background: none; border: 1px solid var(--line); color: var(--ink-2);
@@ -146,17 +199,17 @@
     width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
     border-radius: 3px;
   }
-  .section-label button:hover { color: #fff; border-color: var(--ink-2); }
-  .section-content { overflow: hidden; transition: max-height 0.2s ease; }
+  .section-label button:hover { color: #fff; border-color: var(--ink-2); background: var(--bg-3); }
+  .section-content { overflow: hidden; transition: max-height 0.3s var(--ease); }
 
   .sidebar-item {
     padding: 8px 10px; cursor: pointer;
     display: flex; align-items: center; gap: 8px; font-size: 13px;
-    color: var(--ink-2); margin: 1px 0; transition: 0.12s;
+    color: var(--ink-2); margin: 1px 0;
     border-left: 2px solid transparent; border-radius: 3px;
     position: relative; white-space: nowrap; overflow: hidden;
   }
-  .sidebar-item:hover { background: var(--bg-3); color: #fff; }
+  .sidebar-item:hover { background: var(--bg-3); color: #fff; transform: translateX(2px); }
   .sidebar-item.active { background: var(--bg-3); color: #fff; border-left-color: #fff; }
   .sidebar-item .hash { color: var(--ink-3); font-size: 14px; width: 12px; text-align: center; font-weight: 500; }
   .sidebar-item.active .hash { color: #fff; }
@@ -164,6 +217,7 @@
     font-size: 9px; color: #fff; margin-left: auto;
     border: 1px solid var(--line-3); padding: 1px 5px;
     letter-spacing: 1px; border-radius: 3px;
+    animation: fadeIn 0.3s var(--ease);
   }
   .sidebar.collapsed .sidebar-item .label-text,
   .sidebar.collapsed .sidebar-item .pending,
@@ -177,6 +231,7 @@
     font-size: 10px; overflow: hidden;
     border: 1px solid var(--line-2); flex-shrink: 0;
     color: var(--ink-2); font-weight: 500; border-radius: 50%;
+    transition: border-color 0.2s var(--ease);
   }
   .mini-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -188,6 +243,8 @@
     border: 2px solid #000;
     border-radius: 50%;
     box-sizing: content-box;
+    animation: fadeIn 0.4s var(--ease);
+    box-shadow: 0 0 8px rgba(63, 255, 122, 0.5);
   }
 
   .user-panel {
@@ -205,7 +262,7 @@
     overflow: hidden; cursor: pointer; flex-shrink: 0;
     color: #fff; border-radius: 50%;
   }
-  .user-avatar:hover { border-color: var(--ink-2); }
+  .user-avatar:hover { border-color: var(--ink-2); transform: scale(1.05); }
   .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
   .user-panel .info { flex: 1; font-size: 12px; overflow: hidden; min-width: 0; }
   .user-panel .info .name {
@@ -219,17 +276,32 @@
   }
   .user-panel .icon-btn {
     background: none; border: none; color: var(--ink-3);
-    cursor: pointer; padding: 4px; transition: 0.15s;
-    display: flex; align-items: center;
+    cursor: pointer; padding: 4px; display: flex; align-items: center;
+    position: relative;
   }
-  .user-panel .icon-btn:hover { color: #fff; }
+  .user-panel .icon-btn:hover { color: #fff; transform: scale(1.1); }
+  .user-panel .icon-btn .badge {
+    position: absolute; top: -2px; right: -2px;
+    background: #fff; color: #000;
+    font-size: 9px; font-weight: 700;
+    min-width: 16px; height: 16px; padding: 0 4px;
+    border-radius: 8px; display: none;
+    align-items: center; justify-content: center;
+    border: 2px solid #000;
+    animation: fadeInScale 0.3s var(--ease);
+  }
+  .user-panel .icon-btn .badge.show { display: flex; }
 
-  .main { flex: 1; display: flex; flex-direction: row; height: 100%; min-width: 0; }
+  /* ============ MAIN ============ */
+  .main { flex: 1; display: flex; flex-direction: column; height: 100%; min-width: 0; position: relative; }
+  .main-row { flex: 1; display: flex; flex-direction: row; min-height: 0; }
   .chat-col { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
   .main-header {
     padding: 14px 22px; border-bottom: 1px solid var(--line);
     display: flex; align-items: center; justify-content: space-between;
     background: #000; min-height: 60px;
+    flex-shrink: 0;
   }
   .main-header .title {
     font-size: 16px; font-weight: 500;
@@ -246,23 +318,26 @@
     padding: 8px 14px; cursor: pointer; font-size: 11px; font-weight: 500;
     letter-spacing: 1px; text-transform: uppercase;
     display: flex; align-items: center; gap: 6px;
-    transition: 0.15s; border-radius: 4px;
+    border-radius: 4px;
   }
-  .call-actions button:hover { border-color: var(--ink-2); color: #fff; }
+  .call-actions button:hover { border-color: var(--ink-2); color: #fff; background: var(--bg-3); transform: translateY(-1px); }
+  .call-actions button:active { transform: translateY(0); }
   .call-actions button.active { background: #fff; color: #000; border-color: #fff; }
   .call-actions button:disabled { opacity: 0.3; cursor: not-allowed; }
+
   .meter {
     display: flex; gap: 2px; height: 24px; align-items: flex-end;
     background: #000; padding: 3px; border: 1px solid var(--line-2); border-radius: 4px;
   }
-  .bar { width: 3px; background: #222; height: 3px; border-radius: 1px; }
+  .bar { width: 3px; background: #222; height: 3px; border-radius: 1px; transition: height 0.08s linear, background 0.15s var(--ease); }
 
-  /* Online member list */
+  /* ============ MEMBER STRIP ============ */
   .member-strip {
     display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
     padding: 8px 22px; border-bottom: 1px solid var(--line);
-    background: #050505;
-    font-size: 11px; color: var(--ink-3);
+    background: #050505; font-size: 11px; color: var(--ink-3);
+    flex-shrink: 0;
+    min-height: 34px;
   }
   .member-strip .label {
     text-transform: uppercase; letter-spacing: 2px;
@@ -272,16 +347,114 @@
     display: inline-flex; align-items: center; gap: 5px;
     padding: 3px 8px; border: 1px solid var(--line-2); border-radius: 12px;
     background: #0a0a0a; font-size: 11px; color: var(--ink-2);
-    cursor: pointer; transition: 0.12s;
+    cursor: pointer; animation: fadeIn 0.3s var(--ease);
   }
-  .member-chip:hover { border-color: var(--ink-2); color: #fff; }
+  .member-chip:hover { border-color: var(--ink-2); color: #fff; transform: translateY(-1px); background: var(--bg-3); }
   .member-chip .dot {
     width: 6px; height: 6px; border-radius: 50%;
     background: #3fff7a;
+    box-shadow: 0 0 6px rgba(63, 255, 122, 0.6);
   }
   .member-chip.offline { opacity: 0.45; }
-  .member-chip.offline .dot { background: #555; }
+  .member-chip.offline .dot { background: #555; box-shadow: none; }
 
+  /* ============ CALL VIEW (docked in main) ============ */
+  .call-dock {
+    display: none;
+    background: #050505;
+    border-bottom: 1px solid var(--line);
+    flex-shrink: 0;
+    position: relative;
+    animation: slideInUp 0.3s var(--ease);
+  }
+  .call-dock.show { display: block; }
+  .call-dock.docked-top { position: relative; }
+
+  /* Floating mode */
+  .call-dock.floating {
+    position: fixed;
+    bottom: 20px; right: 20px;
+    width: 340px;
+    border: 1px solid var(--line-2);
+    border-radius: 8px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.9);
+    z-index: 220;
+    border-bottom: none;
+  }
+
+  .call-dock .video-grid {
+    display: grid; gap: 2px; background: #000;
+    grid-template-columns: 1fr;
+  }
+  .call-dock .video-grid.two { grid-template-columns: 1fr 1fr; }
+  .call-dock .video-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+
+  .call-dock .video-cell {
+    position: relative; aspect-ratio: 16/9;
+    background: #050505;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .call-dock .video-cell video {
+    width: 100%; height: 100%; object-fit: cover;
+    background: #050505;
+  }
+  .call-dock .video-cell .name-badge {
+    position: absolute; bottom: 6px; left: 6px;
+    padding: 3px 8px; background: rgba(0,0,0,0.7);
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase;
+    color: #fff; border-radius: 3px;
+    backdrop-filter: blur(4px);
+  }
+  .call-dock .video-cell .video-placeholder {
+    display: flex; align-items: center; justify-content: center;
+    color: #333;
+  }
+
+  .call-dock .call-info {
+    padding: 12px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-top: 1px solid var(--line);
+    cursor: grab;
+    user-select: none;
+  }
+  .call-dock .call-info:active { cursor: grabbing; }
+  .call-dock .call-info .who {
+    font-size: 13px; font-weight: 600; color: #fff;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .call-dock .call-info .status {
+    font-size: 10px; color: var(--ink-3);
+    text-transform: uppercase; letter-spacing: 2px;
+    margin-top: 2px;
+  }
+  .call-dock .call-controls { display: flex; gap: 6px; }
+  .call-dock .call-controls button {
+    background: transparent; border: 1px solid var(--line-2); color: var(--ink-2);
+    width: 34px; height: 34px; border-radius: 4px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .call-dock .call-controls button:hover { color: #fff; border-color: var(--ink-2); background: var(--bg-3); transform: scale(1.05); }
+  .call-dock .call-controls button.on { background: #fff; color: #000; border-color: #fff; }
+  .call-dock .call-controls button.end { color: #f66; border-color: #3a1a1a; }
+  .call-dock .call-controls button.end:hover { background: #f66; color: #000; border-color: #f66; }
+  .call-dock .drag-handle {
+    position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
+    width: 40px; height: 4px;
+    background: var(--line-3); border-radius: 2px;
+    display: none;
+  }
+  .call-dock.floating .drag-handle { display: block; }
+  .call-dock .mode-toggle {
+    background: none; border: 1px solid var(--line-2); color: var(--ink-3);
+    width: 28px; height: 28px; border-radius: 4px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    margin-left: 6px;
+  }
+  .call-dock .mode-toggle:hover { color: #fff; border-color: var(--ink-2); }
+
+  /* ============ MESSAGES ============ */
   .messages {
     flex: 1; overflow-y: auto; padding: 20px 28px;
     display: flex; flex-direction: column; gap: 14px;
@@ -289,7 +462,8 @@
   .msg {
     display: flex; gap: 12px; padding: 6px 8px;
     border-radius: 4px; position: relative;
-    transition: background 0.12s;
+    animation: fadeIn 0.25s var(--ease);
+    transition: background 0.15s var(--ease);
   }
   .msg:hover { background: #0a0a0a; }
   .msg .avatar {
@@ -338,7 +512,10 @@
     font-size: 12px; color: var(--ink-3);
     display: flex; align-items: center; gap: 6px;
     cursor: pointer;
+    border-radius: 0 3px 3px 0;
+    transition: background 0.15s var(--ease);
   }
+  .msg .reply-context:hover { background: #111; }
   .msg .reply-context .who { color: #fff; font-weight: 500; }
 
   .msg .reactions { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
@@ -346,10 +523,11 @@
     display: inline-flex; align-items: center; gap: 5px;
     border: 1px solid var(--line-2); border-radius: 12px;
     padding: 3px 8px; font-size: 11px; font-weight: 500; color: var(--ink-2);
-    cursor: pointer; transition: 0.12s; background: #000;
+    cursor: pointer; background: #000;
     user-select: none;
+    animation: fadeInScale 0.2s var(--ease);
   }
-  .reaction-pill:hover { border-color: var(--ink-2); color: #fff; }
+  .reaction-pill:hover { border-color: var(--ink-2); color: #fff; transform: scale(1.05); }
   .reaction-pill.mine { border-color: #fff; color: #fff; background: var(--bg-3); }
   .reaction-pill .rc { font-size: 11px; }
   .reaction-pill svg { width: 13px; height: 13px; }
@@ -359,6 +537,7 @@
     display: none; gap: 2px;
     background: #0a0a0a; border: 1px solid var(--line-2);
     border-radius: 5px; padding: 3px;
+    animation: fadeInScale 0.15s var(--ease);
   }
   .msg:hover .msg-actions { display: flex; }
   .msg-actions button {
@@ -366,7 +545,7 @@
     color: var(--ink-2); padding: 4px 5px; border-radius: 3px;
     display: flex; align-items: center;
   }
-  .msg-actions button:hover { color: #fff; background: var(--bg-3); }
+  .msg-actions button:hover { color: #fff; background: var(--bg-3); transform: scale(1.1); }
 
   .reaction-picker {
     position: fixed; z-index: 80;
@@ -375,23 +554,26 @@
     display: none; gap: 2px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.8);
   }
-  .reaction-picker.show { display: flex; }
+  .reaction-picker.show { display: flex; animation: fadeInScale 0.15s var(--ease); }
   .reaction-picker button {
     background: none; border: none; cursor: pointer;
     padding: 5px 6px; border-radius: 4px; color: var(--ink-2);
     display: flex; align-items: center;
   }
-  .reaction-picker button:hover { background: var(--bg-3); color: #fff; }
+  .reaction-picker button:hover { background: var(--bg-3); color: #fff; transform: scale(1.15); }
 
+  /* ============ COMPOSER ============ */
   .composer {
     padding: 12px 22px 16px; border-top: 1px solid var(--line);
     background: #000;
+    flex-shrink: 0;
   }
   .composer .reply-banner {
     display: none; padding: 8px 12px; margin-bottom: 8px;
     border-left: 2px solid var(--line-3); font-size: 12px;
     color: var(--ink-3); background: #0a0a0a; border-radius: 3px;
     justify-content: space-between; align-items: center;
+    animation: slideInUp 0.2s var(--ease);
   }
   .composer .reply-banner.show { display: flex; }
   .composer .reply-banner .rb-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -400,7 +582,7 @@
     background: none; border: none; color: var(--ink-3);
     cursor: pointer; padding: 2px 6px;
   }
-  .composer .reply-banner button:hover { color: #fff; }
+  .composer .reply-banner button:hover { color: #fff; transform: scale(1.1); }
 
   .attach-bar {
     display: none;
@@ -413,6 +595,7 @@
     border-radius: 4px;
     font-size: 12px;
     color: var(--ink-2);
+    animation: slideInUp 0.2s var(--ease);
   }
   .attach-bar.show { display: flex; }
   .attach-bar button {
@@ -428,19 +611,19 @@
     flex: 1; background: #000; border: 1px solid var(--line-2);
     color: #fff; padding: 12px 16px;
     font-size: 14px; outline: none; border-radius: 4px;
-    transition: 0.15s;
   }
   .composer input[type="text"]::placeholder {
     color: var(--ink-3); font-size: 12px; letter-spacing: 1px;
   }
-  .composer input[type="text"]:focus { border-color: var(--ink-2); }
+  .composer input[type="text"]:focus { border-color: var(--ink-2); background: #0a0a0a; }
   .composer button.send {
     background: #fff; color: #000; border: 1px solid #fff;
     padding: 12px 22px; cursor: pointer; font-size: 12px; font-weight: 600;
     letter-spacing: 2px; text-transform: uppercase;
     border-radius: 4px; display: flex; align-items: center; gap: 6px;
   }
-  .composer button.send:hover { background: #ddd; }
+  .composer button.send:hover { background: #ddd; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255,255,255,0.1); }
+  .composer button.send:active { transform: translateY(0); }
 
   .icon-btn-attach {
     background: none; border: 1px solid var(--line-2); color: var(--ink-2);
@@ -448,8 +631,8 @@
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
-  .icon-btn-attach:hover { color: #fff; border-color: var(--ink-2); }
-  .icon-btn-attach.recording { background: #fff; color: #000; border-color: #fff; }
+  .icon-btn-attach:hover { color: #fff; border-color: var(--ink-2); background: var(--bg-3); transform: translateY(-1px); }
+  .icon-btn-attach.recording { background: #fff; color: #000; border-color: #fff; animation: pulse 1.2s infinite; }
 
   .attach-preview {
     margin-top: 6px;
@@ -459,15 +642,18 @@
     overflow: hidden;
   }
   .attach-preview img,
-  .attach-preview video { display: block; width: 100%; height: auto; }
+  .attach-preview video { display: block; width: 100%; height: auto; cursor: pointer; transition: opacity 0.15s var(--ease); }
+  .attach-preview img:hover { opacity: 0.9; }
   .attach-preview audio {
     display: block; width: 100%;
     filter: invert(1) hue-rotate(180deg);
   }
 
+  /* ============ PROFILE PANEL ============ */
   .profile-panel {
     width: 0; background: #000; border-left: 1px solid var(--line);
-    overflow: hidden; transition: width 0.2s ease; flex-shrink: 0;
+    overflow: hidden; flex-shrink: 0;
+    transition: width 0.25s var(--ease);
   }
   .profile-panel.open { width: 280px; }
   .profile-inner {
@@ -479,7 +665,7 @@
     color: var(--ink-3); cursor: pointer; padding: 4px;
     margin-bottom: 4px;
   }
-  .profile-close:hover { color: #fff; }
+  .profile-close:hover { color: #fff; transform: rotate(90deg); }
   .profile-pic {
     width: 96px; height: 96px; border-radius: 50%;
     background: var(--bg-3); border: 1px solid var(--line-2);
@@ -512,9 +698,9 @@
     padding: 8px 14px; cursor: pointer; font-size: 11px; font-weight: 500;
     letter-spacing: 1px; text-transform: uppercase;
     display: flex; align-items: center; gap: 6px;
-    transition: 0.15s; border-radius: 4px;
+    border-radius: 4px;
   }
-  .profile-actions button:hover { border-color: var(--ink-2); color: #fff; }
+  .profile-actions button:hover { border-color: var(--ink-2); color: #fff; transform: translateY(-1px); background: var(--bg-3); }
   .profile-section { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 14px; }
   .profile-section-label {
     font-size: 10px; font-weight: 600; color: var(--ink-3); letter-spacing: 2px;
@@ -526,17 +712,19 @@
   }
   .profile-bio.empty { color: var(--ink-4); font-style: italic; }
 
+  /* ============ MODALS ============ */
   .modal-backdrop {
     position: fixed; inset: 0; background: rgba(0,0,0,0.85);
     display: none; align-items: center; justify-content: center;
     z-index: 90; overflow-y: auto; padding: 24px;
   }
-  .modal-backdrop.show { display: flex; }
+  .modal-backdrop.show { display: flex; animation: fadeIn 0.2s var(--ease); }
   .modal {
     background: #000; border: 1px solid var(--line-2);
     padding: 26px; width: 460px; max-width: 100%;
     box-shadow: 0 40px 90px rgba(0,0,0,0.95);
     max-height: 90vh; overflow-y: auto;
+    animation: fadeInScale 0.25s var(--ease);
   }
   .modal h3 {
     font-weight: 500; font-size: 16px; letter-spacing: 5px;
@@ -553,21 +741,22 @@
     width: 100%; background: #000; color: #fff;
     border: 1px solid var(--line-2); padding: 11px 13px;
     font-size: 14px; outline: none; resize: vertical;
-    border-radius: 4px; transition: 0.15s;
+    border-radius: 4px;
   }
   .modal textarea { min-height: 80px; }
-  .modal input:focus, .modal textarea:focus { border-color: var(--ink-2); }
+  .modal input:focus, .modal textarea:focus { border-color: var(--ink-2); background: #0a0a0a; }
   .modal .row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
   .modal button {
     padding: 11px 18px; border: 1px solid var(--line-2);
     background: transparent; color: #fff;
     font-size: 12px; font-weight: 500;
     letter-spacing: 2px; text-transform: uppercase;
-    cursor: pointer; border-radius: 4px; transition: 0.15s;
+    cursor: pointer; border-radius: 4px;
   }
-  .modal button:hover { background: var(--bg-3); border-color: var(--ink-2); }
+  .modal button:hover { background: var(--bg-3); border-color: var(--ink-2); transform: translateY(-1px); }
+  .modal button:active { transform: translateY(0); }
   .modal button.primary { background: #fff; color: #000; border-color: #fff; }
-  .modal button.primary:hover { background: #ddd; }
+  .modal button.primary:hover { background: #ddd; box-shadow: 0 4px 12px rgba(255,255,255,0.15); }
   .modal .msg { font-size: 12px; min-height: 16px; margin-top: 10px; }
 
   .avatar-picker { display: flex; align-items: center; gap: 18px; margin-top: 8px; }
@@ -587,7 +776,7 @@
     letter-spacing: 1px; text-transform: uppercase;
     border-radius: 4px;
   }
-  .avatar-picker label.pick:hover { color: #fff; border-color: var(--ink-2); }
+  .avatar-picker label.pick:hover { color: #fff; border-color: var(--ink-2); background: var(--bg-3); }
 
   .secret-row { display: flex; gap: 8px; margin-top: 8px; }
   .secret-row input { flex: 1; }
@@ -602,11 +791,90 @@
   }
   .verified svg { width: 9px; height: 9px; stroke: #000; stroke-width: 3.5; fill: none; }
 
-  /* ===== INCOMING CALL MODAL ===== */
+  /* ============ NOTIFICATIONS PANEL ============ */
+  .notif-panel {
+    position: fixed; top: 12px; right: 12px;
+    width: 360px; max-height: calc(100vh - 24px);
+    background: #0a0a0a; border: 1px solid var(--line-2);
+    border-radius: 8px;
+    z-index: 300;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.95);
+    display: none;
+    flex-direction: column;
+    animation: slideInRight 0.25s var(--ease);
+  }
+  .notif-panel.show { display: flex; }
+  .notif-panel .np-header {
+    padding: 16px 18px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .notif-panel .np-header .np-title {
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 3px; text-transform: uppercase; color: #fff;
+  }
+  .notif-panel .np-header .np-actions {
+    display: flex; gap: 6px; align-items: center;
+  }
+  .notif-panel .np-header button {
+    background: none; border: 1px solid var(--line-2); color: var(--ink-2);
+    padding: 5px 10px; border-radius: 4px; cursor: pointer;
+    font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+  }
+  .notif-panel .np-header button:hover { color: #fff; border-color: var(--ink-2); background: var(--bg-3); }
+  .notif-panel .np-list {
+    flex: 1; overflow-y: auto; padding: 8px;
+  }
+  .notif-panel .np-item {
+    padding: 12px 12px; border-radius: 5px;
+    cursor: pointer;
+    display: flex; gap: 10px;
+    margin-bottom: 4px;
+    transition: background 0.15s var(--ease);
+    animation: fadeIn 0.25s var(--ease);
+  }
+  .notif-panel .np-item:hover { background: var(--bg-3); }
+  .notif-panel .np-item.unread { background: #111; }
+  .notif-panel .np-item.unread::before {
+    content: ''; width: 6px; height: 6px;
+    background: #fff; border-radius: 50%;
+    flex-shrink: 0; margin-top: 6px;
+  }
+  .notif-panel .np-item:not(.unread)::before {
+    content: ''; width: 6px; height: 6px;
+    background: transparent;
+    flex-shrink: 0; margin-top: 6px;
+  }
+  .notif-panel .np-item .np-icon {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--bg-3); border: 1px solid var(--line-2);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    color: #fff;
+  }
+  .notif-panel .np-item .np-body { flex: 1; min-width: 0; }
+  .notif-panel .np-item .np-title {
+    font-size: 12px; font-weight: 600; color: #fff;
+    margin-bottom: 2px;
+  }
+  .notif-panel .np-item .np-text {
+    font-size: 12px; color: var(--ink-2);
+    overflow: hidden; text-overflow: ellipsis;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  }
+  .notif-panel .np-item .np-time {
+    font-size: 10px; color: var(--ink-3); margin-top: 4px;
+  }
+  .notif-panel .np-empty {
+    padding: 40px 20px; text-align: center;
+    color: var(--ink-3); font-size: 12px;
+  }
+
+  /* ============ INCOMING CALL MODAL ============ */
   #incomingCall {
     position: fixed; inset: 0; z-index: 250;
     background: rgba(0,0,0,0.92);
     display: none; align-items: center; justify-content: center;
+    animation: fadeIn 0.3s var(--ease);
   }
   #incomingCall.show { display: flex; }
   .incoming-box {
@@ -617,8 +885,8 @@
     animation: pulse-border 2s ease-in-out infinite;
   }
   @keyframes pulse-border {
-    0%, 100% { border-color: var(--line-2); }
-    50% { border-color: #fff; }
+    0%, 100% { border-color: var(--line-2); box-shadow: 0 40px 100px rgba(0,0,0,0.95); }
+    50% { border-color: #fff; box-shadow: 0 40px 100px rgba(0,0,0,0.95), 0 0 40px rgba(255,255,255,0.2); }
   }
   .incoming-box .caller-pic {
     width: 88px; height: 88px; border-radius: 50%;
@@ -626,6 +894,7 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 32px; font-weight: 500; color: #fff;
     overflow: hidden; margin: 0 auto 16px;
+    animation: pulse 1.5s infinite;
   }
   .incoming-box .caller-pic img { width: 100%; height: 100%; object-fit: cover; }
   .incoming-box h3 {
@@ -644,68 +913,24 @@
     font-size: 12px; font-weight: 600; letter-spacing: 2px;
     text-transform: uppercase;
     display: flex; align-items: center; gap: 8px;
-    transition: 0.15s;
   }
   .incoming-box .btns button.accept { background: #fff; color: #000; border-color: #fff; }
-  .incoming-box .btns button.accept:hover { background: #ddd; }
-  .incoming-box .btns button.reject:hover { border-color: #f66; color: #f66; }
+  .incoming-box .btns button.accept:hover { background: #ddd; transform: scale(1.05); }
+  .incoming-box .btns button.reject:hover { border-color: #f66; color: #f66; transform: scale(1.05); }
+  .incoming-box .btns button.reject svg { animation: shake 0.6s infinite; }
 
-  /* ===== ACTIVE CALL OVERLAY ===== */
-  #callOverlay {
-    position: fixed; z-index: 240;
-    bottom: 20px; right: 20px;
-    width: 340px;
+  /* Toast for in-app notifications when tab is focused */
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
     background: #0a0a0a; border: 1px solid var(--line-2);
-    border-radius: 8px; overflow: hidden;
-    display: none;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.9);
+    padding: 12px 20px; border-radius: 6px;
+    color: #fff; font-size: 13px;
+    z-index: 400;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+    display: flex; align-items: center; gap: 10px;
+    animation: slideInUp 0.3s var(--ease);
   }
-  #callOverlay.show { display: block; }
-  #callOverlay .video-grid {
-    display: grid; gap: 2px; background: #000;
-    grid-template-columns: 1fr;
-  }
-  #callOverlay .video-grid.two { grid-template-columns: 1fr 1fr; }
-  #callOverlay .video-cell {
-    position: relative; aspect-ratio: 16/9;
-    background: #050505;
-    display: flex; align-items: center; justify-content: center;
-  }
-  #callOverlay .video-cell video {
-    width: 100%; height: 100%; object-fit: cover;
-    background: #050505;
-  }
-  #callOverlay .video-cell .name-badge {
-    position: absolute; bottom: 6px; left: 6px;
-    padding: 3px 8px; background: rgba(0,0,0,0.7);
-    font-size: 10px; font-weight: 600;
-    letter-spacing: 1px; text-transform: uppercase;
-    color: #fff; border-radius: 3px;
-  }
-  #callOverlay .call-info {
-    padding: 12px 14px;
-    display: flex; align-items: center; justify-content: space-between;
-    border-top: 1px solid var(--line);
-  }
-  #callOverlay .call-info .who {
-    font-size: 13px; font-weight: 600; color: #fff;
-  }
-  #callOverlay .call-info .status {
-    font-size: 10px; color: var(--ink-3);
-    text-transform: uppercase; letter-spacing: 2px;
-    margin-top: 2px;
-  }
-  #callOverlay .call-controls { display: flex; gap: 6px; }
-  #callOverlay .call-controls button {
-    background: transparent; border: 1px solid var(--line-2); color: var(--ink-2);
-    width: 34px; height: 34px; border-radius: 4px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: 0.15s;
-  }
-  #callOverlay .call-controls button:hover { color: #fff; border-color: var(--ink-2); }
-  #callOverlay .call-controls button.on { background: #fff; color: #000; border-color: #fff; }
-  #callOverlay .call-controls button.end { color: #f66; border-color: #3a1a1a; }
-  #callOverlay .call-controls button.end:hover { background: #f66; color: #000; border-color: #f66; }
+  .toast.hide { opacity: 0; transform: translateX(-50%) translateY(10px); transition: 0.3s var(--ease); }
 </style>
 </head>
 <body>
@@ -753,6 +978,10 @@
   <symbol id="i-video-off" viewBox="0 0 24 24"><path d="M16 16v2a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2"/><polygon points="23 7 16 12 23 17 23 7"/><line x1="2" y1="2" x2="22" y2="22"/></symbol>
   <symbol id="i-screen" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="14" rx="2"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="12" y1="18" x2="12" y2="20"/></symbol>
   <symbol id="i-screen-off" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="14" rx="2"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="12" y1="18" x2="12" y2="20"/><line x1="2" y1="2" x2="22" y2="22"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14l-1.5-5.5A3 3 0 0 0 14.6 9.5V4a2 2 0 0 0-4 0v5.5A3 3 0 0 0 7.5 11.5z"/></symbol>
+  <symbol id="i-move" viewBox="0 0 24 24"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></symbol>
 </svg>
 
 <div id="loader">
@@ -809,6 +1038,10 @@
         <div class="name" id="myName">—</div>
         <div class="sub" id="myPronouns">present</div>
       </div>
+      <button class="icon-btn" id="btnNotifications" title="Notifications">
+        <svg class="ico" viewBox="0 0 24 24"><use href="#i-bell"/></svg>
+        <span class="badge" id="notifBadge">0</span>
+      </button>
       <button class="icon-btn" id="btnSettings" title="Settings">
         <svg class="ico" viewBox="0 0 24 24"><use href="#i-gear"/></svg>
       </button>
@@ -819,72 +1052,105 @@
   </aside>
 
   <main class="main">
-    <div class="chat-col">
-      <div class="main-header">
-        <div class="title" id="channelTitle"><span class="hash">#</span> general</div>
-        <div class="call-actions">
-          <div class="meter" id="meter">
-            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-          </div>
-          <button id="btnCall"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-phone"/></svg> Audio</button>
-          <button id="btnVideo"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-video"/></svg> Video</button>
-          <button id="btnScreen"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-screen"/></svg> Screen</button>
-          <button id="btnHangup" disabled><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-phone-off"/></svg> End</button>
+    <div class="main-header">
+      <div class="title" id="channelTitle"><span class="hash">#</span> general</div>
+      <div class="call-actions">
+        <div class="meter" id="meter">
+          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
         </div>
-      </div>
-
-      <div class="member-strip" id="memberStrip">
-        <span class="label">Online</span>
-        <span id="onlineMembers" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;"></span>
-      </div>
-
-      <div class="messages" id="messages"></div>
-      <div class="composer">
-        <div class="reply-banner" id="replyBanner">
-          <span class="rb-text" id="replyBannerText"></span>
-          <button id="replyBannerCancel" title="Cancel reply">
-            <svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-x"/></svg>
-          </button>
-        </div>
-        <div class="attach-bar" id="attachBar">
-          <span id="attachBarContent" class="name"></span>
-          <button id="attachBarCancel" title="Remove">
-            <svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-x"/></svg>
-          </button>
-        </div>
-        <div class="input-row">
-          <input type="text" id="msgInput" placeholder="message...">
-          <input type="file" id="imgInput" accept="image/*" style="display:none">
-          <button class="icon-btn-attach" id="imgBtn" title="Send image">
-            <svg class="ico" viewBox="0 0 24 24"><use href="#i-image"/></svg>
-          </button>
-          <button class="icon-btn-attach" id="micBtn" title="Click to start/stop recording">
-            <svg class="ico" viewBox="0 0 24 24"><use href="#i-mic"/></svg>
-          </button>
-          <button class="send" id="btnSend">
-            <svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-send"/></svg> Send
-          </button>
-        </div>
+        <button id="btnCall"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-phone"/></svg> Audio</button>
+        <button id="btnVideo"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-video"/></svg> Video</button>
+        <button id="btnScreen"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-screen"/></svg> Screen</button>
+        <button id="btnHangup" disabled><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-phone-off"/></svg> End</button>
       </div>
     </div>
 
-    <aside class="profile-panel" id="profilePanel">
-      <div class="profile-inner">
-        <button class="profile-close" id="profilePanelClose">
-          <svg class="ico" viewBox="0 0 24 24"><use href="#i-x"/></svg>
-        </button>
-        <div class="profile-pic" id="panelPic">?</div>
-        <div class="profile-name" id="panelName">—</div>
-        <div class="profile-pronouns" id="panelPronouns"></div>
-        <div class="profile-actions" id="panelActions"></div>
-        <div class="profile-section">
-          <div class="profile-section-label">Inscription</div>
-          <div class="profile-bio empty" id="panelBio">no inscription</div>
+    <div class="call-dock" id="callDock">
+      <div class="video-grid" id="videoGrid"></div>
+      <div class="call-info" id="callInfoBar">
+        <div>
+          <div class="who">
+            <svg class="ico ico-sm" viewBox="0 0 24 24" style="color:#3fff7a"><use href="#i-phone"/></svg>
+            <span id="callWho">—</span>
+          </div>
+          <div class="status" id="callStatus">connecting…</div>
+        </div>
+        <div class="call-controls">
+          <button id="ctlMic" title="Toggle microphone">
+            <svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-mic"/></svg>
+          </button>
+          <button id="ctlVideo" title="Toggle camera">
+            <svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-video"/></svg>
+          </button>
+          <button id="ctlScreen" title="Share screen">
+            <svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-screen"/></svg>
+          </button>
+          <button id="ctlEnd" class="end" title="End call">
+            <svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-phone-off"/></svg>
+          </button>
+          <button id="ctlMode" class="mode-toggle" title="Toggle floating / docked">
+            <svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-move"/></svg>
+          </button>
         </div>
       </div>
-    </aside>
+      <div class="drag-handle"></div>
+    </div>
+
+    <div class="member-strip" id="memberStrip">
+      <span class="label">Online</span>
+      <span id="onlineMembers" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;"></span>
+    </div>
+
+    <div class="main-row">
+      <div class="chat-col">
+        <div class="messages" id="messages"></div>
+        <div class="composer">
+          <div class="reply-banner" id="replyBanner">
+            <span class="rb-text" id="replyBannerText"></span>
+            <button id="replyBannerCancel" title="Cancel reply">
+              <svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-x"/></svg>
+            </button>
+          </div>
+          <div class="attach-bar" id="attachBar">
+            <span id="attachBarContent" class="name"></span>
+            <button id="attachBarCancel" title="Remove">
+              <svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-x"/></svg>
+            </button>
+          </div>
+          <div class="input-row">
+            <input type="text" id="msgInput" placeholder="message...">
+            <input type="file" id="imgInput" accept="image/*" style="display:none">
+            <button class="icon-btn-attach" id="imgBtn" title="Send image">
+              <svg class="ico" viewBox="0 0 24 24"><use href="#i-image"/></svg>
+            </button>
+            <button class="icon-btn-attach" id="micBtn" title="Click to start/stop recording">
+              <svg class="ico" viewBox="0 0 24 24"><use href="#i-mic"/></svg>
+            </button>
+            <button class="send" id="btnSend">
+              <svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-send"/></svg> Send
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="profile-panel" id="profilePanel">
+        <div class="profile-inner">
+          <button class="profile-close" id="profilePanelClose">
+            <svg class="ico" viewBox="0 0 24 24"><use href="#i-x"/></svg>
+          </button>
+          <div class="profile-pic" id="panelPic">?</div>
+          <div class="profile-name" id="panelName">—</div>
+          <div class="profile-pronouns" id="panelPronouns"></div>
+          <div class="profile-actions" id="panelActions"></div>
+          <div class="profile-section">
+            <div class="profile-section-label">Inscription</div>
+            <div class="profile-bio empty" id="panelBio">no inscription</div>
+          </div>
+        </div>
+      </aside>
+    </div>
   </main>
 </div>
 
@@ -958,7 +1224,19 @@
   </div>
 </div>
 
-<!-- INCOMING CALL MODAL -->
+<!-- NOTIFICATIONS PANEL -->
+<div class="notif-panel" id="notifPanel">
+  <div class="np-header">
+    <div class="np-title">Notifications</div>
+    <div class="np-actions">
+      <button id="btnMarkAllRead">Mark all read</button>
+      <button id="btnCloseNotif">✕</button>
+    </div>
+  </div>
+  <div class="np-list" id="notifList"></div>
+</div>
+
+<!-- INCOMING CALL -->
 <div id="incomingCall">
   <div class="incoming-box">
     <div class="caller-pic" id="incomingPic">?</div>
@@ -970,31 +1248,6 @@
       </button>
       <button class="reject" id="btnRejectCall">
         <svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-phone-off"/></svg> Decline
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- ACTIVE CALL OVERLAY -->
-<div id="callOverlay">
-  <div class="video-grid" id="videoGrid"></div>
-  <div class="call-info">
-    <div>
-      <div class="who" id="callWho">—</div>
-      <div class="status" id="callStatus">connecting…</div>
-    </div>
-    <div class="call-controls">
-      <button id="ctlMic" title="Toggle microphone">
-        <svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-mic"/></svg>
-      </button>
-      <button id="ctlVideo" title="Toggle camera">
-        <svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-video"/></svg>
-      </button>
-      <button id="ctlScreen" title="Share screen">
-        <svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-screen"/></svg>
-      </button>
-      <button id="ctlEnd" class="end" title="End call">
-        <svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-phone-off"/></svg>
       </button>
     </div>
   </div>
@@ -1025,6 +1278,8 @@ let activeRoom = { id: 'general', type: 'channel', label: 'general' }
 let chatChannel = null
 let friendsChannel = null
 let presenceChannel = null
+let notifChannel = null
+let inboxChannel = null
 let onlineEmails = new Set()
 let friendships = []
 let messagesCache = {}
@@ -1037,21 +1292,23 @@ let pendingAttachment = null
 let mediaRecorder = null
 let recordedChunks = []
 let editingMessageId = null
+let notifications = []
 
-// ===== CALL STATE =====
+// call state
 let callPc = null
 let localStream = null
 let remoteStream = null
 let screenStream = null
 let callChannel = null
-let currentCallId = null      // unique per call
-let currentPeer = null        // email of other user
-let callKind = 'audio'        // 'audio' | 'video'
+let currentCallId = null
+let currentPeer = null
+let callKind = 'audio'
 let incomingOffer = null
 let isCaller = false
-let micOn = true
-let camOn = false
-let screenOn = false
+let micOn = true, camOn = false, screenOn = false
+let ringtoneCtx = null, ringtoneOsc = null, ringtoneGain = null, ringtoneInterval = null
+let callDockFloating = false
+let dragState = null
 
 window.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
@@ -1085,6 +1342,7 @@ function resizeSection(id) {
   }
 }
 
+// ===== BROWSER NOTIFICATIONS =====
 async function ensureNotifyPermission() {
   if (!('Notification' in window)) return false
   if (Notification.permission === 'granted') { notifyReady = true; return true }
@@ -1093,12 +1351,55 @@ async function ensureNotifyPermission() {
   notifyReady = r === 'granted'
   return notifyReady
 }
-function notify(title, body, tag) {
+function browserNotify(title, body, tag) {
   if (!notifyReady) return
-  if (document.visibilityState === 'visible' && document.hasFocus() && !tag.startsWith('call-')) return
-  try { new Notification(title, { body, tag }) } catch (e) {}
+  if (document.visibilityState === 'visible' && document.hasFocus()) return
+  try {
+    new Notification(title, {
+      body, tag,
+      icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='18' fill='none' stroke='%23ffffff' stroke-width='3'/%3E%3C/svg%3E"
+    })
+  } catch (e) {}
+}
+function toast(title, body) {
+  const t = document.createElement('div')
+  t.className = 'toast'
+  t.innerHTML = `<svg class="ico" viewBox="0 0 24 24"><use href="#i-bell"/></svg><div><strong>${title}</strong><div style="font-size:11px;color:#aaa;margin-top:2px;">${body}</div></div>`
+  document.body.appendChild(t)
+  setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 300) }, 4000)
 }
 
+// ===== RINGTONES =====
+function startRingtone() {
+  stopRingtone()
+  try {
+    ringtoneCtx = new (window.AudioContext || window.webkitAudioContext)()
+    const playRing = () => {
+      if (!ringtoneCtx) return
+      const now = ringtoneCtx.currentTime
+      const osc = ringtoneCtx.createOscillator()
+      const gain = ringtoneCtx.createGain()
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(880, now)
+      osc.frequency.setValueAtTime(1100, now + 0.15)
+      osc.frequency.setValueAtTime(880, now + 0.3)
+      gain.gain.setValueAtTime(0.0001, now)
+      gain.gain.exponentialRampToValueAtTime(0.15, now + 0.05)
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5)
+      osc.connect(gain).connect(ringtoneCtx.destination)
+      osc.start(now)
+      osc.stop(now + 0.6)
+    }
+    playRing()
+    ringtoneInterval = setInterval(playRing, 1200)
+  } catch (e) { console.warn('ringtone err', e) }
+}
+function stopRingtone() {
+  if (ringtoneInterval) { clearInterval(ringtoneInterval); ringtoneInterval = null }
+  if (ringtoneCtx) { try { ringtoneCtx.close() } catch (e) {} ringtoneCtx = null }
+}
+
+// ===== AUTH =====
 $('btnSignin').onclick = async () => {
   $('loginMsg').textContent = ''
   const { error } = await supabase.auth.signInWithPassword({
@@ -1118,6 +1419,8 @@ $('btnSignup').onclick = async () => {
 $('btnSignout').onclick = async () => {
   await cleanupCall()
   if (presenceChannel) { await supabase.removeChannel(presenceChannel); presenceChannel = null }
+  if (notifChannel) { await supabase.removeChannel(notifChannel); notifChannel = null }
+  if (inboxChannel) { await supabase.removeChannel(inboxChannel); inboxChannel = null }
   await supabase.auth.signOut()
 }
 
@@ -1130,12 +1433,14 @@ supabase.auth.onAuthStateChange((event, session) => {
     boot()
   } else {
     me = null; myProfile = null; profileCache = {}; messagesCache = {}
-    onlineEmails = new Set()
+    onlineEmails = new Set(); notifications = []
     $('login').style.display = 'flex'
     $('app').style.display = 'none'
     if (chatChannel) { supabase.removeChannel(chatChannel); chatChannel = null }
     if (friendsChannel) { supabase.removeChannel(friendsChannel); friendsChannel = null }
     if (presenceChannel) { supabase.removeChannel(presenceChannel); presenceChannel = null }
+    if (notifChannel) { supabase.removeChannel(notifChannel); notifChannel = null }
+    if (inboxChannel) { supabase.removeChannel(inboxChannel); inboxChannel = null }
   }
 })
 
@@ -1217,28 +1522,13 @@ function trackPresence() {
     .on('presence', { event: 'sync' }, () => {
       const state = presenceChannel.presenceState()
       onlineEmails = new Set(Object.keys(state))
-      renderFriends()
-      renderMembers()
-      if (activeRoom.type === 'dm') {
-        const title = $('channelTitle')
-        const label = activeRoom.label
-        const status = onlineEmails.has(label) ? 'online' : 'offline'
-        const prof = profileCache[label]
-        title.innerHTML = `<span class="hash">@</span>${displayNameFor(label)} <span class="sub">${status}</span>`
-        if (isVerified(label)) title.appendChild(makeVerifiedBadge())
-        const tag = makeTag(prof)
-        if (tag) title.appendChild(tag)
-      }
+      renderFriends(); renderMembers(); refreshDMTitle()
     })
     .on('presence', { event: 'join' }, ({ key }) => {
-      onlineEmails.add(key)
-      renderFriends()
-      renderMembers()
+      onlineEmails.add(key); renderFriends(); renderMembers()
     })
     .on('presence', { event: 'leave' }, ({ key }) => {
-      onlineEmails.delete(key)
-      renderFriends()
-      renderMembers()
+      onlineEmails.delete(key); renderFriends(); renderMembers()
     })
     .subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
@@ -1246,6 +1536,109 @@ function trackPresence() {
       }
     })
 }
+function refreshDMTitle() {
+  if (activeRoom.type !== 'dm') return
+  const title = $('channelTitle')
+  const label = activeRoom.label
+  const status = onlineEmails.has(label) ? 'online' : 'offline'
+  title.innerHTML = `<span class="hash">@</span>${displayNameFor(label)} <span class="sub">${status}</span>`
+  if (isVerified(label)) title.appendChild(makeVerifiedBadge())
+  const tag = makeTag(profileCache[label])
+  if (tag) title.appendChild(tag)
+}
+
+// ===== NOTIFICATIONS TABLE =====
+async function loadNotifications() {
+  const { data } = await supabase.from('notifications').select('*')
+    .eq('user_email', me.email).order('created_at', { ascending: false }).limit(50)
+  notifications = data || []
+  renderNotifications()
+}
+function listenNotifications() {
+  if (notifChannel) return
+  notifChannel = supabase.channel('notif:' + me.email)
+    .on('postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'notifications' },
+      (payload) => {
+        if (payload.new.user_email !== me.email) return
+        notifications.unshift(payload.new)
+        renderNotifications()
+        const n = payload.new
+        if (n.kind === 'message' || n.kind === 'reply') {
+          if (n.from_email === me.email) return
+          browserNotify(n.title || 'New message', n.body || '', 'msg-' + n.id)
+          if (document.hasFocus()) toast(n.title || 'New message', n.body || '')
+        } else if (n.kind === 'call') {
+          browserNotify(n.title || 'Missed call', n.body || '', 'call-' + n.id)
+        } else if (n.kind === 'friend_request') {
+          browserNotify(n.title || 'New friend request', n.body || '', 'fr-' + n.id)
+        }
+      })
+    .on('postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'notifications' },
+      async () => { await loadNotifications() })
+    .subscribe()
+}
+async function pushNotification(n) {
+  const row = { user_email: n.user_email, kind: n.kind, title: n.title, body: n.body, room_id: n.room_id, from_email: n.from_email, read: false }
+  try { await supabase.from('notifications').insert(row) } catch (e) { console.warn(e) }
+}
+function renderNotifications() {
+  const list = $('notifList')
+  list.innerHTML = ''
+  if (notifications.length === 0) {
+    list.innerHTML = '<div class="np-empty">nothing yet — you\'re all caught up</div>'
+  } else {
+    for (const n of notifications) {
+      const item = document.createElement('div')
+      item.className = 'np-item' + (n.read ? '' : ' unread')
+      let iconId = 'i-bell'
+      if (n.kind === 'message') iconId = 'i-send'
+      if (n.kind === 'reply') iconId = 'i-reply'
+      if (n.kind === 'call') iconId = 'i-phone'
+      if (n.kind === 'friend_request') iconId = 'i-plus'
+      item.innerHTML = `
+        <div class="np-icon"><svg class="ico" viewBox="0 0 24 24"><use href="#${iconId}"/></svg></div>
+        <div class="np-body">
+          <div class="np-title"></div>
+          <div class="np-text"></div>
+          <div class="np-time"></div>
+        </div>
+      `
+      item.querySelector('.np-title').textContent = n.title || n.kind
+      item.querySelector('.np-text').textContent = n.body || ''
+      item.querySelector('.np-time').textContent = new Date(n.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit' })
+      item.onclick = async () => {
+        if (n.room_id) openRoom(n.room_id, n.room_id.startsWith('dm:') ? 'dm' : 'channel',
+          n.room_id.startsWith('dm:') ? n.from_email : n.room_id.replace('dm:', ''))
+        if (!n.read) {
+          await supabase.from('notifications').update({ read: true }).eq('id', n.id)
+        }
+        $('notifPanel').classList.remove('show')
+      }
+      list.appendChild(item)
+    }
+  }
+  const unread = notifications.filter(n => !n.read).length
+  const badge = $('notifBadge')
+  if (unread > 0) { badge.textContent = unread > 9 ? '9+' : unread; badge.classList.add('show') }
+  else badge.classList.remove('show')
+}
+$('btnNotifications').onclick = (e) => {
+  e.stopPropagation()
+  $('notifPanel').classList.toggle('show')
+  renderNotifications()
+}
+$('btnCloseNotif').onclick = () => $('notifPanel').classList.remove('show')
+$('btnMarkAllRead').onclick = async () => {
+  await supabase.from('notifications').update({ read: true }).eq('user_email', me.email).eq('read', false)
+  await loadNotifications()
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#notifPanel') && !e.target.closest('#btnNotifications')) {
+    $('notifPanel').classList.remove('show')
+  }
+})
 
 async function boot() {
   await ensureMyProfile()
@@ -1254,6 +1647,8 @@ async function boot() {
   await loadFriendships()
   listenFriendships()
   trackPresence()
+  listenNotifications()
+  await loadNotifications()
   listenIncomingCalls()
   openRoom('general', 'channel', 'general')
 }
@@ -1270,21 +1665,16 @@ function renderChannels() {
   resizeSection('channelList')
 }
 
-// ===== MEMBER LIST =====
 function renderMembers() {
   const el = $('onlineMembers')
   el.innerHTML = ''
-  // gather the "server" members: me + all friends + all profiles we've seen
-  const members = new Set()
-  members.add(me.email)
+  const members = new Set([me.email])
   for (const f of friendships) {
     const other = f.user_a === me.email ? f.user_b : f.user_a
     members.add(other)
   }
-  // friends of friends that are online also count as server members
   for (const email of onlineEmails) members.add(email)
 
-  // sort: online first, then alphabetical
   const list = [...members].sort((a, b) => {
     const aOn = onlineEmails.has(a) ? 0 : 1
     const bOn = onlineEmails.has(b) ? 0 : 1
@@ -1322,8 +1712,7 @@ async function loadFriendships() {
   friendships = data || []
   const emails = friendships.map(f => f.user_a === me.email ? f.user_b : f.user_a)
   await loadProfilesFor(emails)
-  renderFriends()
-  renderMembers()
+  renderFriends(); renderMembers()
 }
 function listenFriendships() {
   if (friendsChannel) return
@@ -1336,7 +1725,10 @@ function listenFriendships() {
           const row = payload.new
           if (row.user_b === myEmail && row.requested_by !== myEmail && row.status === 'pending') {
             await fetchProfileByEmail(row.requested_by)
-            notify('New Kin Request', `${displayNameFor(row.requested_by)} would like to connect`, 'friend-' + row.id)
+            const title = 'New Kin Request'
+            const body = `${displayNameFor(row.requested_by)} wants to connect`
+            browserNotify(title, body, 'friend-' + row.id)
+            pushNotification({ user_email: myEmail, kind: 'friend_request', title, body, from_email: row.requested_by })
           }
         }
         await loadFriendships()
@@ -1376,12 +1768,11 @@ function renderFriends() {
       const label = document.createElement('span')
       label.className = 'label-text'
       label.textContent = displayNameFor(other)
-      const prof = profileCache[other]
-      if (prof?.name_color) label.style.color = prof.name_color
+      if (profileCache[other]?.name_color) label.style.color = profileCache[other].name_color
       div.appendChild(label)
 
       if (isVerified(other)) div.appendChild(makeVerifiedBadge())
-      const tag = makeTag(prof)
+      const tag = makeTag(profileCache[other])
       if (tag) div.appendChild(tag)
 
       if (isPending) {
@@ -1442,16 +1833,14 @@ async function openRoom(roomId, type, label) {
     const status = onlineEmails.has(label) ? 'online' : 'offline'
     title.innerHTML = `<span class="hash">@</span>${displayNameFor(label)} <span class="sub">${status}</span>`
     if (isVerified(label)) title.appendChild(makeVerifiedBadge())
-    const prof = profileCache[label]
-    const tag = makeTag(prof)
+    const tag = makeTag(profileCache[label])
     if (tag) title.appendChild(tag)
     openProfilePanel(label)
   } else {
     title.innerHTML = `<span class="hash">#</span>${label} <span class="sub">chamber</span>`
   }
 
-  clearReply()
-  clearPendingAttachment()
+  clearReply(); clearPendingAttachment()
   if (chatChannel) { await supabase.removeChannel(chatChannel); chatChannel = null }
   messagesCache = {}
 
@@ -1475,8 +1864,13 @@ async function openRoom(roomId, type, label) {
         if (m.user_email !== myEmail) {
           const roomLabel = type === 'dm' ? 'Whisper' : '#' + label
           const preview = m.content || (m.attachment_type === 'image' ? 'sent an image' : 'sent a voice message')
-          notify(`${displayNameFor(m.user_email)} · ${roomLabel}`,
-            preview.length > 100 ? preview.slice(0, 100) + '…' : preview, roomId)
+          const title = `${displayNameFor(m.user_email)} · ${roomLabel}`
+          // create notification record for the catch-up panel
+          await pushNotification({
+            user_email: myEmail, kind: 'message', title,
+            body: preview.length > 140 ? preview.slice(0, 140) + '…' : preview,
+            room_id: roomId, from_email: m.user_email
+          })
         }
       })
     .on('postgres_changes',
@@ -1505,8 +1899,7 @@ function buildMessageEl(m) {
     const parentPreview = parent.deleted ? '(deleted)' :
       (parent.content || (parent.attachment_type === 'image' ? 'image' : 'voice message'))
     preview.textContent = parentPreview.slice(0, 60) + (parentPreview.length > 60 ? '…' : '')
-    ctx.appendChild(who)
-    ctx.appendChild(preview)
+    ctx.appendChild(who); ctx.appendChild(preview)
     ctx.onclick = () => {
       const el = document.querySelector(`.msg[data-id="${parent.id}"]`)
       if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); flash(el) }
@@ -1536,9 +1929,7 @@ function buildMessageEl(m) {
   let timeText = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   if (m.edited && !m.deleted) timeText += ' (edited)'
   timeSpan.textContent = timeText
-  meta.appendChild(nameSpan)
-  meta.appendChild(timeSpan)
-
+  meta.appendChild(nameSpan); meta.appendChild(timeSpan)
   body.appendChild(meta)
 
   if (m.deleted) {
@@ -1586,11 +1977,9 @@ function buildMessageEl(m) {
       icon.setAttribute('viewBox', '0 0 24 24')
       const use = document.createElementNS('http://www.w3.org/2000/svg', 'use')
       use.setAttribute('href', `#${REACTIONS[key]}`)
-      icon.appendChild(use)
-      pill.appendChild(icon)
+      icon.appendChild(use); pill.appendChild(icon)
       const count = document.createElement('span')
-      count.className = 'rc'
-      count.textContent = users.length
+      count.className = 'rc'; count.textContent = users.length
       pill.appendChild(count)
       pill.title = users.map(u => displayNameFor(u)).join(', ')
       pill.onclick = () => toggleReaction(m.id, key)
@@ -1599,8 +1988,7 @@ function buildMessageEl(m) {
     body.appendChild(rdiv)
   }
 
-  wrap.appendChild(avatarDiv)
-  wrap.appendChild(body)
+  wrap.appendChild(avatarDiv); wrap.appendChild(body)
 
   if (!m.deleted) {
     const actions = document.createElement('div')
@@ -1642,11 +2030,10 @@ function renderMessage(m) {
   $('messages').scrollTop = $('messages').scrollHeight
 }
 function flash(el) {
-  el.style.transition = 'background 0.3s'
+  el.style.transition = 'background 0.3s var(--ease)'
   el.style.background = '#1a1a1a'
   setTimeout(() => el.style.background = '', 500)
 }
-
 function startReply(m) {
   replyTarget = m
   $('replyBanner').classList.add('show')
@@ -1655,17 +2042,11 @@ function startReply(m) {
   who.className = 'who'
   who.textContent = displayNameFor(m.user_email) + ': '
   $('replyBannerText').appendChild(who)
-  const preview = m.deleted ? '(deleted)' :
-    (m.content || (m.attachment_type === 'image' ? 'image' : 'voice message'))
-  $('replyBannerText').appendChild(document.createTextNode(
-    preview.slice(0, 80) + (preview.length > 80 ? '…' : '')
-  ))
+  const preview = m.deleted ? '(deleted)' : (m.content || (m.attachment_type === 'image' ? 'image' : 'voice message'))
+  $('replyBannerText').appendChild(document.createTextNode(preview.slice(0, 80) + (preview.length > 80 ? '…' : '')))
   $('msgInput').focus()
 }
-function clearReply() {
-  replyTarget = null
-  $('replyBanner').classList.remove('show')
-}
+function clearReply() { replyTarget = null; $('replyBanner').classList.remove('show') }
 $('replyBannerCancel').onclick = clearReply
 
 function showReactionPicker(anchorEl, msgId) {
@@ -1699,17 +2080,14 @@ async function toggleReaction(msgId, key) {
   else users.add(me.email)
   reactions[key] = [...users]
   if (reactions[key].length === 0) delete reactions[key]
-  const { error } = await supabase.from('messages')
-    .update({ reactions }).eq('id', msgId)
-  if (error) { console.error(error); alert('Could not react: ' + error.message) }
+  const { error } = await supabase.from('messages').update({ reactions }).eq('id', msgId)
+  if (error) alert('Could not react: ' + error.message)
 }
 async function softDelete(msgId) {
   if (!confirm('Delete this message?')) return
-  const { error } = await supabase.from('messages')
-    .update({ deleted: true, content: '' }).eq('id', msgId)
-  if (error) { console.error(error); alert('Could not delete: ' + error.message) }
+  const { error } = await supabase.from('messages').update({ deleted: true, content: '' }).eq('id', msgId)
+  if (error) alert('Could not delete: ' + error.message)
 }
-
 function editMessage(m) {
   editingMessageId = m.id
   $('editText').value = m.content || ''
@@ -1717,17 +2095,12 @@ function editMessage(m) {
   $('editModal').classList.add('show')
   setTimeout(() => $('editText').focus(), 50)
 }
-$('btnCancelEdit').onclick = () => {
-  $('editModal').classList.remove('show')
-  editingMessageId = null
-}
+$('btnCancelEdit').onclick = () => { $('editModal').classList.remove('show'); editingMessageId = null }
 $('btnSaveEdit').onclick = async () => {
   const newText = $('editText').value.trim()
   if (!newText) { $('editMsg').textContent = 'cannot be empty'; return }
   if (!editingMessageId) return
-  const { error } = await supabase.from('messages')
-    .update({ content: newText, edited: true })
-    .eq('id', editingMessageId)
+  const { error } = await supabase.from('messages').update({ content: newText, edited: true }).eq('id', editingMessageId)
   if (error) { $('editMsg').textContent = error.message; return }
   $('editModal').classList.remove('show')
   editingMessageId = null
@@ -1736,8 +2109,7 @@ $('btnSaveEdit').onclick = async () => {
 function setPendingAttachment(file, type) {
   if (pendingAttachment?.url) URL.revokeObjectURL(pendingAttachment.url)
   pendingAttachment = { file, type, url: URL.createObjectURL(file) }
-  const bar = $('attachBar')
-  const content = $('attachBarContent')
+  const bar = $('attachBar'), content = $('attachBarContent')
   content.innerHTML = ''
   if (type === 'image') {
     const img = document.createElement('img')
@@ -1765,14 +2137,10 @@ $('imgInput').onchange = (e) => {
   const f = e.target.files?.[0]
   if (!f) return
   if (f.size > 8 * 1024 * 1024) { alert('Image too large (max 8MB)'); return }
-  setPendingAttachment(f, 'image')
-  e.target.value = ''
+  setPendingAttachment(f, 'image'); e.target.value = ''
 }
 $('micBtn').onclick = async () => {
-  if (mediaRecorder && mediaRecorder.state === 'recording') {
-    mediaRecorder.stop()
-    return
-  }
+  if (mediaRecorder && mediaRecorder.state === 'recording') { mediaRecorder.stop(); return }
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
     recordedChunks = []
@@ -1792,9 +2160,7 @@ $('micBtn').onclick = async () => {
 async function uploadAttachment(file, type) {
   const ext = (file.name.split('.').pop() || (type === 'image' ? 'png' : 'webm')).toLowerCase()
   const path = `${me.id}/${Date.now()}.${ext}`
-  const { error } = await supabase.storage
-    .from('attachments')
-    .upload(path, file, { contentType: file.type, upsert: false })
+  const { error } = await supabase.storage.from('attachments').upload(path, file, { contentType: file.type, upsert: false })
   if (error) throw error
   const { data } = supabase.storage.from('attachments').getPublicUrl(path)
   return data.publicUrl
@@ -1805,26 +2171,30 @@ async function sendMessage() {
   const text = $('msgInput').value.trim()
   if (!text && !pendingAttachment) return
   $('msgInput').value = ''
-  const patch = {
-    room_id: activeRoom.id,
-    content: text || '',
-    user_email: me.email
-  }
+  const patch = { room_id: activeRoom.id, content: text || '', user_email: me.email }
   if (replyTarget) patch.reply_to = replyTarget.id
   if (pendingAttachment) {
     try {
       const url = await uploadAttachment(pendingAttachment.file, pendingAttachment.type)
       patch.attachment_url = url
       patch.attachment_type = pendingAttachment.type
-    } catch (err) {
-      alert('Upload failed: ' + err.message)
-      return
-    }
+    } catch (err) { alert('Upload failed: ' + err.message); return }
     clearPendingAttachment()
   }
+  const replyTo = replyTarget
   clearReply()
   const { error } = await supabase.from('messages').insert(patch)
-  if (error) { alert(error.message); $('msgInput').value = text }
+  if (error) { alert(error.message); $('msgInput').value = text; return }
+
+  // if this was a reply, notify the original author
+  if (replyTo && replyTo.user_email !== me.email) {
+    const title = `${displayNameFor(me.email)} replied to you`
+    const body = text.slice(0, 120) + (text.length > 120 ? '…' : '')
+    pushNotification({
+      user_email: replyTo.user_email, kind: 'reply',
+      title, body, room_id: activeRoom.id, from_email: me.email
+    })
+  }
 }
 $('btnSend').onclick = sendMessage
 $('msgInput').addEventListener('keydown', e => {
@@ -1847,12 +2217,10 @@ async function openProfilePanel(email) {
   if (p.name_color) nameText.style.color = p.name_color
   nameEl.appendChild(nameText)
   if (p.verified) nameEl.appendChild(makeVerifiedBadge())
-  const tag = makeTag(p)
-  if (tag) nameEl.appendChild(tag)
+  const tag = makeTag(p); if (tag) nameEl.appendChild(tag)
   const onlineTag = onlineEmails.has(email) ? ' · online' : ' · offline'
   $('panelPronouns').textContent = (p.pronouns || '') + onlineTag
 
-  // action buttons for calling this person
   const actions = $('panelActions')
   actions.innerHTML = ''
   if (email !== me.email) {
@@ -1883,10 +2251,8 @@ $('profilePanelClose').onclick = closeProfilePanel
 function openProfileModal() {
   $('settingsModal').classList.add('show')
   $('profileMsg').textContent = ''
-  pendingAvatarFile = null
-  pendingVerified = null
-  $('avatarInput').value = ''
-  $('secretCode').value = ''
+  pendingAvatarFile = null; pendingVerified = null
+  $('avatarInput').value = ''; $('secretCode').value = ''
   const p = myProfile || {}
   $('pfDisplayName').value = p.display_name || ''
   $('pfPronouns').value = p.pronouns || ''
@@ -1899,11 +2265,7 @@ function openProfileModal() {
 }
 $('btnSettings').onclick = openProfileModal
 $('myAvatar').onclick = openProfileModal
-$('btnCancelProfile').onclick = () => {
-  $('settingsModal').classList.remove('show')
-  pendingAvatarFile = null
-  pendingVerified = null
-}
+$('btnCancelProfile').onclick = () => { $('settingsModal').classList.remove('show'); pendingAvatarFile = null; pendingVerified = null }
 $('avatarInput').onchange = (e) => {
   const file = e.target.files?.[0]
   if (!file) return
@@ -1911,20 +2273,14 @@ $('avatarInput').onchange = (e) => {
   pendingAvatarFile = file
   const url = URL.createObjectURL(file)
   $('avatarPreview').innerHTML = ''
-  const img = document.createElement('img')
-  img.src = url
+  const img = document.createElement('img'); img.src = url
   $('avatarPreview').appendChild(img)
 }
 $('btnApplySecret').onclick = () => {
   const entered = $('secretCode').value
   const status = $('verifyStatus')
-  if (entered === ADMIN_CODE) {
-    pendingVerified = true
-    status.textContent = '✓ code accepted — save to confirm'
-  } else {
-    pendingVerified = false
-    status.textContent = 'invalid code'
-  }
+  if (entered === ADMIN_CODE) { pendingVerified = true; status.textContent = '✓ code accepted — save to confirm' }
+  else { pendingVerified = false; status.textContent = 'invalid code' }
 }
 $('btnSaveProfile').onclick = async () => {
   $('profileMsg').textContent = ''
@@ -1932,8 +2288,7 @@ $('btnSaveProfile').onclick = async () => {
   if (pendingAvatarFile) {
     const ext = (pendingAvatarFile.name.split('.').pop() || 'png').toLowerCase()
     const path = `${me.id}/avatar.${ext}`
-    const { error: upErr } = await supabase.storage
-      .from('avatars').upload(path, pendingAvatarFile, { upsert: true, contentType: pendingAvatarFile.type })
+    const { error: upErr } = await supabase.storage.from('avatars').upload(path, pendingAvatarFile, { upsert: true, contentType: pendingAvatarFile.type })
     if (upErr) { $('profileMsg').textContent = 'upload: ' + upErr.message; return }
     const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path)
     avatar_url = urlData.publicUrl + '?t=' + Date.now()
@@ -1950,39 +2305,28 @@ $('btnSaveProfile').onclick = async () => {
   }
   if (pendingVerified === true) patch.verified = true
   else if (pendingVerified === false) patch.verified = false
-  const { data, error } = await supabase.from('profiles')
-    .update(patch).eq('id', me.id).select().single()
+  const { data, error } = await supabase.from('profiles').update(patch).eq('id', me.id).select().single()
   if (error) { $('profileMsg').textContent = error.message; return }
   myProfile = data
   profileCache[me.email] = data
-  updateMySidebar()
-  renderFriends()
+  updateMySidebar(); renderFriends()
   if (activeRoom) openRoom(activeRoom.id, activeRoom.type, activeRoom.label)
   $('profileMsg').textContent = 'saved'
   setTimeout(() => $('settingsModal').classList.remove('show'), 700)
 }
 
 // =========================================================
-// ================ CALLING ================================
+// ======================== CALLING ========================
 // =========================================================
 const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
-
-function newCallId() {
-  return 'call_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)
-}
+function newCallId() { return 'call_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) }
 
 async function getMedia(kind) {
-  const constraints = {
-    audio: true,
-    video: kind === 'video'
-  }
-  try {
-    return await navigator.mediaDevices.getUserMedia(constraints)
-  } catch (err) {
+  const constraints = { audio: true, video: kind === 'video' }
+  try { return await navigator.mediaDevices.getUserMedia(constraints) }
+  catch (err) {
     if (kind === 'video') {
-      // fallback to audio if camera is missing
-      try { return await navigator.mediaDevices.getUserMedia({ audio: true, video: false }) }
-      catch (e2) { throw e2 }
+      try { return await navigator.mediaDevices.getUserMedia({ audio: true, video: false }) } catch (e2) { throw e2 }
     }
     throw err
   }
@@ -1990,82 +2334,61 @@ async function getMedia(kind) {
 
 async function startCallWith(peerEmail, kind) {
   if (callPc) { alert('Already in a call'); return }
-  if (!onlineEmails.has(peerEmail)) {
-    // allow offline? Better to warn but continue
-    if (!confirm(`${displayNameFor(peerEmail)} looks offline. Try anyway?`)) return
-  }
   currentPeer = peerEmail
   currentCallId = newCallId()
   callKind = kind
   isCaller = true
 
-  try {
-    localStream = await getMedia(kind)
-  } catch (err) {
-    alert('Could not access mic/camera: ' + err.message)
-    return
-  }
+  try { localStream = await getMedia(kind) }
+  catch (err) { alert('Could not access mic/camera: ' + err.message); return }
   if (kind === 'screen') {
-    try {
-      screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false })
-    } catch (err) {
-      localStream.getTracks().forEach(t => t.stop())
-      localStream = null
-      return
-    }
+    try { screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false }) }
+    catch (err) { localStream.getTracks().forEach(t => t.stop()); localStream = null; return }
   }
-
   await openCallChannel()
   createPeerConnection()
 
-  // add tracks
   if (kind === 'screen') {
     screenStream.getVideoTracks().forEach(t => callPc.addTrack(t, screenStream))
     localStream.getAudioTracks().forEach(t => callPc.addTrack(t, localStream))
   } else {
     localStream.getTracks().forEach(t => callPc.addTrack(t, localStream))
   }
-
-  micOn = true
-  camOn = kind === 'video'
-  screenOn = kind === 'screen'
-
-  showCallOverlay()
-  updateCallControls()
-  setCallStatus('calling…')
+  micOn = true; camOn = kind === 'video'; screenOn = kind === 'screen'
+  showCallDock(); updateCallControls(); setCallStatus('calling…')
 
   const offer = await callPc.createOffer()
   await callPc.setLocalDescription(offer)
   await sendSignal('offer', { sdp: offer, kind, callId: currentCallId })
+
+  // tell the receiver about the call so they get a notification even if they're on another room
+  await pushNotification({
+    user_email: peerEmail, kind: 'call',
+    title: `Incoming ${kind} call`,
+    body: `${displayNameFor(me.email)} is calling`,
+    from_email: me.email
+  })
+
+  // caller ringback
+  startRingtone()
 }
 
 async function openCallChannel() {
   if (callChannel) await supabase.removeChannel(callChannel)
-  // deterministic channel name based on the two emails so both sides join the same one
   const pair = [me.email, currentPeer].sort()
   const channelName = 'call:' + pair.join('|') + ':' + currentCallId
   callChannel = supabase.channel(channelName, { config: { broadcast: { self: false } } })
-
   callChannel
-    .on('broadcast', { event: 'signal' }, async ({ payload }) => {
-      await handleSignal(payload)
-    })
+    .on('broadcast', { event: 'signal' }, async ({ payload }) => { await handleSignal(payload) })
     .subscribe()
 }
-
 async function sendSignal(kind, payload) {
   if (!callChannel) return
-  await callChannel.send({
-    type: 'broadcast',
-    event: 'signal',
-    payload: { kind, from: me.email, to: currentPeer, ...payload }
-  })
+  await callChannel.send({ type: 'broadcast', event: 'signal', payload: { kind, from: me.email, to: currentPeer, ...payload } })
 }
-
 async function handleSignal(payload) {
   const { kind } = payload
   if (kind === 'offer') {
-    // only the "to" side handles offer (defensive — channel is already scoped)
     if (payload.to !== me.email) return
     incomingOffer = payload
     currentPeer = payload.from
@@ -2076,130 +2399,117 @@ async function handleSignal(payload) {
   } else if (kind === 'answer') {
     if (callPc && callPc.signalingState === 'have-local-offer') {
       await callPc.setRemoteDescription(payload.sdp)
-      setCallStatus('connected')
+      setCallStatus('connected'); stopRingtone()
     }
   } else if (kind === 'ice') {
-    if (callPc) {
-      try { await callPc.addIceCandidate(payload.candidate) } catch (e) {}
-    }
+    if (callPc) { try { await callPc.addIceCandidate(payload.candidate) } catch (e) {} }
   } else if (kind === 'end') {
     cleanupCall()
   }
 }
-
 function createPeerConnection() {
   callPc = new RTCPeerConnection(rtcConfig)
-  callPc.onicecandidate = e => {
-    if (e.candidate) sendSignal('ice', { candidate: e.candidate })
-  }
-  callPc.ontrack = (e) => {
-    remoteStream = e.streams[0]
-    attachRemoteStream()
-  }
+  callPc.onicecandidate = e => { if (e.candidate) sendSignal('ice', { candidate: e.candidate }) }
+  callPc.ontrack = (e) => { remoteStream = e.streams[0]; attachRemoteStream() }
   callPc.onconnectionstatechange = () => {
-    if (callPc.connectionState === 'connected') setCallStatus('connected')
+    if (callPc.connectionState === 'connected') { setCallStatus('connected'); stopRingtone() }
     if (['failed', 'disconnected', 'closed'].includes(callPc.connectionState)) {
-      setCallStatus('call ended')
-      setTimeout(() => cleanupCall(), 800)
+      setCallStatus('call ended'); setTimeout(() => cleanupCall(), 800)
     }
   }
 }
 
-// ===== INCOMING CALL =====
 function showIncomingCall(payload) {
   const box = $('incomingCall')
   const p = profileCache[payload.from] || {}
   const pic = $('incomingPic')
   pic.innerHTML = ''
-  if (p.avatar_url) {
-    const img = document.createElement('img')
-    img.src = p.avatar_url
-    pic.appendChild(img)
-  } else {
-    pic.textContent = initial(p.display_name || payload.from)
-  }
+  if (p.avatar_url) { const img = document.createElement('img'); img.src = p.avatar_url; pic.appendChild(img) }
+  else pic.textContent = initial(p.display_name || payload.from)
   $('incomingName').textContent = displayNameFor(payload.from)
   const kindLabel = payload.kind === 'video' ? 'video call' : payload.kind === 'screen' ? 'screen share' : 'audio call'
   $('incomingSub').textContent = 'incoming ' + kindLabel
   box.classList.add('show')
-
-  // ring notification
-  notify('Incoming Call', `${displayNameFor(payload.from)} is calling`, 'call-' + payload.callId)
+  startRingtone()
+  browserNotify('Incoming Call', `${displayNameFor(payload.from)} is calling`, 'call-' + payload.callId)
 }
 
 $('btnRejectCall').onclick = async () => {
+  stopRingtone()
   await sendSignal('end', {})
   $('incomingCall').classList.remove('show')
-  incomingOffer = null
-  cleanupCall()
+  incomingOffer = null; cleanupCall()
 }
-
 $('btnAcceptCall').onclick = async () => {
+  stopRingtone()
   $('incomingCall').classList.remove('show')
   if (!incomingOffer) return
   callKind = incomingOffer.kind || 'audio'
   isCaller = false
-
-  try {
-    localStream = await getMedia(callKind)
-  } catch (err) {
-    alert('Could not access mic/camera: ' + err.message)
-    await sendSignal('end', {})
-    cleanupCall()
-    return
-  }
-
+  try { localStream = await getMedia(callKind) }
+  catch (err) { alert('Could not access mic/camera: ' + err.message); await sendSignal('end', {}); cleanupCall(); return }
   await openCallChannel()
   createPeerConnection()
-
-  micOn = true
-  camOn = callKind === 'video'
-  screenOn = false
-
+  micOn = true; camOn = callKind === 'video'; screenOn = false
   localStream.getTracks().forEach(t => callPc.addTrack(t, localStream))
-
   await callPc.setRemoteDescription(incomingOffer.sdp)
   const answer = await callPc.createAnswer()
   await callPc.setLocalDescription(answer)
   await sendSignal('answer', { sdp: answer })
-
-  showCallOverlay()
-  updateCallControls()
-  setCallStatus('connecting…')
+  showCallDock(); updateCallControls(); setCallStatus('connecting…')
   incomingOffer = null
 }
 
-// ===== CALL OVERLAY =====
-function showCallOverlay() {
-  $('callOverlay').classList.add('show')
+function showCallDock() {
+  $('callDock').classList.add('show')
   $('callWho').textContent = displayNameFor(currentPeer)
   buildVideoGrid()
+  // default docked if user is on a DM, else floating
+  callDockFloating = activeRoom.type !== 'dm'
+  applyDockMode()
+}
+function applyDockMode() {
+  const dock = $('callDock')
+  if (callDockFloating) {
+    dock.classList.add('floating')
+    // restore saved position if any
+    const saved = sessionStorage.getItem('callDockPos')
+    if (saved) {
+      const { x, y } = JSON.parse(saved)
+      dock.style.left = x + 'px'; dock.style.top = y + 'px'
+      dock.style.right = 'auto'; dock.style.bottom = 'auto'
+    } else {
+      dock.style.left = 'auto'; dock.style.top = 'auto'
+      dock.style.right = '20px'; dock.style.bottom = '20px'
+    }
+  } else {
+    dock.classList.remove('floating')
+    dock.style.left = ''; dock.style.top = ''; dock.style.right = ''; dock.style.bottom = ''
+  }
+}
+$('ctlMode').onclick = () => {
+  callDockFloating = !callDockFloating
+  applyDockMode()
 }
 
 function buildVideoGrid() {
   const grid = $('videoGrid')
   grid.innerHTML = ''
-  grid.classList.remove('two')
-
+  grid.classList.remove('two', 'three')
   const hasVideo = callKind === 'video' || callKind === 'screen'
   const cells = hasVideo ? 2 : 1
-
   if (hasVideo) grid.classList.add('two')
 
-  // local cell
   const localCell = document.createElement('div')
   localCell.className = 'video-cell'
   const localVideo = document.createElement('video')
-  localVideo.autoplay = true
-  localVideo.muted = true
-  localVideo.playsInline = true
+  localVideo.autoplay = true; localVideo.muted = true; localVideo.playsInline = true
   if (screenStream) localVideo.srcObject = screenStream
-  else if (localStream && (callKind === 'video')) localVideo.srcObject = localStream
+  else if (localStream && callKind === 'video') localVideo.srcObject = localStream
   else {
-    // audio-only: show an icon placeholder
     localVideo.style.display = 'none'
     const ph = document.createElement('div')
-    ph.style.cssText = 'color:#333;display:flex;align-items:center;justify-content:center;height:100%;'
+    ph.className = 'video-placeholder'
     ph.innerHTML = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><use href="#i-mic"/></svg>'
     localCell.appendChild(ph)
   }
@@ -2216,8 +2526,7 @@ function buildVideoGrid() {
     remoteCell.id = 'remoteCell'
     const remoteVideo = document.createElement('video')
     remoteVideo.id = 'remoteVideoEl'
-    remoteVideo.autoplay = true
-    remoteVideo.playsInline = true
+    remoteVideo.autoplay = true; remoteVideo.playsInline = true
     remoteCell.appendChild(remoteVideo)
     const remoteBadge = document.createElement('div')
     remoteBadge.className = 'name-badge'
@@ -2227,18 +2536,12 @@ function buildVideoGrid() {
     attachRemoteStream()
   }
 }
-
 function attachRemoteStream() {
   if (!remoteStream) return
-  let rv = document.getElementById('remoteVideoEl')
-  if (!rv) {
-    // audio only — pipe to hidden audio element
-    $('remoteAudio').srcObject = remoteStream
-    return
-  }
+  const rv = document.getElementById('remoteVideoEl')
+  if (!rv) { $('remoteAudio').srcObject = remoteStream; return }
   rv.srcObject = remoteStream
 }
-
 function updateCallControls() {
   $('ctlMic').classList.toggle('on', micOn)
   $('ctlVideo').classList.toggle('on', camOn)
@@ -2247,10 +2550,7 @@ function updateCallControls() {
   $('ctlVideo').querySelector('use').setAttribute('href', camOn ? '#i-video' : '#i-video-off')
   $('ctlScreen').querySelector('use').setAttribute('href', screenOn ? '#i-screen' : '#i-screen-off')
 }
-
-function setCallStatus(text) {
-  $('callStatus').textContent = text
-}
+function setCallStatus(text) { $('callStatus').textContent = text }
 
 $('ctlMic').onclick = () => {
   if (!localStream) return
@@ -2258,7 +2558,6 @@ $('ctlMic').onclick = () => {
   localStream.getAudioTracks().forEach(t => t.enabled = micOn)
   updateCallControls()
 }
-
 $('ctlVideo').onclick = async () => {
   if (!localStream) return
   let videoTrack = localStream.getVideoTracks()[0]
@@ -2278,33 +2577,16 @@ $('ctlVideo').onclick = async () => {
     camOn = !camOn
     videoTrack.enabled = camOn
   }
-  updateCallControls()
-  buildVideoGrid()
+  updateCallControls(); buildVideoGrid()
 }
-
 $('ctlScreen').onclick = async () => {
   if (screenOn) {
-    // stop screen share
-    if (screenStream) {
-      screenStream.getTracks().forEach(t => t.stop())
-      screenStream = null
-    }
-    screenOn = false
-    updateCallControls()
-    buildVideoGrid()
-    // renegotiate so the other side knows video stopped
-    if (callPc) {
-      const senders = callPc.getSenders().filter(s => s.track && s.track.kind === 'video')
-      senders.forEach(s => { try { callPc.removeTrack(s) } catch (e) {} })
-      const offer = await callPc.createOffer()
-      await callPc.setLocalDescription(offer)
-      await sendSignal('offer', { sdp: offer, kind: callKind, callId: currentCallId, renegotiate: true })
-    }
+    if (screenStream) { screenStream.getTracks().forEach(t => t.stop()); screenStream = null }
+    screenOn = false; updateCallControls(); buildVideoGrid()
     return
   }
-  try {
-    screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false })
-  } catch (e) { return }
+  try { screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false }) }
+  catch (e) { return }
   screenOn = true
   const screenTrack = screenStream.getVideoTracks()[0]
   if (callPc) {
@@ -2313,30 +2595,50 @@ $('ctlScreen').onclick = async () => {
     else callPc.addTrack(screenTrack, screenStream)
   }
   screenTrack.onended = () => { $('ctlScreen').click() }
-  updateCallControls()
-  buildVideoGrid()
+  updateCallControls(); buildVideoGrid()
 }
-
-$('ctlEnd').onclick = async () => {
-  await sendSignal('end', {})
-  cleanupCall()
-}
+$('ctlEnd').onclick = async () => { await sendSignal('end', {}); cleanupCall() }
 
 async function cleanupCall() {
+  stopRingtone()
   try { if (callChannel) await supabase.removeChannel(callChannel) } catch (e) {}
   callChannel = null
   if (callPc) { try { callPc.close() } catch (e) {} callPc = null }
   if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null }
   if (screenStream) { screenStream.getTracks().forEach(t => t.stop()); screenStream = null }
-  remoteStream = null
-  currentPeer = null
-  currentCallId = null
-  incomingOffer = null
+  remoteStream = null; currentPeer = null; currentCallId = null; incomingOffer = null
   micOn = true; camOn = false; screenOn = false
-  $('callOverlay').classList.remove('show')
+  $('callDock').classList.remove('show')
   $('incomingCall').classList.remove('show')
   $('remoteAudio').srcObject = null
 }
+
+// ===== DRAG FOR FLOATING CALL DOCK =====
+$('callInfoBar').addEventListener('mousedown', (e) => {
+  if (!callDockFloating) return
+  if (e.target.closest('button')) return
+  const dock = $('callDock')
+  const rect = dock.getBoundingClientRect()
+  dragState = { startX: e.clientX, startY: e.clientY, originX: rect.left, originY: rect.top }
+  dock.style.left = rect.left + 'px'; dock.style.top = rect.top + 'px'
+  dock.style.right = 'auto'; dock.style.bottom = 'auto'
+  e.preventDefault()
+})
+document.addEventListener('mousemove', (e) => {
+  if (!dragState) return
+  const dx = e.clientX - dragState.startX
+  const dy = e.clientY - dragState.startY
+  const dock = $('callDock')
+  dock.style.left = (dragState.originX + dx) + 'px'
+  dock.style.top = (dragState.originY + dy) + 'px'
+})
+document.addEventListener('mouseup', () => {
+  if (dragState) {
+    const dock = $('callDock')
+    sessionStorage.setItem('callDockPos', JSON.stringify({ x: parseInt(dock.style.left), y: parseInt(dock.style.top) }))
+    dragState = null
+  }
+})
 
 // ===== TOP BAR CALL BUTTONS =====
 $('btnCall').onclick = () => {
@@ -2351,21 +2653,18 @@ $('btnScreen').onclick = () => {
   if (activeRoom.type !== 'dm') { alert('Open a whisper with a friend to call them.'); return }
   startCallWith(activeRoom.label, 'screen')
 }
-$('btnHangup').onclick = async () => {
-  await sendSignal('end', {})
-  cleanupCall()
-}
+$('btnHangup').onclick = async () => { await sendSignal('end', {}); cleanupCall() }
 
+// ===== INCOMING CALL LISTENER (via DB call_signals) =====
 function listenIncomingCalls() {
-  // Real-time DB listener for incoming offers
   if (!me) return
-  const inboxChannel = supabase.channel('inbox:' + me.email)
+  inboxChannel = supabase.channel('inbox:' + me.email)
     .on('postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'call_signals' },
       async (payload) => {
         const row = payload.new
         if (row.to_email !== me.email) return
-        if (callPc) return // already in a call
+        if (callPc) return
         if (row.kind === 'offer') {
           incomingOffer = { sdp: row.payload.sdp, kind: row.payload.kind, callId: row.call_id, from: row.from_email }
           currentPeer = row.from_email
@@ -2375,15 +2674,11 @@ function listenIncomingCalls() {
         }
       })
     .subscribe()
-  // keep a reference so we can leave it on signout
-  window.__inboxChannel = inboxChannel
 }
 
-// ===== expose ending hook =====
 window.addEventListener('beforeunload', () => {
-  if (callPc) {
-    try { callPc.close() } catch (e) {}
-  }
+  stopRingtone()
+  if (callPc) { try { callPc.close() } catch (e) {} }
 })
 </script>
 </body>
