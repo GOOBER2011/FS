@@ -291,8 +291,19 @@
   .notif-panel .np-item .np-dismiss:hover { color: #fff; }
   .notif-panel .np-empty { padding: 40px 20px; text-align: center; color: var(--ink-3); font-size: 12px; }
 
-  #incomingCall { position: fixed; inset: 0; z-index: 250; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; }
-  #incomingCall.show { display: flex !important; }
+  #incomingCall {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100vw; height: 100vh;
+    z-index: 99999;
+    background: rgba(0, 0, 0, 0.92);
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  #incomingCall.show {
+    display: flex !important;
+  }
   .incoming-box { background: #000; border: 1px solid var(--line-2); padding: 40px 40px 32px; width: 380px; max-width: 90vw; text-align: center; box-shadow: 0 40px 100px rgba(0,0,0,0.95); animation: pulseBorder 2s ease-in-out infinite; }
   .incoming-box .caller-pic { width: 88px; height: 88px; border-radius: 50%; background: var(--bg-3); border: 1px solid var(--line-2); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 500; color: #fff; overflow: hidden; margin: 0 auto 16px; animation: pulse 1.5s infinite; }
   .incoming-box .caller-pic img { width: 100%; height: 100%; object-fit: cover; }
@@ -1506,13 +1517,17 @@ $('btnRejectCall').onclick = async () => {
   dbg('declined')
   stopRingtone()
   await sendSignal('end', {})
-  $('incomingCall').classList.remove('show')
-  $('incomingCall').style.display = ''
+  const box = $('incomingCall')
+  box.classList.remove('show')
+  box.style.display = ''
   incomingOffer = null; cleanupCall()
 }
 $('btnAcceptCall').onclick = async () => {
   dbg('accepting')
-  stopRingtone(); $('incomingCall').classList.remove('show'); $('incomingCall').style.display = ''
+  stopRingtone()
+  const box = $('incomingCall')
+  box.classList.remove('show')
+  box.style.display = ''
   if (!incomingOffer) return
   callKind = incomingOffer.kind || 'audio'; isCaller = false
   try { localStream = await getMedia(callKind) }
@@ -1669,8 +1684,9 @@ async function cleanupCall() {
   remoteStream = null; currentPeer = null; currentCallId = null; incomingOffer = null
   micOn = true; camOn = false; screenOn = false
   $('callDock').classList.remove('show', 'dragging')
-  $('incomingCall').classList.remove('show')
-  $('incomingCall').style.display = ''
+  const box = $('incomingCall')
+  box.classList.remove('show')
+  box.style.display = ''
   $('remoteAudio').srcObject = null
   $('btnHangup').disabled = true
   $('btnHangup').classList.remove('end-live')
