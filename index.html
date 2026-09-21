@@ -4,19 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SUN CHAT</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='16' fill='none' stroke='%23c9c4bc' stroke-width='1.5'/%3E%3Cg stroke='%23c9c4bc' stroke-width='1.2' fill='none' stroke-linecap='round'%3E%3Cpath d='M50 8 Q52 18 50 26'/%3E%3Cpath d='M50 92 Q48 82 50 74'/%3E%3Cpath d='M8 50 Q18 48 26 50'/%3E%3Cpath d='M92 50 Q82 52 74 50'/%3E%3Cpath d='M20 20 Q27 28 32 32'/%3E%3Cpath d='M80 80 Q73 72 68 68'/%3E%3Cpath d='M20 80 Q27 72 32 68'/%3E%3Cpath d='M80 20 Q73 28 68 32'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='16' fill='none' stroke='%23d4cfc6' stroke-width='1.5'/%3E%3Cg stroke='%23d4cfc6' stroke-width='1.2' fill='none' stroke-linecap='round'%3E%3Cpath d='M50 8 Q52 18 50 26'/%3E%3Cpath d='M50 92 Q48 82 50 74'/%3E%3Cpath d='M8 50 Q18 48 26 50'/%3E%3Cpath d='M92 50 Q82 52 74 50'/%3E%3C/g%3E%3C/svg%3E">
 <style>
   :root {
-    --bg: #0a0a0a;
-    --bg-2: #111110;
-    --bg-3: #161514;
-    --line: #262421;
-    --line-2: #302d29;
-    --ink: #cfcac2;
-    --ink-2: #8a857d;
-    --ink-3: #5c5852;
-    --accent: #d4cfc6;
-    --danger: #b46b5c;
+    --bg: #0c0b0a;
+    --bg-2: #131211;
+    --bg-3: #1a1817;
+    --line: #262422;
+    --line-2: #35322e;
+    --ink: #e2ddd4;
+    --ink-2: #a39d93;
+    --ink-3: #6b6660;
+    --accent: #ddd7cb;
+    --accent-bright: #f2ece1;
+    --danger: #c17a6b;
     --serif: 'Iowan Old Style', 'Palatino Linotype', Georgia, 'Times New Roman', serif;
     --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
   }
@@ -26,27 +27,59 @@
     background: var(--bg);
     color: var(--ink);
     background-image:
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.08 0 0 0 0 0.08 0 0 0 0 0.07 0 0 0 0.35 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E"),
-      radial-gradient(ellipse at 50% -10%, rgba(200, 190, 170, 0.045), transparent 55%),
-      radial-gradient(ellipse at 50% 110%, rgba(200, 190, 170, 0.03), transparent 55%);
-  }
-  body::after {
-    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 1;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='s'%3E%3CfeTurbulence baseFrequency='0.4' numOctaves='1'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='600' height='600' filter='url(%23s)'/%3E%3C/svg%3E");
-    mix-blend-mode: overlay;
+      radial-gradient(ellipse at 50% -20%, rgba(220, 210, 190, 0.05), transparent 60%),
+      radial-gradient(ellipse at 50% 120%, rgba(220, 210, 190, 0.03), transparent 60%);
   }
 
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #2a2724; border-radius: 0; }
-  ::-webkit-scrollbar-thumb:hover { background: #3a3631; }
+  ::-webkit-scrollbar-thumb { background: #2e2b28; border-radius: 5px; }
+  ::-webkit-scrollbar-thumb:hover { background: #423e39; }
+
+  /* ============ LOADING SCREEN ============ */
+  #loader {
+    position: fixed; inset: 0; z-index: 200;
+    background: var(--bg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: opacity 0.7s ease;
+    background-image: radial-gradient(ellipse at 50% 50%, rgba(220, 210, 190, 0.06), transparent 60%);
+  }
+  #loader.hide { opacity: 0; pointer-events: none; }
+  #loader .load-sun {
+    margin-bottom: 40px;
+    animation: slow-spin 20s linear infinite;
+    filter: drop-shadow(0 0 30px rgba(220, 210, 190, 0.15));
+  }
+  @keyframes slow-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  #loader .load-title {
+    font-family: var(--serif); font-size: 30px;
+    letter-spacing: 14px; text-transform: uppercase;
+    color: var(--ink); margin-bottom: 14px;
+  }
+  #loader .load-sub {
+    font-family: var(--serif); font-style: italic;
+    font-size: 15px; color: var(--ink-3); letter-spacing: 0.5px;
+  }
+  #loader .load-bar {
+    margin-top: 44px; width: 240px; height: 1px;
+    background: var(--line); position: relative; overflow: hidden;
+  }
+  #loader .load-bar::after {
+    content: ''; position: absolute; inset: 0;
+    background: var(--accent);
+    animation: load-fill 3s cubic-bezier(0.6, 0, 0.4, 1) forwards;
+  }
+  @keyframes load-fill {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+  }
 
   /* ============ SUN ICON ============ */
   .sun-icon { display: inline-block; vertical-align: middle; }
   .sun-icon svg { display: block; }
-  .sun-icon.small svg { width: 22px; height: 22px; }
-  .sun-icon.med svg { width: 34px; height: 34px; }
-  .sun-icon.big svg { width: 110px; height: 110px; }
   .sun-svg { stroke: var(--accent); fill: none; stroke-width: 1; }
   .sun-svg .core { fill: none; stroke-width: 1.5; }
   .sun-svg .face { stroke-width: 0.8; opacity: 0.75; }
@@ -54,365 +87,358 @@
   /* ============ LOGIN ============ */
   #login {
     position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
-    z-index: 100; padding: 20px;
+    z-index: 100; padding: 24px;
+    background: radial-gradient(ellipse at 50% 50%, rgba(220, 210, 190, 0.05), transparent 70%);
   }
   .login-box {
-    background: rgba(15, 14, 13, 0.92);
-    border: 1px solid var(--line);
-    padding: 48px 40px 40px;
-    width: 400px; max-width: 100%;
-    box-shadow: 0 30px 90px rgba(0,0,0,0.9);
+    background: linear-gradient(180deg, rgba(24, 22, 20, 0.98) 0%, rgba(14, 13, 12, 0.98) 100%);
+    border: 1px solid var(--line-2);
+    padding: 68px 56px 56px;
+    width: 520px; max-width: 100%;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.85);
     position: relative;
     text-align: center;
   }
   .login-box::before, .login-box::after {
-    content: ''; position: absolute; width: 14px; height: 14px;
+    content: ''; position: absolute; width: 20px; height: 20px;
     border: 1px solid var(--line-2);
   }
   .login-box::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
   .login-box::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
 
   .login-logo {
-    display: flex; justify-content: center; margin-bottom: 14px;
-    filter: drop-shadow(0 0 22px rgba(200, 190, 170, 0.08));
+    display: flex; justify-content: center; margin-bottom: 24px;
+    filter: drop-shadow(0 0 40px rgba(220, 210, 190, 0.12));
   }
   .login-box .year {
-    font-family: var(--mono); font-size: 11px; letter-spacing: 4px;
-    color: var(--ink-3); margin-bottom: 20px;
+    font-family: var(--mono); font-size: 12px; letter-spacing: 6px;
+    color: var(--ink-3); margin-bottom: 28px;
   }
   .login-box h1 {
     font-family: var(--serif); font-weight: 400;
-    font-size: 26px; letter-spacing: 10px; margin-bottom: 8px;
+    font-size: 38px; letter-spacing: 16px; margin-bottom: 12px;
     color: var(--ink); text-transform: uppercase;
   }
   .login-box .tagline {
     font-family: var(--serif); font-style: italic;
-    font-size: 12px; color: var(--ink-3); letter-spacing: 0.5px;
-    margin-bottom: 32px;
+    font-size: 15px; color: var(--ink-3); letter-spacing: 0.5px;
+    margin-bottom: 44px; line-height: 1.6;
   }
   .login-box .rule {
-    height: 1px; background: var(--line); margin: 0 auto 28px; width: 60%;
+    height: 1px; background: var(--line); margin: 0 auto 36px; width: 50%;
   }
   .login-box input {
-    width: 100%; background: #0d0c0b; color: var(--ink);
-    border: 1px solid var(--line); padding: 12px 14px;
-    font-size: 13px; font-family: var(--mono); letter-spacing: 1px;
-    margin-bottom: 10px; outline: none; transition: 0.15s;
+    width: 100%; background: #0c0b0a; color: var(--ink);
+    border: 1px solid var(--line); padding: 16px 18px;
+    font-size: 15px; font-family: var(--mono); letter-spacing: 1.5px;
+    margin-bottom: 14px; outline: none; transition: 0.2s;
   }
   .login-box input::placeholder {
-    color: var(--ink-3); text-transform: uppercase; font-size: 11px; letter-spacing: 2px;
+    color: var(--ink-3); text-transform: uppercase; font-size: 12px; letter-spacing: 4px;
   }
-  .login-box input:focus { border-color: var(--line-2); background: #12100e; }
+  .login-box input:focus { border-color: var(--line-2); background: #151311; }
   .login-box button {
-    width: 100%; padding: 13px; border: 1px solid var(--line-2);
+    width: 100%; padding: 17px; border: 1px solid var(--line-2);
     background: transparent; color: var(--ink);
-    font-family: var(--mono); font-size: 12px; font-weight: 500;
-    letter-spacing: 3px; text-transform: uppercase; cursor: pointer;
-    margin-top: 6px; transition: 0.15s;
+    font-family: var(--mono); font-size: 13px; font-weight: 500;
+    letter-spacing: 5px; text-transform: uppercase; cursor: pointer;
+    margin-top: 8px; transition: 0.2s;
   }
-  .login-box button:hover { background: #1a1816; border-color: var(--accent); }
+  .login-box button:hover { background: #1c1a17; border-color: var(--accent); }
   .login-box button.primary {
-    background: var(--accent); color: #0a0a0a; border-color: var(--accent);
+    background: var(--accent); color: #0c0b0a; border-color: var(--accent);
   }
-  .login-box button.primary:hover { background: #e0dbd2; }
+  .login-box button.primary:hover { background: var(--accent-bright); }
   #loginMsg {
-    font-size: 11px; color: var(--danger); min-height: 16px;
-    margin-top: 14px; letter-spacing: 1px;
+    font-size: 12px; color: var(--danger); min-height: 18px;
+    margin-top: 18px; letter-spacing: 1.5px;
   }
 
   /* ============ APP ============ */
-  #app { display: none; height: 100vh; width: 100vw; position: relative; z-index: 2; }
+  #app { display: none; height: 100vh; width: 100vw; }
   .sidebar {
-    width: 272px; background: rgba(12, 11, 10, 0.85);
+    width: 300px; background: linear-gradient(180deg, #100f0e 0%, #0b0a09 100%);
     border-right: 1px solid var(--line);
     display: flex; flex-direction: column; height: 100%;
-    position: relative;
-  }
-  .sidebar::after {
-    content: ''; position: absolute; top: 0; right: -1px; bottom: 0; width: 1px;
-    background: linear-gradient(180deg, transparent, rgba(200,190,170,0.08), transparent);
   }
   .sidebar-header {
-    padding: 22px 18px 18px; border-bottom: 1px solid var(--line);
-    display: flex; align-items: center; gap: 12px;
+    padding: 28px 22px 22px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center;
   }
   .sidebar-header .brand {
     font-family: var(--serif); font-weight: 400;
-    font-size: 15px; letter-spacing: 6px; text-transform: uppercase;
+    font-size: 19px; letter-spacing: 8px; text-transform: uppercase;
     color: var(--ink);
   }
-  .sidebar-scroll { flex: 1; overflow-y: auto; padding: 12px 8px; }
+  .sidebar-scroll { flex: 1; overflow-y: auto; padding: 16px 10px; }
 
   .section-label {
-    font-family: var(--mono); font-size: 10px;
-    text-transform: uppercase; letter-spacing: 3px;
-    color: var(--ink-3); padding: 14px 12px 8px;
+    font-family: var(--mono); font-size: 11px;
+    text-transform: uppercase; letter-spacing: 4px;
+    color: var(--ink-3); padding: 20px 14px 12px;
     display: flex; justify-content: space-between; align-items: center;
   }
   .section-label button {
     background: none; border: 1px solid var(--line); color: var(--ink-2);
-    cursor: pointer; font-size: 12px; line-height: 1;
-    width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 14px; line-height: 1;
+    width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
     transition: 0.15s; font-family: var(--mono);
   }
-  .section-label button:hover { color: var(--ink); border-color: var(--line-2); background: #1a1816; }
+  .section-label button:hover { color: var(--ink); border-color: var(--line-2); background: #1c1a17; }
 
   .sidebar-item {
-    padding: 9px 12px; cursor: pointer;
-    display: flex; align-items: center; gap: 10px; font-size: 13px;
-    color: var(--ink-2); margin: 1px 0; transition: 0.12s;
+    padding: 12px 14px; cursor: pointer;
+    display: flex; align-items: center; gap: 12px; font-size: 15px;
+    color: var(--ink-2); margin: 2px 0; transition: 0.15s;
     position: relative;
-    border-left: 1px solid transparent;
+    border-left: 2px solid transparent;
   }
-  .sidebar-item:hover { background: #131211; color: var(--ink); }
+  .sidebar-item:hover { background: #161513; color: var(--ink); }
   .sidebar-item.active {
-    background: #16150f; color: var(--ink);
-    border-left: 1px solid var(--accent);
+    background: #191714; color: var(--ink);
+    border-left: 2px solid var(--accent);
   }
-  .sidebar-item .hash { color: var(--ink-3); font-family: var(--serif); font-size: 15px; width: 14px; text-align: center; }
+  .sidebar-item .hash {
+    color: var(--ink-3); font-family: var(--serif); font-size: 18px;
+    width: 18px; text-align: center;
+  }
   .sidebar-item.active .hash { color: var(--accent); }
   .sidebar-item .pending {
-    font-size: 9px; color: var(--accent); margin-left: auto;
-    border: 1px solid var(--line-2); padding: 1px 5px;
-    letter-spacing: 2px; font-weight: 500;
+    font-size: 10px; color: var(--accent); margin-left: auto;
+    border: 1px solid var(--line-2); padding: 2px 7px;
+    letter-spacing: 3px; font-weight: 500;
   }
 
   .mini-avatar {
-    width: 24px; height: 24px; background: #1a1816;
+    width: 30px; height: 30px; background: #1c1a17;
     display: flex; align-items: center; justify-content: center;
-    font-weight: 400; font-size: 11px; overflow: hidden;
+    font-weight: 400; font-size: 13px; overflow: hidden;
     border: 1px solid var(--line); flex-shrink: 0;
     color: var(--ink-2); font-family: var(--serif);
+    border-radius: 50%;
   }
-  .mini-avatar img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(0.3); }
+  .mini-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
   .user-panel {
-    padding: 14px 16px; border-top: 1px solid var(--line);
-    display: flex; align-items: center; gap: 12px;
-    background: rgba(10, 9, 8, 0.6);
+    padding: 18px 20px; border-top: 1px solid var(--line);
+    display: flex; align-items: center; gap: 14px;
+    background: rgba(10, 9, 8, 0.7);
   }
   .user-avatar {
-    width: 38px; height: 38px; background: #1a1816;
+    width: 46px; height: 46px; background: #1c1a17;
     display: flex; align-items: center; justify-content: center;
-    font-weight: 400; font-size: 14px;
+    font-weight: 400; font-size: 17px;
     border: 1px solid var(--line); overflow: hidden;
-    cursor: pointer; flex-shrink: 0; transition: 0.15s;
+    cursor: pointer; flex-shrink: 0; transition: 0.2s;
     color: var(--accent); font-family: var(--serif);
+    border-radius: 50%;
   }
   .user-avatar:hover { border-color: var(--line-2); }
-  .user-avatar img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(0.3); }
-  .user-panel .info { flex: 1; font-size: 12px; overflow: hidden; min-width: 0; }
+  .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .user-panel .info { flex: 1; font-size: 13px; overflow: hidden; min-width: 0; }
   .user-panel .info .name {
-    font-family: var(--serif); font-size: 13px; color: var(--ink);
+    font-family: var(--serif); font-size: 16px; color: var(--ink);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     letter-spacing: 0.5px;
   }
   .user-panel .info .sub {
-    color: var(--ink-3); font-size: 10px; letter-spacing: 2px;
-    text-transform: uppercase; margin-top: 2px;
+    color: var(--ink-3); font-size: 11px; letter-spacing: 3px;
+    text-transform: uppercase; margin-top: 3px;
   }
   .user-panel .icon-btn {
     background: none; border: 1px solid transparent; color: var(--ink-3);
-    cursor: pointer; font-size: 13px; padding: 5px 7px; transition: 0.15s;
+    cursor: pointer; font-size: 15px; padding: 8px 10px; transition: 0.15s;
     font-family: var(--mono);
   }
   .user-panel .icon-btn:hover { color: var(--ink); border-color: var(--line); }
 
   .main { flex: 1; display: flex; flex-direction: column; height: 100%; }
   .main-header {
-    padding: 16px 26px; border-bottom: 1px solid var(--line);
+    padding: 20px 32px; border-bottom: 1px solid var(--line);
     display: flex; align-items: center; justify-content: space-between;
-    background: rgba(10, 9, 8, 0.5); min-height: 66px;
+    background: rgba(10, 9, 8, 0.5); min-height: 80px;
   }
   .main-header .title {
-    font-family: var(--serif); font-size: 16px; font-weight: 400;
-    display: flex; align-items: center; gap: 8px; letter-spacing: 1px;
+    font-family: var(--serif); font-size: 21px; font-weight: 400;
+    display: flex; align-items: center; gap: 10px; letter-spacing: 1px;
     color: var(--ink);
   }
-  .main-header .title .hash { color: var(--accent); font-size: 18px; }
+  .main-header .title .hash { color: var(--accent); font-size: 24px; }
   .main-header .sub {
-    font-family: var(--mono); color: var(--ink-3); font-size: 10px;
-    margin-left: 10px; text-transform: uppercase; letter-spacing: 3px;
+    font-family: var(--mono); color: var(--ink-3); font-size: 11px;
+    margin-left: 12px; text-transform: uppercase; letter-spacing: 4px;
   }
-  .call-actions { display: flex; gap: 8px; align-items: center; }
+  .call-actions { display: flex; gap: 10px; align-items: center; }
   .call-actions button {
     background: transparent; border: 1px solid var(--line); color: var(--ink-2);
-    padding: 8px 16px; cursor: pointer;
-    font-family: var(--mono); font-size: 11px; font-weight: 500;
-    letter-spacing: 2px; text-transform: uppercase;
-    display: flex; align-items: center; gap: 8px;
+    padding: 12px 22px; cursor: pointer;
+    font-family: var(--mono); font-size: 12px; font-weight: 500;
+    letter-spacing: 3px; text-transform: uppercase;
+    display: flex; align-items: center; gap: 10px;
     transition: 0.15s;
   }
-  .call-actions button:hover { border-color: var(--line-2); color: var(--ink); background: #15130f; }
+  .call-actions button:hover { border-color: var(--line-2); color: var(--ink); background: #1a1817; }
   .call-actions button.active {
-    background: var(--accent); color: #0a0a0a; border-color: var(--accent);
+    background: var(--accent); color: #0c0b0a; border-color: var(--accent);
   }
   .call-actions button:disabled { opacity: 0.3; cursor: not-allowed; }
   .meter {
-    display: flex; gap: 2px; height: 26px; align-items: flex-end;
-    background: #0d0c0b; padding: 4px; border: 1px solid var(--line);
+    display: flex; gap: 3px; height: 32px; align-items: flex-end;
+    background: #0c0b0a; padding: 6px; border: 1px solid var(--line);
   }
-  .bar { width: 3px; background: #2a2724; height: 4px; }
+  .bar { width: 4px; background: #2e2b28; height: 5px; }
 
   .messages {
-    flex: 1; overflow-y: auto; padding: 26px 28px;
-    display: flex; flex-direction: column; gap: 18px;
+    flex: 1; overflow-y: auto; padding: 32px 40px;
+    display: flex; flex-direction: column; gap: 22px;
   }
-  .msg { display: flex; gap: 14px; }
+  .msg { display: flex; gap: 18px; }
   .msg .avatar {
-    width: 40px; height: 40px; background: #14120f;
+    width: 48px; height: 48px; background: #1c1a17;
     display: flex; align-items: center; justify-content: center;
-    font-size: 15px; border: 1px solid var(--line);
+    font-size: 18px; border: 1px solid var(--line);
     flex-shrink: 0; overflow: hidden;
     color: var(--accent); font-family: var(--serif);
+    border-radius: 50%;
   }
-  .msg .avatar img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(0.3); }
+  .msg .avatar img { width: 100%; height: 100%; object-fit: cover; }
   .msg .body { flex: 1; min-width: 0; }
-  .msg .meta { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; flex-wrap: wrap; }
+  .msg .meta { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; flex-wrap: wrap; }
   .msg .name {
     font-family: var(--serif); font-weight: 400;
-    font-size: 14px; color: var(--ink); letter-spacing: 0.5px;
+    font-size: 17px; color: var(--ink); letter-spacing: 0.5px;
   }
   .msg .pronouns {
-    font-family: var(--mono); font-size: 9px; color: var(--ink-3);
+    font-family: var(--mono); font-size: 10px; color: var(--ink-3);
     letter-spacing: 2px; text-transform: uppercase;
-    padding: 1px 6px; border: 1px solid var(--line);
+    padding: 2px 8px; border: 1px solid var(--line);
   }
   .msg .time {
-    font-family: var(--mono); font-size: 10px; color: var(--ink-3);
-    letter-spacing: 1px;
+    font-family: var(--mono); font-size: 11px; color: var(--ink-3);
+    letter-spacing: 1.5px;
   }
   .msg .text {
-    color: var(--ink); font-size: 14px; line-height: 1.6;
+    color: var(--ink); font-size: 16px; line-height: 1.7;
     word-break: break-word; font-family: var(--mono); font-weight: 300;
   }
 
   .composer {
-    padding: 16px 26px 22px; border-top: 1px solid var(--line);
-    display: flex; gap: 10px;
+    padding: 20px 32px 26px; border-top: 1px solid var(--line);
+    display: flex; gap: 12px;
     background: rgba(10, 9, 8, 0.4);
   }
   .composer input {
-    flex: 1; background: #0d0c0b; border: 1px solid var(--line);
-    color: var(--ink); padding: 13px 16px;
-    font-size: 13px; font-family: var(--mono); outline: none;
-    letter-spacing: 0.5px; transition: 0.15s;
+    flex: 1; background: #0c0b0a; border: 1px solid var(--line);
+    color: var(--ink); padding: 17px 20px;
+    font-size: 15px; font-family: var(--mono); outline: none;
+    letter-spacing: 0.5px; transition: 0.2s;
   }
   .composer input::placeholder {
     color: var(--ink-3); text-transform: uppercase;
-    font-size: 11px; letter-spacing: 3px;
+    font-size: 12px; letter-spacing: 4px;
   }
-  .composer input:focus { border-color: var(--line-2); background: #12100e; }
+  .composer input:focus { border-color: var(--line-2); background: #151311; }
   .composer button {
-    background: var(--accent); color: #0a0a0a; border: 1px solid var(--accent);
-    padding: 0 24px; cursor: pointer;
-    font-family: var(--mono); font-size: 11px; font-weight: 600;
-    letter-spacing: 3px; text-transform: uppercase; transition: 0.15s;
+    background: var(--accent); color: #0c0b0a; border: 1px solid var(--accent);
+    padding: 0 32px; cursor: pointer;
+    font-family: var(--mono); font-size: 12px; font-weight: 600;
+    letter-spacing: 4px; text-transform: uppercase; transition: 0.15s;
   }
-  .composer button:hover { background: #e0dbd2; }
+  .composer button:hover { background: var(--accent-bright); }
 
   /* ============ MODALS ============ */
   .modal-backdrop {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.75);
-    backdrop-filter: blur(3px);
+    position: fixed; inset: 0; background: rgba(0,0,0,0.78);
+    backdrop-filter: blur(4px);
     display: none; align-items: center; justify-content: center;
-    z-index: 90; overflow-y: auto; padding: 20px;
+    z-index: 90; overflow-y: auto; padding: 24px;
   }
   .modal-backdrop.show { display: flex; }
   .modal {
-    background: #0e0d0c; border: 1px solid var(--line);
-    padding: 28px; width: 460px; max-width: 100%;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.9);
+    background: #121110; border: 1px solid var(--line-2);
+    padding: 40px 36px; width: 520px; max-width: 100%;
+    box-shadow: 0 40px 90px rgba(0,0,0,0.9);
     position: relative;
   }
   .modal::before, .modal::after {
-    content: ''; position: absolute; width: 12px; height: 12px;
+    content: ''; position: absolute; width: 16px; height: 16px;
     border: 1px solid var(--line-2);
   }
   .modal::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
   .modal::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
   .modal h3 {
     font-family: var(--serif); font-weight: 400;
-    font-size: 16px; letter-spacing: 6px;
+    font-size: 20px; letter-spacing: 8px;
     text-transform: uppercase; color: var(--ink);
-    margin-bottom: 22px; padding-bottom: 14px;
+    margin-bottom: 28px; padding-bottom: 18px;
     border-bottom: 1px solid var(--line);
   }
   .modal label {
     display: block; font-family: var(--mono);
-    font-size: 10px; text-transform: uppercase; color: var(--ink-3);
-    margin-bottom: 6px; margin-top: 16px; letter-spacing: 3px;
+    font-size: 11px; text-transform: uppercase; color: var(--ink-3);
+    margin-bottom: 8px; margin-top: 20px; letter-spacing: 4px;
   }
   .modal input, .modal textarea {
-    width: 100%; background: #0a0908; color: var(--ink);
-    border: 1px solid var(--line); padding: 11px 13px;
-    font-size: 13px; font-family: var(--mono); outline: none;
-    resize: vertical; transition: 0.15s; letter-spacing: 0.5px;
+    width: 100%; background: #0c0b0a; color: var(--ink);
+    border: 1px solid var(--line); padding: 14px 16px;
+    font-size: 15px; font-family: var(--mono); outline: none;
+    resize: vertical; transition: 0.2s; letter-spacing: 0.5px;
   }
-  .modal textarea { min-height: 76px; }
+  .modal textarea { min-height: 96px; }
   .modal input:focus, .modal textarea:focus {
-    border-color: var(--line-2); background: #12100e;
+    border-color: var(--line-2); background: #151311;
   }
-  .modal .row { display: flex; gap: 10px; margin-top: 22px; }
+  .modal .row { display: flex; gap: 12px; margin-top: 28px; }
   .modal button {
-    padding: 11px 18px; border: 1px solid var(--line-2);
+    padding: 14px 24px; border: 1px solid var(--line-2);
     background: transparent; color: var(--ink);
-    font-family: var(--mono); font-size: 11px; font-weight: 500;
-    letter-spacing: 3px; text-transform: uppercase; cursor: pointer;
+    font-family: var(--mono); font-size: 12px; font-weight: 500;
+    letter-spacing: 4px; text-transform: uppercase; cursor: pointer;
     transition: 0.15s;
   }
-  .modal button:hover { background: #1a1816; border-color: var(--accent); }
-  .modal button.primary { background: var(--accent); color: #0a0a0a; border-color: var(--accent); }
-  .modal button.primary:hover { background: #e0dbd2; }
+  .modal button:hover { background: #1c1a17; border-color: var(--accent); }
+  .modal button.primary { background: var(--accent); color: #0c0b0a; border-color: var(--accent); }
+  .modal button.primary:hover { background: var(--accent-bright); }
   .modal .msg {
-    font-family: var(--mono); font-size: 11px; color: var(--danger);
-    min-height: 16px; margin-top: 12px; letter-spacing: 1px;
+    font-family: var(--mono); font-size: 12px; color: var(--danger);
+    min-height: 18px; margin-top: 16px; letter-spacing: 1.5px;
   }
 
-  .avatar-picker { display: flex; align-items: center; gap: 20px; margin-top: 10px; }
+  .avatar-picker { display: flex; align-items: center; gap: 24px; margin-top: 12px; }
   .avatar-preview {
-    width: 88px; height: 88px; background: #14120f;
+    width: 108px; height: 108px; background: #1c1a17;
     border: 1px solid var(--line-2); overflow: hidden; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
-    font-size: 30px; color: var(--accent); font-family: var(--serif);
+    font-size: 38px; color: var(--accent); font-family: var(--serif);
     position: relative;
+    border-radius: 50%;
   }
-  .avatar-preview::before, .avatar-preview::after {
-    content: ''; position: absolute; width: 8px; height: 8px;
-    border: 1px solid var(--line-2);
-  }
-  .avatar-preview::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
-  .avatar-preview::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
-  .avatar-preview img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(0.2); }
+  .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
   .avatar-picker input[type=file] { display: none; }
   .avatar-picker label.pick {
-    display: inline-block; padding: 10px 16px;
+    display: inline-block; padding: 13px 20px;
     border: 1px solid var(--line-2); cursor: pointer;
-    font-family: var(--mono); font-size: 11px; color: var(--ink-2);
-    letter-spacing: 2px; text-transform: uppercase; transition: 0.15s;
+    font-family: var(--mono); font-size: 12px; color: var(--ink-2);
+    letter-spacing: 3px; text-transform: uppercase; transition: 0.15s;
   }
-  .avatar-picker label.pick:hover { color: var(--ink); border-color: var(--accent); background: #1a1816; }
+  .avatar-picker label.pick:hover { color: var(--ink); border-color: var(--accent); background: #1c1a17; }
 </style>
 </head>
 <body>
 
-<!-- ============ MEDIEVAL SUN SVG (engraved style) ============ -->
-<svg width="0" height="0" style="position:absolute">
-  <symbol id="sun-symbol" viewBox="0 0 120 120">
-    <g class="sun-svg">
-      <!-- outer wavy rays -->
-      <g stroke-linecap="round" fill="none" stroke-width="0.9">
-        <!-- cardinal long rays -->
+<!-- ============ LOADING SCREEN ============ -->
+<div id="loader">
+  <div class="load-sun">
+    <svg width="130" height="130" viewBox="0 0 120 120">
+      <g stroke="#d4cfc6" fill="none" stroke-width="1" stroke-linecap="round">
         <path d="M60 4 Q62 16 60 26"/>
         <path d="M60 116 Q58 104 60 94"/>
         <path d="M4 60 Q16 58 26 60"/>
         <path d="M116 60 Q104 62 94 60"/>
-        <!-- diagonal rays -->
         <path d="M20 20 Q29 30 34 34"/>
         <path d="M100 100 Q91 90 86 86"/>
         <path d="M20 100 Q29 90 34 86"/>
         <path d="M100 20 Q91 30 86 34"/>
-        <!-- intermediate shorter rays -->
         <path d="M38 10 Q44 20 45 26"/>
         <path d="M82 10 Q76 20 75 26"/>
         <path d="M38 110 Q44 100 45 94"/>
@@ -422,23 +448,47 @@
         <path d="M110 38 Q100 44 94 45"/>
         <path d="M110 82 Q100 76 94 75"/>
       </g>
-      <!-- inner double ring (engraved border) -->
+      <circle cx="60" cy="60" r="30" stroke="#d4cfc6" fill="none" stroke-width="1.2"/>
+      <circle cx="60" cy="60" r="27" stroke="#d4cfc6" fill="none" stroke-width="0.5" opacity="0.6"/>
+    </svg>
+  </div>
+  <div class="load-title">Sun Chat</div>
+  <div class="load-sub">the sun does not count. the sun is counted.</div>
+  <div class="load-bar"></div>
+</div>
+
+<!-- ============ MEDIEVAL SUN SVG SYMBOL ============ -->
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="sun-symbol" viewBox="0 0 120 120">
+    <g class="sun-svg">
+      <g stroke-linecap="round" fill="none" stroke-width="0.9">
+        <path d="M60 4 Q62 16 60 26"/>
+        <path d="M60 116 Q58 104 60 94"/>
+        <path d="M4 60 Q16 58 26 60"/>
+        <path d="M116 60 Q104 62 94 60"/>
+        <path d="M20 20 Q29 30 34 34"/>
+        <path d="M100 100 Q91 90 86 86"/>
+        <path d="M20 100 Q29 90 34 86"/>
+        <path d="M100 20 Q91 30 86 34"/>
+        <path d="M38 10 Q44 20 45 26"/>
+        <path d="M82 10 Q76 20 75 26"/>
+        <path d="M38 110 Q44 100 45 94"/>
+        <path d="M82 110 Q76 100 75 94"/>
+        <path d="M10 38 Q20 44 26 45"/>
+        <path d="M10 82 Q20 76 26 75"/>
+        <path d="M110 38 Q100 44 94 45"/>
+        <path d="M110 82 Q100 76 94 75"/>
+      </g>
       <circle cx="60" cy="60" r="30" class="core" stroke-width="1.2"/>
       <circle cx="60" cy="60" r="27" stroke-width="0.5" opacity="0.6"/>
-      <!-- inner face (very abstract, symbolic) -->
       <g class="face" stroke-linecap="round" fill="none">
-        <!-- eyes -->
         <path d="M52 56 L56 56"/>
         <path d="M64 56 L68 56"/>
-        <!-- nose line -->
         <path d="M60 58 L60 64"/>
-        <!-- mouth -->
         <path d="M55 68 Q60 71 65 68"/>
-        <!-- cheek dots -->
         <circle cx="52" cy="63" r="0.6" fill="var(--accent)" stroke="none"/>
         <circle cx="68" cy="63" r="0.6" fill="var(--accent)" stroke="none"/>
       </g>
-      <!-- tiny crown/star motif above eyes -->
       <path d="M60 48 L61.5 51 L64.5 51.5 L62 53.5 L62.8 56.5 L60 55 L57.2 56.5 L58 53.5 L55.5 51.5 L58.5 51 Z"
             fill="var(--accent)" opacity="0.85"/>
     </g>
@@ -446,14 +496,14 @@
 </svg>
 
 <!-- LOGIN -->
-<div id="login">
+<div id="login" style="display:none">
   <div class="login-box">
     <div class="login-logo">
-      <svg class="sun-icon big" viewBox="0 0 120 120"><use href="#sun-symbol"/></svg>
+      <svg width="110" height="110" viewBox="0 0 120 120"><use href="#sun-symbol"/></svg>
     </div>
     <div class="year">MMXXV</div>
     <h1>Sun Chat</h1>
-    <div class="tagline">the sun does not count. the sun is counted.</div>
+    <div class="tagline">a place beneath the light.<br>speak. gather. be counted.</div>
     <div class="rule"></div>
     <input id="email" type="email" placeholder="email">
     <input id="pass" type="password" placeholder="password">
@@ -467,7 +517,6 @@
 <div id="app">
   <aside class="sidebar">
     <div class="sidebar-header">
-      <svg class="sun-icon med" viewBox="0 0 120 120"><use href="#sun-symbol"/></svg>
       <span class="brand">Sun Chat</span>
     </div>
     <div class="sidebar-scroll">
@@ -569,8 +618,44 @@ let profileCache = {}
 let activeRoom = { id: 'general', type: 'channel', label: 'general' }
 let chatChannel = null
 let friendsChannel = null
+let inCall = false
 let friendships = []
 let pendingAvatarFile = null
+let notifyReady = false
+
+// ================= LOADER =================
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    $('loader').classList.add('hide')
+    setTimeout(() => {
+      $('loader').style.display = 'none'
+      // Once loader is done, reveal login if not signed in
+      if (!me) $('login').style.display = 'flex'
+    }, 700)
+  }, 3000)
+})
+
+// ================= NOTIFICATIONS =================
+async function ensureNotifyPermission() {
+  if (!('Notification' in window)) return false
+  if (Notification.permission === 'granted') { notifyReady = true; return true }
+  if (Notification.permission === 'denied') return false
+  const result = await Notification.requestPermission()
+  notifyReady = result === 'granted'
+  return notifyReady
+}
+
+function notify(title, body, tag) {
+  if (!notifyReady) return
+  if (document.visibilityState === 'visible' && document.hasFocus()) return
+  try {
+    new Notification(title, {
+      body,
+      tag,
+      icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='16' fill='none' stroke='%23d4cfc6' stroke-width='2'/%3E%3C/svg%3E"
+    })
+  } catch (e) { console.warn('notify failed', e) }
+}
 
 // ================= AUTH =================
 $('btnSignin').onclick = async () => {
@@ -579,6 +664,7 @@ $('btnSignin').onclick = async () => {
     email: $('email').value, password: $('pass').value
   })
   if (error) $('loginMsg').textContent = error.message
+  else ensureNotifyPermission()
 }
 $('btnSignup').onclick = async () => {
   $('loginMsg').textContent = ''
@@ -586,6 +672,7 @@ $('btnSignup').onclick = async () => {
     email: $('email').value, password: $('pass').value
   })
   if (error) $('loginMsg').textContent = error.message
+  else ensureNotifyPermission()
 }
 $('btnSignout').onclick = async () => {
   await cleanupCall()
@@ -597,6 +684,7 @@ supabase.auth.onAuthStateChange((event, session) => {
     me = session.user
     $('login').style.display = 'none'
     $('app').style.display = 'flex'
+    ensureNotifyPermission()
     boot()
   } else {
     me = null; myProfile = null; profileCache = {}
@@ -693,9 +781,21 @@ async function loadFriendships() {
 
 function listenFriendships() {
   if (friendsChannel) return
-  friendsChannel = supabase.channel('friends:' + me.email)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'friendships' },
-      () => loadFriendships())
+  const myEmail = me.email
+  friendsChannel = supabase.channel('friends:' + myEmail)
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'friendships' },
+      async (payload) => {
+        // Notify on new incoming requests
+        if (payload.eventType === 'INSERT') {
+          const row = payload.new
+          if (row.user_b === myEmail && row.requested_by !== myEmail && row.status === 'pending') {
+            await fetchProfileByEmail(row.requested_by)
+            notify('New Kin Request', `${displayNameFor(row.requested_by)} would like to connect`, 'friend-' + row.id)
+          }
+        }
+        await loadFriendships()
+      })
     .subscribe()
 }
 
@@ -704,7 +804,7 @@ function renderFriends() {
   el.innerHTML = ''
   if (friendships.length === 0) {
     const empty = document.createElement('div')
-    empty.style.cssText = 'color:#4a4640;font-size:11px;padding:8px 12px;letter-spacing:1px'
+    empty.style.cssText = 'color:#4a4640;font-size:12px;padding:10px 14px;letter-spacing:1px'
     empty.textContent = 'no kin yet'
     el.appendChild(empty)
     return
@@ -796,12 +896,21 @@ async function openRoom(roomId, type, label) {
   $('messages').innerHTML = ''
   ;(data || []).forEach(renderMessage)
 
+  const myEmail = me.email
   chatChannel = supabase.channel('chat:' + roomId)
     .on('postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_id=eq.${roomId}` },
       async ({ new: m }) => {
         if (!profileCache[m.user_email]) await fetchProfileByEmail(m.user_email)
         renderMessage(m)
+        if (m.user_email !== myEmail) {
+          const roomLabel = type === 'dm' ? 'Whisper' : '#' + label
+          notify(
+            `${displayNameFor(m.user_email)} · ${roomLabel}`,
+            m.content.length > 100 ? m.content.slice(0, 100) + '…' : m.content,
+            roomId
+          )
+        }
       })
     .subscribe()
 }
@@ -932,11 +1041,12 @@ let pc = null, localStream = null, callChannel = null
 let audioCtx = null, analyser = null, meterRAF = null
 const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
 
-function setCallButtonState(inCall) {
-  $('btnCall').disabled = inCall
-  $('btnHangup').disabled = !inCall
-  $('btnCall').classList.toggle('active', inCall)
-  $('btnCall').textContent = inCall ? 'In Call' : 'Begin Call'
+function setCallButtonState(state) {
+  inCall = state
+  $('btnCall').disabled = state
+  $('btnHangup').disabled = !state
+  $('btnCall').classList.toggle('active', state)
+  $('btnCall').textContent = state ? 'In Call' : 'Begin Call'
 }
 
 async function ensureLocalStream() {
@@ -958,8 +1068,8 @@ function startMeter(stream) {
     analyser.getByteFrequencyData(data)
     for (let i = 0; i < bars.length; i++) {
       const v = data[i * 2] || 0
-      bars[i].style.height = (4 + (v / 255) * 20) + 'px'
-      bars[i].style.background = v > 15 ? 'var(--accent)' : '#2a2724'
+      bars[i].style.height = (5 + (v / 255) * 22) + 'px'
+      bars[i].style.background = v > 15 ? 'var(--accent)' : '#2e2b28'
     }
     meterRAF = requestAnimationFrame(tick)
   }
@@ -969,7 +1079,7 @@ function startMeter(stream) {
 function stopMeter() {
   if (meterRAF) cancelAnimationFrame(meterRAF)
   meterRAF = null
-  for (const b of $('meter').children) { b.style.height = '4px'; b.style.background = '#2a2724' }
+  for (const b of $('meter').children) { b.style.height = '5px'; b.style.background = '#2e2b28' }
 }
 
 function callRoomId() {
@@ -994,15 +1104,22 @@ function createPeer() {
 
 async function joinCallChannel() {
   if (callChannel) await supabase.removeChannel(callChannel)
+  const room = activeRoom
   callChannel = supabase.channel(callRoomId(), { config: { broadcast: { self: false } } })
 
   callChannel
     .on('broadcast', { event: 'offer' }, async ({ payload }) => {
-      if (!pc) { await ensureLocalStream(); createPeer() }
+      // incoming call — notify
+      if (!pc) {
+        const who = payload.from || 'someone'
+        notify('Incoming Call', `${displayNameFor(who)} is calling in ${room.type === 'dm' ? 'a whisper' : '#' + room.label}`, 'call-' + room.id)
+        await ensureLocalStream()
+        createPeer()
+      }
       await pc.setRemoteDescription(payload.sdp)
       const answer = await pc.createAnswer()
       await pc.setLocalDescription(answer)
-      callChannel.send({ type: 'broadcast', event: 'answer', payload: { sdp: answer } })
+      callChannel.send({ type: 'broadcast', event: 'answer', payload: { sdp: answer, from: me.email } })
     })
     .on('broadcast', { event: 'answer' }, async ({ payload }) => {
       if (pc && pc.signalingState === 'have-local-offer') {
@@ -1023,7 +1140,7 @@ async function startCall() {
     createPeer()
     const offer = await pc.createOffer()
     await pc.setLocalDescription(offer)
-    callChannel.send({ type: 'broadcast', event: 'offer', payload: { sdp: offer } })
+    callChannel.send({ type: 'broadcast', event: 'offer', payload: { sdp: offer, from: me.email } })
     setCallButtonState(true)
   } catch (e) {
     alert('Call failed: ' + e.message)
