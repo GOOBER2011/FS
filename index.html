@@ -9,11 +9,9 @@
   html, body { height: 100%; overflow: hidden; }
   body { background: #000; color: #fff; }
 
-  /* ---------- LOGIN WALL ---------- */
   #login {
     position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
-    background: radial-gradient(circle at center, #111 0%, #000 70%);
-    z-index: 100;
+    background: radial-gradient(circle at center, #111 0%, #000 70%); z-index: 100;
   }
   .login-box {
     background: #0d0d0d; border: 1px solid #2a2a2a; padding: 40px; border-radius: 16px;
@@ -28,16 +26,12 @@
   .login-box input:focus { border-color: #666; }
   .login-box button {
     width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444;
-    background: #fff; color: #000; font-weight: 600; cursor: pointer; font-size: 14px;
-    margin-top: 4px;
+    background: #fff; color: #000; font-weight: 600; cursor: pointer; font-size: 14px; margin-top: 4px;
   }
   .login-box button.ghost { background: transparent; color: #fff; margin-top: 8px; }
-  .login-box button:hover { opacity: 0.85; }
   #loginMsg { color: #f66; font-size: 13px; min-height: 18px; margin-top: 8px; }
 
-  /* ---------- APP LAYOUT ---------- */
   #app { display: none; height: 100vh; width: 100vw; }
-
   .sidebar {
     width: 280px; background: #0a0a0a; border-right: 1px solid #1e1e1e;
     display: flex; flex-direction: column; height: 100%;
@@ -48,11 +42,9 @@
     display: flex; align-items: center; gap: 8px;
   }
   .sidebar-header::before { content: "◉"; color: #fff; font-size: 18px; }
-
   .sidebar-scroll { flex: 1; overflow-y: auto; padding: 12px 8px; }
   .sidebar-scroll::-webkit-scrollbar { width: 6px; }
   .sidebar-scroll::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
-
   .section-label {
     font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
     color: #666; padding: 12px 10px 6px; font-weight: 600;
@@ -71,33 +63,40 @@
   }
   .sidebar-item:hover { background: #161616; color: #fff; }
   .sidebar-item.active { background: #1c1c1c; color: #fff; }
-  .sidebar-item .dot {
-    width: 8px; height: 8px; border-radius: 50%; background: #2a2a2a;
-  }
+  .sidebar-item .dot { width: 8px; height: 8px; border-radius: 50%; background: #2a2a2a; }
   .sidebar-item.online .dot { background: #3fff7a; }
   .sidebar-item .hash { color: #666; font-weight: 700; width: 14px; text-align: center; }
   .sidebar-item .pending { font-size: 10px; color: #f6a; margin-left: auto; }
+
+  .mini-avatar {
+    width: 24px; height: 24px; border-radius: 50%; background: #222;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 11px; overflow: hidden;
+    border: 1px solid #333; flex-shrink: 0;
+  }
+  .mini-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
   .user-panel {
     padding: 12px 16px; border-top: 1px solid #1e1e1e;
     display: flex; align-items: center; gap: 10px; background: #0d0d0d;
   }
   .user-avatar {
-    width: 32px; height: 32px; border-radius: 50%; background: #222;
+    width: 36px; height: 36px; border-radius: 50%; background: #222;
     display: flex; align-items: center; justify-content: center;
     font-weight: 700; font-size: 13px; border: 1px solid #333;
+    overflow: hidden; cursor: pointer; flex-shrink: 0;
   }
-  .user-panel .info { flex: 1; font-size: 13px; overflow: hidden; }
+  .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .user-avatar:hover { border-color: #777; }
+  .user-panel .info { flex: 1; font-size: 13px; overflow: hidden; min-width: 0; }
   .user-panel .info .name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .user-panel .info .sub { color: #666; font-size: 11px; }
-  .user-panel button {
-    background: none; border: none; color: #666; cursor: pointer; font-size: 16px;
+  .user-panel .icon-btn {
+    background: none; border: none; color: #666; cursor: pointer; font-size: 16px; padding: 4px;
   }
-  .user-panel button:hover { color: #f66; }
+  .user-panel .icon-btn:hover { color: #fff; }
 
-  .main {
-    flex: 1; display: flex; flex-direction: column; height: 100%; background: #000;
-  }
+  .main { flex: 1; display: flex; flex-direction: column; height: 100%; background: #000; }
   .main-header {
     padding: 14px 24px; border-bottom: 1px solid #1e1e1e;
     display: flex; align-items: center; justify-content: space-between;
@@ -106,7 +105,7 @@
   .main-header .title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
   .main-header .title .hash { color: #666; }
   .main-header .sub { color: #666; font-size: 12px; margin-left: 8px; font-weight: 400; }
-  .call-actions { display: flex; gap: 8px; }
+  .call-actions { display: flex; gap: 8px; align-items: center; }
   .call-actions button {
     background: #111; border: 1px solid #333; color: #fff; padding: 8px 14px;
     border-radius: 30px; cursor: pointer; font-size: 13px; font-weight: 500;
@@ -115,27 +114,26 @@
   .call-actions button:hover { background: #1e1e1e; border-color: #555; }
   .call-actions button.active { background: #fff; color: #000; border-color: #fff; }
   .call-actions button:disabled { opacity: 0.4; cursor: not-allowed; }
-
   .meter {
     display: flex; gap: 2px; height: 24px; align-items: flex-end;
     background: #111; padding: 3px; border-radius: 4px; border: 1px solid #222;
   }
   .bar { width: 4px; background: #333; border-radius: 1px; height: 4px; }
 
-  .messages {
-    flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 14px;
-  }
+  .messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 14px; }
   .messages::-webkit-scrollbar { width: 8px; }
   .messages::-webkit-scrollbar-thumb { background: #1e1e1e; border-radius: 4px; }
   .msg { display: flex; gap: 12px; }
   .msg .avatar {
-    width: 36px; height: 36px; border-radius: 50%; background: #1a1a1a;
+    width: 40px; height: 40px; border-radius: 50%; background: #1a1a1a;
     display: flex; align-items: center; justify-content: center; font-weight: 700;
-    font-size: 13px; border: 1px solid #2a2a2a; flex-shrink: 0;
+    font-size: 14px; border: 1px solid #2a2a2a; flex-shrink: 0; overflow: hidden;
   }
+  .msg .avatar img { width: 100%; height: 100%; object-fit: cover; }
   .msg .body { flex: 1; min-width: 0; }
-  .msg .meta { display: flex; align-items: baseline; gap: 8px; margin-bottom: 2px; }
+  .msg .meta { display: flex; align-items: baseline; gap: 8px; margin-bottom: 2px; flex-wrap: wrap; }
   .msg .name { font-weight: 600; font-size: 14px; }
+  .msg .pronouns { font-size: 11px; color: #888; }
   .msg .time { font-size: 11px; color: #666; }
   .msg .text { color: #ddd; font-size: 14px; line-height: 1.5; word-break: break-word; }
 
@@ -152,36 +150,55 @@
     background: #fff; color: #000; border: none; padding: 0 22px;
     border-radius: 24px; font-weight: 600; cursor: pointer; font-size: 13px;
   }
-  .composer button:hover { background: #ddd; }
 
-  /* ---------- FRIEND MODAL ---------- */
   .modal-backdrop {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    position: fixed; inset: 0; background: rgba(0,0,0,0.75);
     display: none; align-items: center; justify-content: center; z-index: 90;
+    overflow-y: auto; padding: 20px;
   }
   .modal-backdrop.show { display: flex; }
   .modal {
     background: #0d0d0d; border: 1px solid #2a2a2a; padding: 24px;
-    border-radius: 14px; width: 400px; max-width: 90vw;
+    border-radius: 14px; width: 440px; max-width: 90vw;
   }
-  .modal h3 { margin-bottom: 12px; font-size: 16px; }
-  .modal input {
+  .modal h3 { margin-bottom: 16px; font-size: 16px; }
+  .modal label {
+    display: block; font-size: 11px; text-transform: uppercase; color: #888;
+    margin-bottom: 4px; margin-top: 12px; letter-spacing: 0.5px;
+  }
+  .modal input, .modal textarea {
     width: 100%; background: #111; color: #fff; border: 1px solid #333;
-    padding: 10px 12px; border-radius: 8px; margin-bottom: 10px; font-size: 14px; outline: none;
+    padding: 10px 12px; border-radius: 8px; font-size: 14px; outline: none;
+    font-family: inherit; resize: vertical;
   }
-  .modal input:focus { border-color: #666; }
+  .modal textarea { min-height: 70px; }
+  .modal input:focus, .modal textarea:focus { border-color: #666; }
+  .modal .row { display: flex; gap: 10px; margin-top: 18px; }
   .modal button {
     padding: 10px 16px; border-radius: 8px; border: 1px solid #444;
     background: #fff; color: #000; font-weight: 600; cursor: pointer; font-size: 13px;
-    margin-right: 8px;
   }
   .modal button.ghost { background: transparent; color: #fff; }
-  .modal .msg { font-size: 12px; color: #f66; min-height: 16px; margin-top: 6px; }
+  .modal .msg { font-size: 12px; color: #f66; min-height: 16px; margin-top: 8px; }
+
+  .avatar-picker { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
+  .avatar-preview {
+    width: 80px; height: 80px; border-radius: 50%; background: #1a1a1a;
+    border: 1px solid #333; overflow: hidden; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 700;
+  }
+  .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar-picker input[type=file] { display: none; }
+  .avatar-picker label.pick {
+    display: inline-block; padding: 8px 14px; border-radius: 8px;
+    border: 1px solid #444; cursor: pointer; font-size: 13px;
+  }
+  .avatar-picker label.pick:hover { background: #1a1a1a; }
 </style>
 </head>
 <body>
 
-<!-- LOGIN WALL -->
 <div id="login">
   <div class="login-box">
     <h1>◉ Monochat</h1>
@@ -194,16 +211,12 @@
   </div>
 </div>
 
-<!-- MAIN APP -->
 <div id="app">
-
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-header">Monochat</div>
     <div class="sidebar-scroll">
       <div class="section-label">Channels</div>
       <div id="channelList"></div>
-
       <div class="section-label">
         Friends
         <button id="addFriendBtn" title="Add friend">+</button>
@@ -211,16 +224,16 @@
       <div id="friendsList"></div>
     </div>
     <div class="user-panel">
-      <div class="user-avatar" id="myAvatar">?</div>
+      <div class="user-avatar" id="myAvatar" title="Edit profile">?</div>
       <div class="info">
         <div class="name" id="myName">—</div>
-        <div class="sub">online</div>
+        <div class="sub" id="myPronouns">online</div>
       </div>
-      <button id="btnSignout" title="Sign out">⎋</button>
+      <button class="icon-btn" id="btnEditProfile" title="Edit profile">✎</button>
+      <button class="icon-btn" id="btnSignout" title="Sign out">⎋</button>
     </div>
   </aside>
 
-  <!-- MAIN -->
   <main class="main">
     <div class="main-header">
       <div class="title" id="channelTitle"><span class="hash">#</span> general</div>
@@ -234,9 +247,7 @@
         <button id="btnHangup" disabled>🔇 Hang up</button>
       </div>
     </div>
-
     <div class="messages" id="messages"></div>
-
     <div class="composer">
       <input id="msgInput" placeholder="Message...">
       <button id="btnSend">Send</button>
@@ -244,14 +255,40 @@
   </main>
 </div>
 
-<!-- ADD FRIEND MODAL -->
 <div class="modal-backdrop" id="friendModal">
   <div class="modal">
     <h3>Add a friend</h3>
     <input id="friendEmail" placeholder="friend@example.com">
-    <button id="btnSendRequest">Send request</button>
-    <button id="btnCloseModal" class="ghost">Cancel</button>
+    <div class="row">
+      <button id="btnSendRequest">Send request</button>
+      <button id="btnCloseModal" class="ghost">Cancel</button>
+    </div>
     <div class="msg" id="friendMsg"></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="profileModal">
+  <div class="modal">
+    <h3>Edit profile</h3>
+    <label>Profile picture</label>
+    <div class="avatar-picker">
+      <div class="avatar-preview" id="avatarPreview">?</div>
+      <div>
+        <input type="file" id="avatarInput" accept="image/*">
+        <label for="avatarInput" class="pick">Choose file</label>
+      </div>
+    </div>
+    <label>Display name</label>
+    <input id="pfDisplayName" placeholder="Your name">
+    <label>Pronouns</label>
+    <input id="pfPronouns" placeholder="they/them">
+    <label>Bio</label>
+    <textarea id="pfBio" placeholder="A little about you..."></textarea>
+    <div class="row">
+      <button id="btnSaveProfile">Save</button>
+      <button id="btnCancelProfile" class="ghost">Cancel</button>
+    </div>
+    <div class="msg" id="profileMsg"></div>
   </div>
 </div>
 
@@ -267,13 +304,15 @@ const supabase = createClient(
 
 const $ = id => document.getElementById(id)
 const initial = s => (s || '?').charAt(0).toUpperCase()
-const shortName = email => (email || '').split('@')[0]
 
 let me = null
+let myProfile = null
+let profileCache = {}
 let activeRoom = { id: 'general', type: 'channel', label: 'general' }
 let chatChannel = null
 let friendsChannel = null
-let friendships = []   // [{id, user_a, user_b, status, requested_by}]
+let friendships = []
+let pendingAvatarFile = null
 
 // ================= AUTH =================
 $('btnSignin').onclick = async () => {
@@ -289,8 +328,6 @@ $('btnSignup').onclick = async () => {
     email: $('email').value, password: $('pass').value
   })
   if (error) $('loginMsg').textContent = error.message
-  else $('loginMsg').style.color = '#6f6'
-  if (!error) $('loginMsg').textContent = 'Account created — signing you in...'
 }
 $('btnSignout').onclick = async () => {
   await cleanupCall()
@@ -302,11 +339,9 @@ supabase.auth.onAuthStateChange((event, session) => {
     me = session.user
     $('login').style.display = 'none'
     $('app').style.display = 'flex'
-    $('myName').textContent = shortName(me.email)
-    $('myAvatar').textContent = initial(me.email)
     boot()
   } else {
-    me = null
+    me = null; myProfile = null; profileCache = {}
     $('login').style.display = 'flex'
     $('app').style.display = 'none'
     if (chatChannel) { supabase.removeChannel(chatChannel); chatChannel = null }
@@ -314,8 +349,62 @@ supabase.auth.onAuthStateChange((event, session) => {
   }
 })
 
+// ================= PROFILE =================
+async function ensureMyProfile() {
+  const { data: existing } = await supabase
+    .from('profiles').select('*').eq('id', me.id).maybeSingle()
+  if (existing) { myProfile = existing; profileCache[me.email] = existing; return existing }
+
+  const fallbackName = me.email.split('@')[0]
+  const { data, error } = await supabase.from('profiles').insert({
+    id: me.id, email: me.email, display_name: fallbackName
+  }).select().single()
+  if (error) { console.error('profile create:', error); return null }
+  myProfile = data; profileCache[me.email] = data
+  return data
+}
+
+async function fetchProfileByEmail(email) {
+  if (profileCache[email]) return profileCache[email]
+  const { data } = await supabase.from('profiles').select('*').eq('email', email).maybeSingle()
+  if (data) profileCache[email] = data
+  return data
+}
+
+async function loadProfilesFor(emails) {
+  const missing = [...new Set(emails)].filter(e => e && !profileCache[e])
+  if (missing.length === 0) return
+  const { data } = await supabase.from('profiles').select('*').in('email', missing)
+  ;(data || []).forEach(p => profileCache[p.email] = p)
+}
+
+function renderAvatar(el, profile, fallbackText) {
+  el.innerHTML = ''
+  if (profile?.avatar_url) {
+    const img = document.createElement('img')
+    img.src = profile.avatar_url
+    el.appendChild(img)
+  } else {
+    el.textContent = initial(profile?.display_name || fallbackText || '?')
+  }
+}
+
+function displayNameFor(email) {
+  const p = profileCache[email]
+  return p?.display_name || email.split('@')[0]
+}
+
+function updateMySidebar() {
+  if (!myProfile) return
+  renderAvatar($('myAvatar'), myProfile, me.email)
+  $('myName').textContent = myProfile.display_name || me.email.split('@')[0]
+  $('myPronouns').textContent = myProfile.pronouns || 'online'
+}
+
 // ================= BOOT =================
 async function boot() {
+  await ensureMyProfile()
+  updateMySidebar()
   renderChannels()
   await loadFriendships()
   listenFriendships()
@@ -325,8 +414,7 @@ async function boot() {
 function renderChannels() {
   const el = $('channelList')
   el.innerHTML = ''
-  const chans = ['general', 'random']
-  for (const c of chans) {
+  for (const c of ['general', 'random']) {
     const div = document.createElement('div')
     div.className = 'sidebar-item' + (activeRoom.id === c ? ' active' : '')
     div.innerHTML = `<span class="hash">#</span>${c}`
@@ -337,21 +425,20 @@ function renderChannels() {
 
 // ================= FRIENDS =================
 async function loadFriendships() {
-  const { data, error } = await supabase
-    .from('friendships')
-    .select('*')
+  const { data, error } = await supabase.from('friendships').select('*')
     .or(`user_a.eq.${me.email},user_b.eq.${me.email}`)
   if (error) { console.error(error); return }
   friendships = data || []
+  const emails = friendships.map(f => f.user_a === me.email ? f.user_b : f.user_a)
+  await loadProfilesFor(emails)
   renderFriends()
 }
 
 function listenFriendships() {
   if (friendsChannel) return
   friendsChannel = supabase.channel('friends:' + me.email)
-    .on('postgres_changes',
-      { event: '*', schema: 'public', table: 'friendships' },
-      async () => { await loadFriendships() })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'friendships' },
+      () => loadFriendships())
     .subscribe()
 }
 
@@ -372,18 +459,28 @@ function renderFriends() {
 
     const div = document.createElement('div')
     div.className = 'sidebar-item online'
-    div.innerHTML = `
-      <div class="dot"></div>
-      <span>${shortName(other)}</span>
-      ${isPending ? '<span class="pending">NEW</span>' : ''}
-      ${outgoing ? '<span class="pending" style="color:#888">…</span>' : ''}
-    `
+    const avatarBox = document.createElement('div')
+    avatarBox.className = 'mini-avatar'
+    renderAvatar(avatarBox, profileCache[other], other)
+    div.appendChild(avatarBox)
+    const nameSpan = document.createElement('span')
+    nameSpan.textContent = displayNameFor(other)
+    div.appendChild(nameSpan)
     if (isPending) {
+      const b = document.createElement('span'); b.className = 'pending'; b.textContent = 'NEW'
+      div.appendChild(b)
+    } else if (outgoing) {
+      const b = document.createElement('span'); b.className = 'pending'
+      b.style.color = '#888'; b.textContent = '…'
+      div.appendChild(b)
+    }
+
+    if (isPending) {
+      div.title = 'Click to accept friend request'
       div.onclick = async () => {
         await supabase.from('friendships').update({ status: 'accepted' }).eq('id', f.id)
         await loadFriendships()
       }
-      div.title = 'Click to accept friend request'
     } else if (f.status === 'accepted') {
       const roomId = dmRoomId(me.email, other)
       div.onclick = () => openRoom(roomId, 'dm', other)
@@ -392,11 +489,8 @@ function renderFriends() {
   }
 }
 
-function dmRoomId(a, b) {
-  return 'dm:' + [a, b].sort().join('|')
-}
+function dmRoomId(a, b) { return 'dm:' + [a, b].sort().join('|') }
 
-// Add friend modal
 $('addFriendBtn').onclick = () => {
   $('friendModal').classList.add('show')
   $('friendMsg').textContent = ''
@@ -429,45 +523,60 @@ async function openRoom(roomId, type, label) {
 
   const title = $('channelTitle')
   if (type === 'dm') {
-    title.innerHTML = `<span class="hash">@</span>${label} <span class="sub">direct message</span>`
+    title.innerHTML = `<span class="hash">@</span>${displayNameFor(label)} <span class="sub">direct message</span>`
   } else {
     title.innerHTML = `<span class="hash">#</span>${label} <span class="sub">channel</span>`
   }
 
   if (chatChannel) { await supabase.removeChannel(chatChannel); chatChannel = null }
 
-  // load history
-  const { data } = await supabase.from('messages')
-    .select('*').eq('room_id', roomId)
-    .order('created_at', { ascending: true }).limit(100)
+  const { data } = await supabase.from('messages').select('*')
+    .eq('room_id', roomId).order('created_at', { ascending: true }).limit(100)
+
+  const emails = (data || []).map(m => m.user_email)
+  await loadProfilesFor(emails)
 
   $('messages').innerHTML = ''
   ;(data || []).forEach(renderMessage)
 
-  // live updates
   chatChannel = supabase.channel('chat:' + roomId)
     .on('postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_id=eq.${roomId}` },
-      ({ new: m }) => renderMessage(m))
+      async ({ new: m }) => {
+        if (!profileCache[m.user_email]) await fetchProfileByEmail(m.user_email)
+        renderMessage(m)
+      })
     .subscribe()
 }
 
 function renderMessage(m) {
   const wrap = document.createElement('div')
   wrap.className = 'msg'
+
+  const avatarDiv = document.createElement('div')
+  avatarDiv.className = 'avatar'
+  renderAvatar(avatarDiv, profileCache[m.user_email], m.user_email)
+
+  const p = profileCache[m.user_email]
   const t = new Date(m.created_at)
   const time = t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  wrap.innerHTML = `
-    <div class="avatar">${initial(m.user_email)}</div>
-    <div class="body">
-      <div class="meta">
-        <span class="name">${shortName(m.user_email)}</span>
-        <span class="time">${time}</span>
-      </div>
-      <div class="text"></div>
+
+  const body = document.createElement('div')
+  body.className = 'body'
+  body.innerHTML = `
+    <div class="meta">
+      <span class="name"></span>
+      ${p?.pronouns ? '<span class="pronouns"></span>' : ''}
+      <span class="time">${time}</span>
     </div>
+    <div class="text"></div>
   `
-  wrap.querySelector('.text').textContent = m.content
+  body.querySelector('.name').textContent = displayNameFor(m.user_email)
+  if (p?.pronouns) body.querySelector('.pronouns').textContent = p.pronouns
+  body.querySelector('.text').textContent = m.content
+
+  wrap.appendChild(avatarDiv)
+  wrap.appendChild(body)
   $('messages').appendChild(wrap)
   $('messages').scrollTop = $('messages').scrollHeight
 }
@@ -478,24 +587,92 @@ async function sendMessage() {
   if (!text) return
   $('msgInput').value = ''
   const { error } = await supabase.from('messages').insert({
-    room_id: activeRoom.id,
-    content: text,
-    user_email: me.email
+    room_id: activeRoom.id, content: text, user_email: me.email
   })
   if (error) { alert(error.message); $('msgInput').value = text }
 }
-
 $('btnSend').onclick = sendMessage
 $('msgInput').addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() }
 })
 
-// ================= CALLING =================
-let pc = null
-let localStream = null
-let callChannel = null
-let audioCtx = null, analyser = null, meterRAF = null
+// ================= PROFILE EDIT =================
+function openProfileModal() {
+  $('profileModal').classList.add('show')
+  $('profileMsg').textContent = ''
+  pendingAvatarFile = null
+  $('avatarInput').value = ''
+  const p = myProfile || {}
+  $('pfDisplayName').value = p.display_name || ''
+  $('pfPronouns').value = p.pronouns || ''
+  $('pfBio').value = p.bio || ''
+  renderAvatar($('avatarPreview'), p, me.email)
+}
+$('btnEditProfile').onclick = openProfileModal
+$('myAvatar').onclick = openProfileModal
 
+$('btnCancelProfile').onclick = () => {
+  $('profileModal').classList.remove('show')
+  pendingAvatarFile = null
+}
+
+$('avatarInput').onchange = (e) => {
+  const file = e.target.files?.[0]
+  if (!file) return
+  if (file.size > 5 * 1024 * 1024) {
+    $('profileMsg').textContent = 'Image too large (max 5MB)'
+    return
+  }
+  pendingAvatarFile = file
+  const url = URL.createObjectURL(file)
+  $('avatarPreview').innerHTML = ''
+  const img = document.createElement('img')
+  img.src = url
+  $('avatarPreview').appendChild(img)
+}
+
+$('btnSaveProfile').onclick = async () => {
+  $('profileMsg').style.color = '#f66'
+  $('profileMsg').textContent = ''
+
+  let avatar_url = myProfile?.avatar_url || null
+
+  if (pendingAvatarFile) {
+    const ext = (pendingAvatarFile.name.split('.').pop() || 'png').toLowerCase()
+    const path = `${me.id}/avatar.${ext}`
+    const { error: upErr } = await supabase.storage
+      .from('avatars')
+      .upload(path, pendingAvatarFile, { upsert: true, contentType: pendingAvatarFile.type })
+    if (upErr) { $('profileMsg').textContent = 'Upload failed: ' + upErr.message; return }
+    const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path)
+    avatar_url = urlData.publicUrl + '?t=' + Date.now()
+  }
+
+  const patch = {
+    display_name: $('pfDisplayName').value.trim() || null,
+    pronouns: $('pfPronouns').value.trim() || null,
+    bio: $('pfBio').value.trim() || null,
+    avatar_url,
+    updated_at: new Date().toISOString()
+  }
+
+  const { data, error } = await supabase.from('profiles')
+    .update(patch).eq('id', me.id).select().single()
+  if (error) { $('profileMsg').textContent = error.message; return }
+
+  myProfile = data
+  profileCache[me.email] = data
+  updateMySidebar()
+  renderFriends()
+
+  $('profileMsg').style.color = '#6f6'
+  $('profileMsg').textContent = 'Saved!'
+  setTimeout(() => $('profileModal').classList.remove('show'), 700)
+}
+
+// ================= CALLING =================
+let pc = null, localStream = null, callChannel = null
+let audioCtx = null, analyser = null, meterRAF = null
 const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
 
 function setCallButtonState(inCall) {
@@ -539,8 +716,7 @@ function stopMeter() {
 }
 
 function callRoomId() {
-  if (activeRoom.type === 'dm') return 'call:' + activeRoom.id
-  return 'call:channel:' + activeRoom.id
+  return activeRoom.type === 'dm' ? 'call:' + activeRoom.id : 'call:channel:' + activeRoom.id
 }
 
 function createPeer() {
