@@ -4,91 +4,67 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SUN CHAT</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='16' fill='none' stroke='%23ffffff' stroke-width='1.5'/%3E%3Cg stroke='%23ffffff' stroke-width='1.2' fill='none' stroke-linecap='round'%3E%3Cpath d='M50 8 Q52 18 50 26'/%3E%3Cpath d='M50 92 Q48 82 50 74'/%3E%3Cpath d='M8 50 Q18 48 26 50'/%3E%3Cpath d='M92 50 Q82 52 74 50'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg stroke='%23ffffff' fill='none' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M50 8 L52 22 L50 30'/%3E%3Cpath d='M50 92 L48 78 L50 70'/%3E%3Cpath d='M8 50 L22 48 L30 50'/%3E%3Cpath d='M92 50 L78 52 L70 50'/%3E%3Cpath d='M20 20 L30 30 L32 40'/%3E%3Cpath d='M80 80 L70 70 L68 60'/%3E%3Cpath d='M20 80 L30 70 L32 60'/%3E%3Cpath d='M80 20 L70 30 L68 40'/%3E%3C/g%3E%3C/svg%3E">
 <style>
   :root {
-    --bg: #000000;
+    --bg: #000;
     --bg-2: #0a0a0a;
     --bg-3: #141414;
-    --line: #222222;
-    --line-2: #333333;
-    --line-3: #444444;
-    --ink: #ffffff;
-    --ink-2: #aaaaaa;
-    --ink-3: #666666;
-    --ink-4: #444444;
+    --line: #1e1e1e;
+    --line-2: #2e2e2e;
+    --line-3: #444;
+    --ink: #fff;
+    --ink-2: #aaa;
+    --ink-3: #666;
+    --ink-4: #444;
     --serif: 'Iowan Old Style', 'Palatino Linotype', Georgia, 'Times New Roman', serif;
     --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
   }
   * { box-sizing: border-box; margin: 0; font-family: var(--mono); }
   html, body { height: 100%; overflow: hidden; }
-  body {
-    background: var(--bg);
-    color: var(--ink);
-  }
+  body { background: var(--bg); color: var(--ink); }
 
   ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: #444; }
+  ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
 
-  /* ============ LOADING SCREEN ============ */
+  /* ============ ICONS ============ */
+  .ico {
+    width: 16px; height: 16px; display: inline-block;
+    vertical-align: middle; flex-shrink: 0;
+    stroke: currentColor; fill: none;
+    stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .ico-sm { width: 13px; height: 13px; }
+  .ico-lg { width: 20px; height: 20px; }
+
+  /* ============ LOADER ============ */
   #loader {
-    position: fixed; inset: 0; z-index: 200;
-    background: #000;
+    position: fixed; inset: 0; z-index: 200; background: #000;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     transition: opacity 0.7s ease;
   }
   #loader.hide { opacity: 0; pointer-events: none; }
-  #loader .load-sun {
-    margin-bottom: 32px;
-    animation: slow-spin 20s linear infinite;
-  }
-  @keyframes slow-spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
+  #loader .load-sun { margin-bottom: 30px; animation: slow-spin 24s linear infinite; }
+  @keyframes slow-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
   #loader .load-title {
     font-family: var(--serif); font-size: 22px;
-    letter-spacing: 12px; text-transform: uppercase;
-    color: #fff; margin-bottom: 10px;
+    letter-spacing: 12px; text-transform: uppercase; color: #fff; margin-bottom: 8px;
   }
   #loader .load-sub {
     font-family: var(--serif); font-style: italic;
-    font-size: 12px; color: #777; letter-spacing: 0.5px;
+    font-size: 12px; color: #777;
   }
   #loader .load-bar {
-    margin-top: 36px; width: 200px; height: 1px;
+    margin-top: 32px; width: 200px; height: 1px;
     background: #222; position: relative; overflow: hidden;
   }
   #loader .load-bar::after {
-    content: ''; position: absolute; inset: 0;
-    background: #fff;
+    content: ''; position: absolute; inset: 0; background: #fff;
     animation: load-fill 3s cubic-bezier(0.6, 0, 0.4, 1) forwards;
   }
-  @keyframes load-fill {
-    from { transform: translateX(-100%); }
-    to { transform: translateX(0); }
-  }
-
-  /* ============ SUN ICON ============ */
-  .sun-icon { display: inline-block; vertical-align: middle; }
-  .sun-icon svg { display: block; }
-  .sun-svg { stroke: #ffffff; fill: none; stroke-width: 1; }
-  .sun-svg .core { fill: none; stroke-width: 1.5; }
-  .sun-svg .face { stroke-width: 0.8; opacity: 0.75; }
-
-  /* ============ VERIFIED CHECK ============ */
-  .verified {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 13px; height: 13px; border-radius: 50%;
-    background: #ffffff; color: #000;
-    font-size: 9px; font-weight: 700;
-    margin-left: 5px; flex-shrink: 0;
-    font-family: var(--mono);
-    position: relative; top: -1px;
-  }
-  .verified::after { content: '✓'; line-height: 1; }
+  @keyframes load-fill { from { transform: translateX(-100%); } to { transform: translateX(0); } }
 
   /* ============ LOGIN ============ */
   #login {
@@ -96,38 +72,29 @@
     z-index: 100; padding: 24px;
   }
   .login-box {
-    background: #000;
-    border: 1px solid var(--line-2);
-    padding: 56px 48px 46px;
-    width: 460px; max-width: 100%;
-    box-shadow: 0 40px 100px rgba(0,0,0,0.95);
-    text-align: center;
+    background: #000; border: 1px solid var(--line-2);
+    padding: 54px 46px 44px; width: 460px; max-width: 100%;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.95); text-align: center;
   }
-  .login-logo {
-    display: flex; justify-content: center; margin-bottom: 22px;
-  }
+  .login-logo { display: flex; justify-content: center; margin-bottom: 20px; }
   .login-box .year {
-    font-family: var(--mono); font-size: 10px; letter-spacing: 5px;
-    color: var(--ink-3); margin-bottom: 22px;
+    font-size: 10px; letter-spacing: 5px; color: var(--ink-3); margin-bottom: 20px;
   }
   .login-box h1 {
     font-family: var(--serif); font-weight: 400;
-    font-size: 30px; letter-spacing: 14px; margin-bottom: 10px;
+    font-size: 28px; letter-spacing: 14px; margin-bottom: 10px;
     color: #fff; text-transform: uppercase;
   }
   .login-box .tagline {
     font-family: var(--serif); font-style: italic;
-    font-size: 13px; color: var(--ink-3); letter-spacing: 0.5px;
-    margin-bottom: 36px; line-height: 1.6;
+    font-size: 12px; color: var(--ink-3); margin-bottom: 32px; line-height: 1.6;
   }
-  .login-box .rule {
-    height: 1px; background: var(--line); margin: 0 auto 30px; width: 40%;
-  }
+  .login-box .rule { height: 1px; background: var(--line); margin: 0 auto 28px; width: 40%; }
   .login-box input {
     width: 100%; background: #000; color: #fff;
     border: 1px solid var(--line-2); padding: 13px 16px;
-    font-size: 13px; font-family: var(--mono); letter-spacing: 1px;
-    margin-bottom: 12px; outline: none; transition: 0.2s;
+    font-size: 13px; letter-spacing: 1px; margin-bottom: 12px; outline: none;
+    transition: 0.15s;
   }
   .login-box input::placeholder {
     color: var(--ink-3); text-transform: uppercase; font-size: 10px; letter-spacing: 3px;
@@ -136,228 +103,338 @@
   .login-box button {
     width: 100%; padding: 14px; border: 1px solid var(--line-2);
     background: transparent; color: #fff;
-    font-family: var(--mono); font-size: 11px; font-weight: 500;
-    letter-spacing: 4px; text-transform: uppercase; cursor: pointer;
-    margin-top: 6px; transition: 0.2s;
+    font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+    cursor: pointer; margin-top: 6px; transition: 0.15s;
   }
   .login-box button:hover { background: var(--bg-3); border-color: var(--ink-2); }
-  .login-box button.primary {
-    background: #fff; color: #000; border-color: #fff;
-  }
+  .login-box button.primary { background: #fff; color: #000; border-color: #fff; }
   .login-box button.primary:hover { background: #ddd; }
-  #loginMsg {
-    font-size: 11px; color: #fff; min-height: 16px;
-    margin-top: 14px; letter-spacing: 1px;
-  }
+  #loginMsg { font-size: 11px; min-height: 16px; margin-top: 14px; letter-spacing: 1px; }
 
-  /* ============ APP ============ */
+  /* ============ APP LAYOUT ============ */
   #app { display: none; height: 100vh; width: 100vw; }
   .sidebar {
-    width: 260px; background: #000;
-    border-right: 1px solid var(--line);
+    width: 240px; background: #000; border-right: 1px solid var(--line);
     display: flex; flex-direction: column; height: 100%;
+    transition: width 0.2s ease;
+    overflow: hidden;
+    flex-shrink: 0;
   }
+  .sidebar.collapsed { width: 48px; }
   .sidebar-header {
-    padding: 22px 18px 18px; border-bottom: 1px solid var(--line);
-    display: flex; align-items: center;
+    padding: 18px 16px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    min-height: 56px;
   }
   .sidebar-header .brand {
     font-family: var(--serif); font-weight: 400;
-    font-size: 15px; letter-spacing: 7px; text-transform: uppercase;
-    color: #fff;
+    font-size: 14px; letter-spacing: 6px; text-transform: uppercase;
+    color: #fff; white-space: nowrap; overflow: hidden;
   }
+  .sidebar.collapsed .brand { display: none; }
+  .sidebar-toggle {
+    background: none; border: none; color: var(--ink-3);
+    cursor: pointer; padding: 4px; transition: 0.15s;
+    flex-shrink: 0;
+  }
+  .sidebar-toggle:hover { color: #fff; }
+
   .sidebar-scroll { flex: 1; overflow-y: auto; padding: 10px 6px; }
+  .sidebar.collapsed .sidebar-scroll { padding: 10px 4px; }
+  .sidebar.collapsed .section-label,
+  .sidebar.collapsed .section-content { display: none; }
 
   .section-label {
-    font-family: var(--mono); font-size: 9px;
-    text-transform: uppercase; letter-spacing: 3px;
-    color: var(--ink-3); padding: 14px 12px 6px;
+    font-size: 9px; text-transform: uppercase; letter-spacing: 3px;
+    color: var(--ink-3); padding: 12px 10px 6px;
     display: flex; justify-content: space-between; align-items: center;
-    cursor: pointer;
-    user-select: none;
-    transition: 0.15s;
+    cursor: pointer; user-select: none;
   }
-  .section-label:hover { color: var(--ink-2); }
-  .section-label .chev {
-    font-size: 10px; transition: transform 0.2s;
-    margin-right: 4px;
-  }
+  .section-label .left { display: flex; align-items: center; gap: 6px; }
+  .section-label .chev { font-size: 9px; transition: transform 0.2s; }
   .section-label.collapsed .chev { transform: rotate(-90deg); }
-  .section-label .left {
-    display: flex; align-items: center; gap: 6px;
-  }
   .section-label button {
     background: none; border: 1px solid var(--line); color: var(--ink-2);
     cursor: pointer; font-size: 11px; line-height: 1;
     width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
-    transition: 0.15s; font-family: var(--mono);
   }
   .section-label button:hover { color: #fff; border-color: var(--ink-2); }
   .section-content { overflow: hidden; transition: max-height 0.2s ease; }
-  .section-content.collapsed { max-height: 0 !important; }
 
   .sidebar-item {
-    padding: 8px 12px; cursor: pointer;
-    display: flex; align-items: center; gap: 9px; font-size: 12px;
-    color: var(--ink-2); margin: 1px 0; transition: 0.15s;
+    padding: 7px 10px; cursor: pointer;
+    display: flex; align-items: center; gap: 8px; font-size: 12px;
+    color: var(--ink-2); margin: 1px 0; transition: 0.12s;
+    border-left: 2px solid transparent; border-radius: 3px;
     position: relative;
-    border-left: 2px solid transparent;
-    border-radius: 4px;
+    white-space: nowrap; overflow: hidden;
   }
   .sidebar-item:hover { background: var(--bg-3); color: #fff; }
   .sidebar-item.active {
-    background: var(--bg-3); color: #fff;
-    border-left: 2px solid #fff;
+    background: var(--bg-3); color: #fff; border-left-color: #fff;
   }
-  .sidebar-item .hash {
-    color: var(--ink-3); font-family: var(--serif); font-size: 14px;
-    width: 14px; text-align: center;
-  }
+  .sidebar-item .hash { color: var(--ink-3); font-family: var(--serif); font-size: 13px; width: 12px; text-align: center; }
   .sidebar-item.active .hash { color: #fff; }
   .sidebar-item .pending {
     font-size: 8px; color: #fff; margin-left: auto;
-    border: 1px solid var(--line-3); padding: 1px 5px;
-    letter-spacing: 2px; font-weight: 500;
+    border: 1px solid var(--line-3); padding: 1px 4px;
+    letter-spacing: 2px;
   }
+  .sidebar.collapsed .sidebar-item .label-text,
+  .sidebar.collapsed .sidebar-item .pending { display: none; }
+  .sidebar.collapsed .sidebar-item { justify-content: center; padding: 8px 4px; }
 
   .mini-avatar {
-    width: 22px; height: 22px; background: var(--bg-3);
+    width: 20px; height: 20px; background: var(--bg-3);
     display: flex; align-items: center; justify-content: center;
-    font-weight: 400; font-size: 10px; overflow: hidden;
+    font-size: 10px; overflow: hidden;
     border: 1px solid var(--line-2); flex-shrink: 0;
-    color: var(--ink-2); font-family: var(--serif);
-    border-radius: 50%;
+    color: var(--ink-2); font-family: var(--serif); border-radius: 50%;
   }
   .mini-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
   .user-panel {
-    padding: 12px 14px; border-top: 1px solid var(--line);
-    display: flex; align-items: center; gap: 10px;
-    background: #000;
+    padding: 10px 12px; border-top: 1px solid var(--line);
+    display: flex; align-items: center; gap: 8px; background: #000;
   }
+  .sidebar.collapsed .user-panel { flex-direction: column; padding: 10px 4px; gap: 6px; }
+  .sidebar.collapsed .user-panel .info,
+  .sidebar.collapsed .user-panel .icon-btn { display: none; }
   .user-avatar {
-    width: 36px; height: 36px; background: var(--bg-3);
+    width: 32px; height: 32px; background: var(--bg-3);
     display: flex; align-items: center; justify-content: center;
-    font-weight: 400; font-size: 13px;
-    border: 1px solid var(--line-2); overflow: hidden;
-    cursor: pointer; flex-shrink: 0; transition: 0.2s;
-    color: #fff; font-family: var(--serif);
-    border-radius: 50%;
+    font-size: 12px; border: 1px solid var(--line-2);
+    overflow: hidden; cursor: pointer; flex-shrink: 0;
+    color: #fff; font-family: var(--serif); border-radius: 50%;
   }
   .user-avatar:hover { border-color: var(--ink-2); }
   .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
   .user-panel .info { flex: 1; font-size: 11px; overflow: hidden; min-width: 0; }
   .user-panel .info .name {
-    font-family: var(--serif); font-size: 13px; color: #fff;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    letter-spacing: 0.3px;
+    font-family: var(--serif); font-size: 12px; color: #fff;
     display: flex; align-items: center;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .user-panel .info .sub {
     color: var(--ink-3); font-size: 9px; letter-spacing: 2px;
     text-transform: uppercase; margin-top: 2px;
   }
   .user-panel .icon-btn {
-    background: none; border: 1px solid transparent; color: var(--ink-3);
-    cursor: pointer; font-size: 13px; padding: 5px 7px; transition: 0.15s;
-    font-family: var(--mono);
+    background: none; border: none; color: var(--ink-3);
+    cursor: pointer; padding: 4px; transition: 0.15s;
+    display: flex; align-items: center;
   }
-  .user-panel .icon-btn:hover { color: #fff; border-color: var(--line); }
+  .user-panel .icon-btn:hover { color: #fff; }
 
-  .main { flex: 1; display: flex; flex-direction: column; height: 100%; background: #000; }
+  /* ============ MAIN ============ */
+  .main { flex: 1; display: flex; flex-direction: row; height: 100%; min-width: 0; }
+  .chat-col { flex: 1; display: flex; flex-direction: column; min-width: 0; }
   .main-header {
-    padding: 16px 26px; border-bottom: 1px solid var(--line);
+    padding: 14px 22px; border-bottom: 1px solid var(--line);
     display: flex; align-items: center; justify-content: space-between;
-    background: #000; min-height: 64px;
+    background: #000; min-height: 58px;
   }
   .main-header .title {
-    font-family: var(--serif); font-size: 17px; font-weight: 400;
-    display: flex; align-items: center; gap: 8px; letter-spacing: 0.5px;
-    color: #fff;
+    font-family: var(--serif); font-size: 15px;
+    display: flex; align-items: center; gap: 6px; color: #fff;
   }
-  .main-header .title .hash { color: #fff; font-size: 19px; }
+  .main-header .title .hash { color: #fff; font-size: 17px; }
   .main-header .sub {
-    font-family: var(--mono); color: var(--ink-3); font-size: 9px;
-    margin-left: 10px; text-transform: uppercase; letter-spacing: 3px;
+    color: var(--ink-3); font-size: 9px;
+    margin-left: 8px; text-transform: uppercase; letter-spacing: 3px;
   }
-  .call-actions { display: flex; gap: 8px; align-items: center; }
+  .call-actions { display: flex; gap: 6px; align-items: center; }
   .call-actions button {
     background: transparent; border: 1px solid var(--line-2); color: var(--ink-2);
-    padding: 9px 16px; cursor: pointer;
-    font-family: var(--mono); font-size: 10px; font-weight: 500;
+    padding: 8px 14px; cursor: pointer; font-size: 10px;
     letter-spacing: 2px; text-transform: uppercase;
-    display: flex; align-items: center; gap: 8px;
-    transition: 0.15s;
-    border-radius: 4px;
+    display: flex; align-items: center; gap: 6px;
+    transition: 0.15s; border-radius: 3px;
   }
   .call-actions button:hover { border-color: var(--ink-2); color: #fff; }
-  .call-actions button.active {
-    background: #fff; color: #000; border-color: #fff;
-  }
+  .call-actions button.active { background: #fff; color: #000; border-color: #fff; }
   .call-actions button:disabled { opacity: 0.3; cursor: not-allowed; }
   .meter {
-    display: flex; gap: 2px; height: 26px; align-items: flex-end;
-    background: #000; padding: 4px; border: 1px solid var(--line-2);
-    border-radius: 4px;
+    display: flex; gap: 2px; height: 22px; align-items: flex-end;
+    background: #000; padding: 3px; border: 1px solid var(--line-2); border-radius: 3px;
   }
-  .bar { width: 3px; background: #222; height: 4px; border-radius: 1px; }
+  .bar { width: 3px; background: #222; height: 3px; border-radius: 1px; }
 
   .messages {
-    flex: 1; overflow-y: auto; padding: 22px 30px;
-    display: flex; flex-direction: column; gap: 16px;
+    flex: 1; overflow-y: auto; padding: 20px 28px;
+    display: flex; flex-direction: column; gap: 12px;
   }
-  .msg { display: flex; gap: 14px; }
+  .msg {
+    display: flex; gap: 12px; padding: 6px 8px;
+    border-radius: 4px; position: relative;
+    transition: background 0.12s;
+  }
+  .msg:hover { background: #0a0a0a; }
   .msg .avatar {
-    width: 38px; height: 38px; background: var(--bg-3);
+    width: 34px; height: 34px; background: var(--bg-3);
     display: flex; align-items: center; justify-content: center;
-    font-size: 14px; border: 1px solid var(--line-2);
+    font-size: 13px; border: 1px solid var(--line-2);
     flex-shrink: 0; overflow: hidden;
-    color: #fff; font-family: var(--serif);
-    border-radius: 50%;
+    color: #fff; font-family: var(--serif); border-radius: 50%;
   }
   .msg .avatar img { width: 100%; height: 100%; object-fit: cover; }
   .msg .body { flex: 1; min-width: 0; }
   .msg .meta {
     display: flex; align-items: baseline; gap: 8px;
-    margin-bottom: 3px; flex-wrap: wrap;
+    margin-bottom: 2px; flex-wrap: wrap;
   }
   .msg .name {
-    font-family: var(--serif); font-weight: 400;
-    font-size: 13px; color: #fff; letter-spacing: 0.3px;
-    display: flex; align-items: center;
+    font-family: var(--serif); font-size: 13px; color: #fff;
+    display: flex; align-items: center; letter-spacing: 0.3px;
   }
-  .msg .time {
-    font-family: var(--mono); font-size: 9px; color: var(--ink-3);
-    letter-spacing: 1px;
-  }
+  .msg .time { font-size: 9px; color: var(--ink-3); letter-spacing: 1px; }
   .msg .text {
-    color: var(--ink); font-size: 13px; line-height: 1.6;
-    word-break: break-word; font-family: var(--mono); font-weight: 300;
+    color: var(--ink); font-size: 13px; line-height: 1.55;
+    word-break: break-word; font-weight: 300;
+  }
+  .msg.deleted .text {
+    color: var(--ink-4); font-style: italic;
   }
 
-  .composer {
-    padding: 14px 26px 18px; border-top: 1px solid var(--line);
-    display: flex; gap: 10px; background: #000;
+  .msg .reply-context {
+    border-left: 2px solid var(--line-3);
+    padding: 2px 8px; margin-bottom: 4px;
+    font-size: 11px; color: var(--ink-3);
+    display: flex; align-items: center; gap: 6px;
+    cursor: pointer;
   }
+  .msg .reply-context .who { color: #fff; font-weight: 500; }
+
+  .msg .reactions {
+    display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap;
+  }
+  .reaction-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    border: 1px solid var(--line-2); border-radius: 10px;
+    padding: 2px 7px; font-size: 11px; color: var(--ink-2);
+    cursor: pointer; transition: 0.12s; background: #000;
+    user-select: none;
+  }
+  .reaction-pill:hover { border-color: var(--ink-2); color: #fff; }
+  .reaction-pill.mine { border-color: #fff; color: #fff; background: var(--bg-3); }
+  .reaction-pill .rc { font-size: 11px; }
+
+  .msg .msg-actions {
+    position: absolute; top: -8px; right: 8px;
+    display: none; gap: 2px;
+    background: #0a0a0a; border: 1px solid var(--line-2);
+    border-radius: 5px; padding: 3px;
+  }
+  .msg:hover .msg-actions { display: flex; }
+  .msg-actions button {
+    background: none; border: none; cursor: pointer;
+    color: var(--ink-2); padding: 4px 5px; border-radius: 3px;
+    display: flex; align-items: center;
+  }
+  .msg-actions button:hover { color: #fff; background: var(--bg-3); }
+
+  /* Emoji picker for reactions */
+  .reaction-picker {
+    position: fixed; z-index: 80;
+    background: #0a0a0a; border: 1px solid var(--line-2);
+    padding: 6px; border-radius: 6px;
+    display: none; gap: 2px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  }
+  .reaction-picker.show { display: flex; }
+  .reaction-picker button {
+    background: none; border: none; cursor: pointer;
+    padding: 5px 6px; border-radius: 4px; color: var(--ink-2);
+    display: flex; align-items: center;
+  }
+  .reaction-picker button:hover { background: var(--bg-3); color: #fff; }
+
+  .composer {
+    padding: 12px 22px 16px; border-top: 1px solid var(--line);
+    background: #000;
+  }
+  .composer .reply-banner {
+    display: none; padding: 6px 10px; margin-bottom: 8px;
+    border-left: 2px solid var(--line-3); font-size: 11px;
+    color: var(--ink-3); background: #0a0a0a; border-radius: 3px;
+    justify-content: space-between; align-items: center;
+  }
+  .composer .reply-banner.show { display: flex; }
+  .composer .reply-banner .rb-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .composer .reply-banner .who { color: #fff; }
+  .composer .reply-banner button {
+    background: none; border: none; color: var(--ink-3);
+    cursor: pointer; padding: 2px 6px;
+  }
+  .composer .reply-banner button:hover { color: #fff; }
+  .composer .input-row { display: flex; gap: 10px; }
   .composer input {
     flex: 1; background: #000; border: 1px solid var(--line-2);
     color: #fff; padding: 12px 16px;
-    font-size: 12px; font-family: var(--mono); outline: none;
-    letter-spacing: 0.5px; transition: 0.2s; border-radius: 4px;
+    font-size: 12px; outline: none; border-radius: 4px;
+    transition: 0.15s;
   }
   .composer input::placeholder {
     color: var(--ink-3); text-transform: uppercase;
     font-size: 10px; letter-spacing: 3px;
   }
   .composer input:focus { border-color: var(--ink-2); }
-  .composer button {
+  .composer button.send {
     background: #fff; color: #000; border: 1px solid #fff;
-    padding: 0 24px; cursor: pointer;
-    font-family: var(--mono); font-size: 10px; font-weight: 600;
-    letter-spacing: 3px; text-transform: uppercase; transition: 0.15s;
-    border-radius: 4px;
+    padding: 0 22px; cursor: pointer; font-size: 10px;
+    letter-spacing: 3px; text-transform: uppercase;
+    border-radius: 4px; display: flex; align-items: center; gap: 6px;
   }
-  .composer button:hover { background: #ddd; }
+  .composer button.send:hover { background: #ddd; }
+
+  /* ============ RIGHT PROFILE PANEL ============ */
+  .profile-panel {
+    width: 0; background: #000; border-left: 1px solid var(--line);
+    overflow: hidden; transition: width 0.2s ease;
+    flex-shrink: 0;
+  }
+  .profile-panel.open { width: 280px; }
+  .profile-inner {
+    width: 280px; padding: 24px 20px;
+    display: flex; flex-direction: column;
+  }
+  .profile-close {
+    align-self: flex-end; background: none; border: none;
+    color: var(--ink-3); cursor: pointer; padding: 4px;
+    margin-bottom: 4px;
+  }
+  .profile-close:hover { color: #fff; }
+  .profile-pic {
+    width: 96px; height: 96px; border-radius: 50%;
+    background: var(--bg-3); border: 1px solid var(--line-2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-size: 34px; color: #fff;
+    overflow: hidden; margin: 0 auto 16px;
+  }
+  .profile-pic img { width: 100%; height: 100%; object-fit: cover; }
+  .profile-name {
+    font-family: var(--serif); font-size: 18px; color: #fff;
+    text-align: center; letter-spacing: 0.5px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    margin-bottom: 4px;
+  }
+  .profile-pronouns {
+    font-size: 10px; color: var(--ink-3);
+    text-align: center; letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 20px;
+  }
+  .profile-section {
+    border-top: 1px solid var(--line); padding-top: 14px; margin-top: 14px;
+  }
+  .profile-section-label {
+    font-size: 9px; color: var(--ink-3); letter-spacing: 3px;
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .profile-bio {
+    font-size: 12px; color: var(--ink-2); line-height: 1.6;
+    word-break: break-word;
+  }
+  .profile-bio.empty { color: var(--ink-4); font-style: italic; }
 
   /* ============ MODALS ============ */
   .modal-backdrop {
@@ -368,149 +445,161 @@
   .modal-backdrop.show { display: flex; }
   .modal {
     background: #000; border: 1px solid var(--line-2);
-    padding: 28px; width: 440px; max-width: 100%;
+    padding: 26px; width: 440px; max-width: 100%;
     box-shadow: 0 40px 90px rgba(0,0,0,0.95);
   }
   .modal h3 {
     font-family: var(--serif); font-weight: 400;
     font-size: 15px; letter-spacing: 6px;
     text-transform: uppercase; color: #fff;
-    margin-bottom: 20px; padding-bottom: 12px;
+    margin-bottom: 18px; padding-bottom: 12px;
     border-bottom: 1px solid var(--line);
   }
   .modal label {
-    display: block; font-family: var(--mono);
-    font-size: 9px; text-transform: uppercase; color: var(--ink-3);
-    margin-bottom: 6px; margin-top: 14px; letter-spacing: 3px;
+    display: block; font-size: 9px; text-transform: uppercase;
+    color: var(--ink-3); margin-bottom: 6px; margin-top: 14px;
+    letter-spacing: 3px;
   }
   .modal input, .modal textarea {
     width: 100%; background: #000; color: #fff;
     border: 1px solid var(--line-2); padding: 10px 12px;
-    font-size: 12px; font-family: var(--mono); outline: none;
-    resize: vertical; transition: 0.2s; letter-spacing: 0.5px;
-    border-radius: 4px;
+    font-size: 12px; outline: none; resize: vertical;
+    border-radius: 4px; transition: 0.15s;
   }
   .modal textarea { min-height: 72px; }
   .modal input:focus, .modal textarea:focus { border-color: var(--ink-2); }
-  .modal .row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+  .modal .row { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
   .modal button {
     padding: 10px 16px; border: 1px solid var(--line-2);
     background: transparent; color: #fff;
-    font-family: var(--mono); font-size: 10px; font-weight: 500;
-    letter-spacing: 3px; text-transform: uppercase; cursor: pointer;
-    transition: 0.15s; border-radius: 4px;
+    font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+    cursor: pointer; border-radius: 4px; transition: 0.15s;
   }
   .modal button:hover { background: var(--bg-3); border-color: var(--ink-2); }
   .modal button.primary { background: #fff; color: #000; border-color: #fff; }
   .modal button.primary:hover { background: #ddd; }
-  .modal .msg {
-    font-family: var(--mono); font-size: 10px; color: #fff;
-    min-height: 14px; margin-top: 10px; letter-spacing: 1px;
-  }
+  .modal .msg { font-size: 10px; min-height: 14px; margin-top: 10px; letter-spacing: 1px; }
 
   .avatar-picker { display: flex; align-items: center; gap: 18px; margin-top: 8px; }
   .avatar-preview {
     width: 84px; height: 84px; background: var(--bg-3);
-    border: 1px solid var(--line-2); overflow: hidden; flex-shrink: 0;
+    border: 1px solid var(--line-2); overflow: hidden;
     display: flex; align-items: center; justify-content: center;
     font-size: 28px; color: #fff; font-family: var(--serif);
-    border-radius: 50%;
+    border-radius: 50%; flex-shrink: 0;
   }
   .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
   .avatar-picker input[type=file] { display: none; }
   .avatar-picker label.pick {
     display: inline-block; padding: 10px 16px;
     border: 1px solid var(--line-2); cursor: pointer;
-    font-family: var(--mono); font-size: 10px; color: var(--ink-2);
-    letter-spacing: 2px; text-transform: uppercase; transition: 0.15s;
+    font-size: 10px; color: var(--ink-2);
+    letter-spacing: 2px; text-transform: uppercase;
     border-radius: 4px;
   }
   .avatar-picker label.pick:hover { color: #fff; border-color: var(--ink-2); }
 
-  /* Verification secret code box */
-  .secret-row {
-    display: flex; gap: 8px; margin-top: 8px;
-  }
+  .secret-row { display: flex; gap: 8px; margin-top: 8px; }
   .secret-row input { flex: 1; }
   .secret-row button { padding: 10px 14px; }
+  #verifyStatus { font-size: 10px; color: var(--ink-3); margin-top: 8px; letter-spacing: 1px; min-height: 14px; }
+
+  .verified {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 13px; height: 13px; border-radius: 50%;
+    background: #fff; color: #000; margin-left: 5px;
+    flex-shrink: 0; position: relative; top: -1px;
+  }
+  .verified svg { width: 8px; height: 8px; stroke: #000; stroke-width: 3; fill: none; }
 </style>
 </head>
 <body>
 
-<!-- ============ LOADING SCREEN ============ -->
+<!-- ============ SVG ICON LIBRARY ============ -->
+<svg width="0" height="0" style="position:absolute">
+  <!-- Sun symbol with wavy rays (no face) — inspired by reference -->
+  <symbol id="i-sun" viewBox="0 0 100 100">
+    <g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+      <!-- core circle -->
+      <circle cx="50" cy="50" r="18" stroke-width="2.4"/>
+      <!-- wavy rays -->
+      <path d="M50 6 Q53 14 50 22"/>
+      <path d="M50 94 Q47 86 50 78"/>
+      <path d="M6 50 Q14 47 22 50"/>
+      <path d="M94 50 Q86 53 78 50"/>
+      <path d="M18 18 Q26 24 30 30"/>
+      <path d="M82 82 Q74 76 70 70"/>
+      <path d="M18 82 Q26 76 30 70"/>
+      <path d="M82 18 Q74 24 70 30"/>
+      <path d="M33 10 Q38 18 40 24"/>
+      <path d="M67 10 Q62 18 60 24"/>
+      <path d="M33 90 Q38 82 40 76"/>
+      <path d="M67 90 Q62 82 60 76"/>
+      <path d="M10 33 Q18 38 24 40"/>
+      <path d="M10 67 Q18 62 24 60"/>
+      <path d="M90 33 Q82 38 76 40"/>
+      <path d="M90 67 Q82 62 76 60"/>
+    </g>
+  </symbol>
+
+  <!-- Chevron -->
+  <symbol id="i-chev" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></symbol>
+  <!-- Plus -->
+  <symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+  <!-- Gear / Settings -->
+  <symbol id="i-gear" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 8.9 19a1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 8.9a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>
+  </symbol>
+  <!-- Logout -->
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+  <!-- Menu / hamburger -->
+  <symbol id="i-menu" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+  <!-- Phone (call) -->
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></symbol>
+  <!-- Phone off -->
+  <symbol id="i-phone-off" viewBox="0 0 24 24"><path d="M10.7 13.3a16 16 0 0 0 2.4 2.3l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 2.7 3.7z"/><line x1="2" y1="2" x2="22" y2="22"/></symbol>
+  <!-- Send (arrow up) -->
+  <symbol id="i-send" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></symbol>
+  <!-- Reply -->
+  <symbol id="i-reply" viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></symbol>
+  <!-- Trash -->
+  <symbol id="i-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></symbol>
+  <!-- Smile / reaction -->
+  <symbol id="i-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></symbol>
+  <!-- Check (for verified) -->
+  <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+  <!-- Close / X -->
+  <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+  <!-- Thumbs up (reaction 1) -->
+  <symbol id="i-thumb" viewBox="0 0 24 24"><path d="M7 22V11l5-9a2 2 0 0 1 3 2v5h5a2 2 0 0 1 2 2l-2 9a2 2 0 0 1-2 2z"/></symbol>
+  <!-- Heart (reaction 2) -->
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></symbol>
+  <!-- Laugh (reaction 3) -->
+  <symbol id="i-laugh" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 3 4 3 4-3 4-3"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></symbol>
+  <!-- Sad (reaction 4) -->
+  <symbol id="i-sad" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></symbol>
+  <!-- Fire (reaction 5) -->
+  <symbol id="i-fire" viewBox="0 0 24 24"><path d="M12 2s4 5 4 10a4 4 0 0 1-8 0c0-2 1-3 1-3s-3 2-3 6a6 6 0 0 0 12 0c0-6-6-13-6-13z"/></symbol>
+  <!-- Star (reaction 6) -->
+  <symbol id="i-star" viewBox="0 0 24 24"><polygon points="12 2 15 9 22 9.3 16.5 14 18.5 21 12 17 5.5 21 7.5 14 2 9.3 9 9 12 2"/></symbol>
+</svg>
+
+<!-- ============ LOADING ============ -->
 <div id="loader">
   <div class="load-sun">
-    <svg width="110" height="110" viewBox="0 0 120 120">
-      <g stroke="#ffffff" fill="none" stroke-width="1" stroke-linecap="round">
-        <path d="M60 4 Q62 16 60 26"/>
-        <path d="M60 116 Q58 104 60 94"/>
-        <path d="M4 60 Q16 58 26 60"/>
-        <path d="M116 60 Q104 62 94 60"/>
-        <path d="M20 20 Q29 30 34 34"/>
-        <path d="M100 100 Q91 90 86 86"/>
-        <path d="M20 100 Q29 90 34 86"/>
-        <path d="M100 20 Q91 30 86 34"/>
-        <path d="M38 10 Q44 20 45 26"/>
-        <path d="M82 10 Q76 20 75 26"/>
-        <path d="M38 110 Q44 100 45 94"/>
-        <path d="M82 110 Q76 100 75 94"/>
-        <path d="M10 38 Q20 44 26 45"/>
-        <path d="M10 82 Q20 76 26 75"/>
-        <path d="M110 38 Q100 44 94 45"/>
-        <path d="M110 82 Q100 76 94 75"/>
-      </g>
-      <circle cx="60" cy="60" r="30" stroke="#ffffff" fill="none" stroke-width="1.2"/>
-      <circle cx="60" cy="60" r="27" stroke="#ffffff" fill="none" stroke-width="0.5" opacity="0.6"/>
-    </svg>
+    <svg width="100" height="100" viewBox="0 0 100 100"><use href="#i-sun" style="color:#fff"/></svg>
   </div>
   <div class="load-title">Sun Chat</div>
   <div class="load-sub">the sun does not count. the sun is counted.</div>
   <div class="load-bar"></div>
 </div>
 
-<!-- ============ SUN SVG SYMBOL ============ -->
-<svg width="0" height="0" style="position:absolute">
-  <symbol id="sun-symbol" viewBox="0 0 120 120">
-    <g class="sun-svg">
-      <g stroke-linecap="round" fill="none" stroke-width="0.9">
-        <path d="M60 4 Q62 16 60 26"/>
-        <path d="M60 116 Q58 104 60 94"/>
-        <path d="M4 60 Q16 58 26 60"/>
-        <path d="M116 60 Q104 62 94 60"/>
-        <path d="M20 20 Q29 30 34 34"/>
-        <path d="M100 100 Q91 90 86 86"/>
-        <path d="M20 100 Q29 90 34 86"/>
-        <path d="M100 20 Q91 30 86 34"/>
-        <path d="M38 10 Q44 20 45 26"/>
-        <path d="M82 10 Q76 20 75 26"/>
-        <path d="M38 110 Q44 100 45 94"/>
-        <path d="M82 110 Q76 100 75 94"/>
-        <path d="M10 38 Q20 44 26 45"/>
-        <path d="M10 82 Q20 76 26 75"/>
-        <path d="M110 38 Q100 44 94 45"/>
-        <path d="M110 82 Q100 76 94 75"/>
-      </g>
-      <circle cx="60" cy="60" r="30" class="core" stroke-width="1.2"/>
-      <circle cx="60" cy="60" r="27" stroke-width="0.5" opacity="0.6"/>
-      <g class="face" stroke-linecap="round" fill="none">
-        <path d="M52 56 L56 56"/>
-        <path d="M64 56 L68 56"/>
-        <path d="M60 58 L60 64"/>
-        <path d="M55 68 Q60 71 65 68"/>
-        <circle cx="52" cy="63" r="0.6" fill="#fff" stroke="none"/>
-        <circle cx="68" cy="63" r="0.6" fill="#fff" stroke="none"/>
-      </g>
-      <path d="M60 48 L61.5 51 L64.5 51.5 L62 53.5 L62.8 56.5 L60 55 L57.2 56.5 L58 53.5 L55.5 51.5 L58.5 51 Z"
-            fill="#fff" opacity="0.9"/>
-    </g>
-  </symbol>
-</svg>
-
 <!-- LOGIN -->
 <div id="login" style="display:none">
   <div class="login-box">
     <div class="login-logo">
-      <svg width="90" height="90" viewBox="0 0 120 120"><use href="#sun-symbol"/></svg>
+      <svg width="90" height="90" viewBox="0 0 100 100"><use href="#i-sun" style="color:#fff"/></svg>
     </div>
     <div class="year">MMXXV</div>
     <h1>Sun Chat</h1>
@@ -526,9 +615,12 @@
 
 <!-- APP -->
 <div id="app">
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <span class="brand">Sun Chat</span>
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+        <svg class="ico" viewBox="0 0 24 24"><use href="#i-menu"/></svg>
+      </button>
     </div>
     <div class="sidebar-scroll">
       <div class="section-label" data-target="channelList">
@@ -538,43 +630,87 @@
 
       <div class="section-label" data-target="friendsList">
         <div class="left"><span class="chev">▾</span>Kin</div>
-        <button id="addFriendBtn" title="Add friend" type="button">+</button>
+        <button id="addFriendBtn" title="Add friend" type="button">
+          <svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-plus"/></svg>
+        </button>
       </div>
       <div class="section-content" id="friendsList"></div>
     </div>
     <div class="user-panel">
-      <div class="user-avatar" id="myAvatar" title="Edit profile">?</div>
+      <div class="user-avatar" id="myAvatar" title="Settings">?</div>
       <div class="info">
         <div class="name" id="myName">—</div>
         <div class="sub" id="myPronouns">present</div>
       </div>
-      <button class="icon-btn" id="btnSettings" title="Settings">⚙</button>
-      <button class="icon-btn" id="btnSignout" title="Sign out">⎋</button>
+      <button class="icon-btn" id="btnSettings" title="Settings">
+        <svg class="ico" viewBox="0 0 24 24"><use href="#i-gear"/></svg>
+      </button>
+      <button class="icon-btn" id="btnSignout" title="Sign out">
+        <svg class="ico" viewBox="0 0 24 24"><use href="#i-out"/></svg>
+      </button>
     </div>
   </aside>
 
   <main class="main">
-    <div class="main-header">
-      <div class="title" id="channelTitle"><span class="hash">#</span> general</div>
-      <div class="call-actions">
-        <div class="meter" id="meter">
-          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    <div class="chat-col">
+      <div class="main-header">
+        <div class="title" id="channelTitle"><span class="hash">#</span> general</div>
+        <div class="call-actions">
+          <div class="meter" id="meter">
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+          </div>
+          <button id="btnCall"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-phone"/></svg> Begin Call</button>
+          <button id="btnHangup" disabled><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-phone-off"/></svg> End</button>
         </div>
-        <button id="btnCall">Begin Call</button>
-        <button id="btnHangup" disabled>End</button>
+      </div>
+      <div class="messages" id="messages"></div>
+      <div class="composer">
+        <div class="reply-banner" id="replyBanner">
+          <span class="rb-text" id="replyBannerText"></span>
+          <button id="replyBannerCancel" title="Cancel reply">
+            <svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-x"/></svg>
+          </button>
+        </div>
+        <div class="input-row">
+          <input id="msgInput" placeholder="message...">
+          <button class="send" id="btnSend">
+            <svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-send"/></svg> Send
+          </button>
+        </div>
       </div>
     </div>
-    <div class="messages" id="messages"></div>
-    <div class="composer">
-      <input id="msgInput" placeholder="message...">
-      <button id="btnSend">Send</button>
-    </div>
+
+    <aside class="profile-panel" id="profilePanel">
+      <div class="profile-inner">
+        <button class="profile-close" id="profilePanelClose">
+          <svg class="ico" viewBox="0 0 24 24"><use href="#i-x"/></svg>
+        </button>
+        <div class="profile-pic" id="panelPic">?</div>
+        <div class="profile-name" id="panelName">—</div>
+        <div class="profile-pronouns" id="panelPronouns"></div>
+
+        <div class="profile-section">
+          <div class="profile-section-label">Inscription</div>
+          <div class="profile-bio empty" id="panelBio">no inscription</div>
+        </div>
+      </div>
+    </aside>
   </main>
 </div>
 
-<!-- ADD FRIEND MODAL -->
+<!-- Reaction picker (floating) -->
+<div class="reaction-picker" id="reactionPicker">
+  <button data-r="thumb" title="like"><svg class="ico" viewBox="0 0 24 24"><use href="#i-thumb"/></svg></button>
+  <button data-r="heart" title="love"><svg class="ico" viewBox="0 0 24 24"><use href="#i-heart"/></svg></button>
+  <button data-r="laugh" title="haha"><svg class="ico" viewBox="0 0 24 24"><use href="#i-laugh"/></svg></button>
+  <button data-r="sad" title="sad"><svg class="ico" viewBox="0 0 24 24"><use href="#i-sad"/></svg></button>
+  <button data-r="fire" title="fire"><svg class="ico" viewBox="0 0 24 24"><use href="#i-fire"/></svg></button>
+  <button data-r="star" title="star"><svg class="ico" viewBox="0 0 24 24"><use href="#i-star"/></svg></button>
+</div>
+
+<!-- ADD FRIEND -->
 <div class="modal-backdrop" id="friendModal">
   <div class="modal">
     <h3>Summon Kin</h3>
@@ -587,20 +723,16 @@
   </div>
 </div>
 
-<!-- SETTINGS MODAL -->
+<!-- SETTINGS -->
 <div class="modal-backdrop" id="settingsModal">
   <div class="modal">
     <h3>Settings</h3>
-
     <label>Display Name</label>
     <input id="pfDisplayName" placeholder="Your name">
-
     <label>Pronouns</label>
     <input id="pfPronouns" placeholder="they/them">
-
     <label>Inscription</label>
     <textarea id="pfBio" placeholder="A little about you..."></textarea>
-
     <label>Portrait</label>
     <div class="avatar-picker">
       <div class="avatar-preview" id="avatarPreview">?</div>
@@ -609,14 +741,12 @@
         <label for="avatarInput" class="pick">Choose File</label>
       </div>
     </div>
-
     <label>Verification</label>
     <div class="secret-row">
       <input id="secretCode" placeholder="enter code" type="password">
       <button id="btnApplySecret" type="button">Apply</button>
     </div>
-    <div id="verifyStatus" style="font-size:10px; color:var(--ink-3); margin-top:8px; letter-spacing:1px; min-height:14px;"></div>
-
+    <div id="verifyStatus">not verified</div>
     <div class="row">
       <button id="btnSaveProfile" class="primary">Save</button>
       <button id="btnCancelProfile">Cancel</button>
@@ -637,8 +767,16 @@ const supabase = createClient(
 
 const $ = id => document.getElementById(id)
 const initial = s => (s || '?').charAt(0).toUpperCase()
-
 const ADMIN_CODE = 'googoogaga'
+
+const REACTIONS = {
+  thumb: { ico: 'i-thumb' },
+  heart: { ico: 'i-heart' },
+  laugh: { ico: 'i-laugh' },
+  sad:   { ico: 'i-sad' },
+  fire:  { ico: 'i-fire' },
+  star:  { ico: 'i-star' }
+}
 
 let me = null
 let myProfile = null
@@ -647,9 +785,12 @@ let activeRoom = { id: 'general', type: 'channel', label: 'general' }
 let chatChannel = null
 let friendsChannel = null
 let friendships = []
+let messagesCache = {}     // id -> message row
 let pendingAvatarFile = null
+let pendingVerified = null
 let notifyReady = false
-let pendingVerified = null   // when admin enters code, we hold the flag until Save
+let replyTarget = null
+let openPickerFor = null
 
 // ================= LOADER =================
 window.addEventListener('DOMContentLoaded', () => {
@@ -662,13 +803,39 @@ window.addEventListener('DOMContentLoaded', () => {
   }, 3000)
 })
 
+// ================= SIDEBAR TOGGLE =================
+$('sidebarToggle').onclick = () => {
+  $('sidebar').classList.toggle('collapsed')
+}
+
+// ================= COLLAPSIBLE SECTIONS =================
+document.querySelectorAll('.section-label[data-target]').forEach(label => {
+  const targetId = label.dataset.target
+  const target = document.getElementById(targetId)
+  if (!target) return
+  target.style.maxHeight = target.scrollHeight + 'px'
+  label.addEventListener('click', (e) => {
+    if (e.target.closest('button')) return
+    const collapsed = target.classList.toggle('collapsed')
+    label.classList.toggle('collapsed', collapsed)
+    target.style.maxHeight = collapsed ? '0px' : target.scrollHeight + 'px'
+  })
+})
+
+function resizeSection(id) {
+  const el = document.getElementById(id)
+  if (el && !el.classList.contains('collapsed')) {
+    el.style.maxHeight = el.scrollHeight + 'px'
+  }
+}
+
 // ================= NOTIFICATIONS =================
 async function ensureNotifyPermission() {
   if (!('Notification' in window)) return false
   if (Notification.permission === 'granted') { notifyReady = true; return true }
   if (Notification.permission === 'denied') return false
-  const result = await Notification.requestPermission()
-  notifyReady = result === 'granted'
+  const r = await Notification.requestPermission()
+  notifyReady = r === 'granted'
   return notifyReady
 }
 
@@ -678,26 +845,10 @@ function notify(title, body, tag) {
   try {
     new Notification(title, {
       body, tag,
-      icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='16' fill='none' stroke='%23ffffff' stroke-width='2'/%3E%3C/svg%3E"
+      icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='18' fill='none' stroke='%23ffffff' stroke-width='2'/%3E%3C/svg%3E"
     })
-  } catch (e) { console.warn('notify failed', e) }
+  } catch (e) {}
 }
-
-// ================= COLLAPSIBLE MENUS =================
-document.querySelectorAll('.section-label[data-target]').forEach(label => {
-  const targetId = label.dataset.target
-  const target = document.getElementById(targetId)
-  if (!target) return
-  // start expanded
-  target.style.maxHeight = target.scrollHeight + 'px'
-  label.addEventListener('click', (e) => {
-    if (e.target.closest('button')) return // don't toggle when clicking +
-    const collapsed = target.classList.toggle('collapsed')
-    label.classList.toggle('collapsed', collapsed)
-    if (!collapsed) target.style.maxHeight = target.scrollHeight + 'px'
-    else target.style.maxHeight = '0px'
-  })
-})
 
 // ================= AUTH =================
 $('btnSignin').onclick = async () => {
@@ -729,7 +880,7 @@ supabase.auth.onAuthStateChange((event, session) => {
     ensureNotifyPermission()
     boot()
   } else {
-    me = null; myProfile = null; profileCache = {}
+    me = null; myProfile = null; profileCache = {}; messagesCache = {}
     $('login').style.display = 'flex'
     $('app').style.display = 'none'
     if (chatChannel) { supabase.removeChannel(chatChannel); chatChannel = null }
@@ -746,7 +897,7 @@ async function ensureMyProfile() {
   const { data, error } = await supabase.from('profiles').insert({
     id: me.id, email: me.email, display_name: fallbackName, verified: false
   }).select().single()
-  if (error) { console.error('profile create:', error); return null }
+  if (error) { console.error(error); return null }
   myProfile = data; profileCache[me.email] = data
   return data
 }
@@ -781,8 +932,14 @@ function displayNameFor(email) {
   return p?.display_name || email.split('@')[0]
 }
 
-function isVerified(email) {
-  return !!profileCache[email]?.verified
+function isVerified(email) { return !!profileCache[email]?.verified }
+
+function makeVerifiedBadge() {
+  const span = document.createElement('span')
+  span.className = 'verified'
+  span.title = 'Verified'
+  span.innerHTML = '<svg viewBox="0 0 24 24"><use href="#i-check"/></svg>'
+  return span
 }
 
 function updateMySidebar() {
@@ -791,12 +948,7 @@ function updateMySidebar() {
   const nameEl = $('myName')
   nameEl.innerHTML = ''
   nameEl.appendChild(document.createTextNode(myProfile.display_name || me.email.split('@')[0]))
-  if (myProfile.verified) {
-    const check = document.createElement('span')
-    check.className = 'verified'
-    check.title = 'Verified'
-    nameEl.appendChild(check)
-  }
+  if (myProfile.verified) nameEl.appendChild(makeVerifiedBadge())
   $('myPronouns').textContent = myProfile.pronouns || 'present'
 }
 
@@ -816,18 +968,11 @@ function renderChannels() {
   for (const c of ['general', 'random']) {
     const div = document.createElement('div')
     div.className = 'sidebar-item' + (activeRoom.id === c ? ' active' : '')
-    div.innerHTML = `<span class="hash">#</span>${c}`
+    div.innerHTML = `<span class="hash">#</span><span class="label-text">${c}</span>`
     div.onclick = () => openRoom(c, 'channel', c)
     el.appendChild(div)
   }
   resizeSection('channelList')
-}
-
-function resizeSection(id) {
-  const el = document.getElementById(id)
-  if (el && !el.classList.contains('collapsed')) {
-    el.style.maxHeight = el.scrollHeight + 'px'
-  }
 }
 
 // ================= FRIENDS =================
@@ -876,28 +1021,28 @@ function renderFriends() {
 
       const div = document.createElement('div')
       div.className = 'sidebar-item'
+
       const avatarBox = document.createElement('div')
       avatarBox.className = 'mini-avatar'
       renderAvatar(avatarBox, profileCache[other], other)
       div.appendChild(avatarBox)
 
-      const nameSpan = document.createElement('span')
-      nameSpan.textContent = displayNameFor(other)
-      div.appendChild(nameSpan)
+      const label = document.createElement('span')
+      label.className = 'label-text'
+      label.textContent = displayNameFor(other)
+      div.appendChild(label)
 
       if (isVerified(other)) {
-        const check = document.createElement('span')
-        check.className = 'verified'
-        check.title = 'Verified'
-        div.appendChild(check)
+        div.appendChild(makeVerifiedBadge())
       }
 
       if (isPending) {
-        const b = document.createElement('span'); b.className = 'pending'; b.textContent = 'NEW'
+        const b = document.createElement('span')
+        b.className = 'pending'; b.textContent = 'NEW'
         div.appendChild(b)
       } else if (outgoing) {
-        const b = document.createElement('span'); b.className = 'pending'
-        b.style.opacity = '0.4'; b.textContent = '…'
+        const b = document.createElement('span')
+        b.className = 'pending'; b.style.opacity = '0.4'; b.textContent = '…'
         div.appendChild(b)
       }
 
@@ -944,19 +1089,31 @@ $('btnSendRequest').onclick = async () => {
   }
 }
 
-// ================= CHAT =================
+// ================= ROOM =================
 async function openRoom(roomId, type, label) {
   activeRoom = { id: roomId, type, label }
   renderChannels()
+  closeProfilePanel()
 
   const title = $('channelTitle')
   if (type === 'dm') {
+    const nameHtml = document.createElement('span')
     title.innerHTML = `<span class="hash">@</span>${displayNameFor(label)} <span class="sub">whisper</span>`
+    // add verified badge in title if applicable
+    if (isVerified(label)) {
+      const badge = makeVerifiedBadge()
+      title.appendChild(badge)
+    }
+    // open right panel for DM
+    openProfilePanel(label)
   } else {
     title.innerHTML = `<span class="hash">#</span>${label} <span class="sub">chamber</span>`
   }
 
+  clearReply()
+
   if (chatChannel) { await supabase.removeChannel(chatChannel); chatChannel = null }
+  messagesCache = {}
 
   const { data } = await supabase.from('messages').select('*')
     .eq('room_id', roomId).order('created_at', { ascending: true }).limit(100)
@@ -965,7 +1122,7 @@ async function openRoom(roomId, type, label) {
   await loadProfilesFor(emails)
 
   $('messages').innerHTML = ''
-  ;(data || []).forEach(renderMessage)
+  ;(data || []).forEach(m => { messagesCache[m.id] = m; renderMessage(m) })
 
   const myEmail = me.email
   chatChannel = supabase.channel('chat:' + roomId)
@@ -973,6 +1130,7 @@ async function openRoom(roomId, type, label) {
       { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_id=eq.${roomId}` },
       async ({ new: m }) => {
         if (!profileCache[m.user_email]) await fetchProfileByEmail(m.user_email)
+        messagesCache[m.id] = m
         renderMessage(m)
         if (m.user_email !== myEmail) {
           const roomLabel = type === 'dm' ? 'Whisper' : '#' + label
@@ -983,55 +1141,226 @@ async function openRoom(roomId, type, label) {
           )
         }
       })
+    .on('postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'messages', filter: `room_id=eq.${roomId}` },
+      ({ new: m }) => {
+        messagesCache[m.id] = m
+        const existing = document.querySelector(`.msg[data-id="${m.id}"]`)
+        if (existing) {
+          const newEl = buildMessageEl(m)
+          existing.replaceWith(newEl)
+        }
+      })
     .subscribe()
 }
 
-function renderMessage(m) {
+// ================= MESSAGE RENDER =================
+function buildMessageEl(m) {
   const wrap = document.createElement('div')
-  wrap.className = 'msg'
+  wrap.className = 'msg' + (m.deleted ? ' deleted' : '')
+  wrap.dataset.id = m.id
+
+  // Reply context (if this message is a reply)
+  if (m.reply_to && messagesCache[m.reply_to]) {
+    const parent = messagesCache[m.reply_to]
+    const ctx = document.createElement('div')
+    ctx.className = 'reply-context'
+    const who = document.createElement('span')
+    who.className = 'who'
+    who.textContent = displayNameFor(parent.user_email)
+    const preview = document.createElement('span')
+    preview.textContent = parent.deleted ? '(deleted)' : parent.content.slice(0, 60) + (parent.content.length > 60 ? '…' : '')
+    ctx.appendChild(who)
+    ctx.appendChild(preview)
+    ctx.onclick = () => {
+      const el = document.querySelector(`.msg[data-id="${parent.id}"]`)
+      if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); flash(el) }
+    }
+    wrap.appendChild(ctx)
+  }
 
   const avatarDiv = document.createElement('div')
   avatarDiv.className = 'avatar'
   renderAvatar(avatarDiv, profileCache[m.user_email], m.user_email)
 
-  const t = new Date(m.created_at)
-  const time = t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-
   const body = document.createElement('div')
   body.className = 'body'
-  body.innerHTML = `
-    <div class="meta">
-      <span class="name"></span>
-      <span class="time">${time}</span>
-    </div>
-    <div class="text"></div>
-  `
 
-  const nameSpan = body.querySelector('.name')
+  const meta = document.createElement('div')
+  meta.className = 'meta'
+  const nameSpan = document.createElement('span')
+  nameSpan.className = 'name'
   nameSpan.textContent = displayNameFor(m.user_email)
-  if (isVerified(m.user_email)) {
-    const check = document.createElement('span')
-    check.className = 'verified'
-    check.title = 'Verified'
-    nameSpan.appendChild(check)
-  }
+  if (isVerified(m.user_email)) nameSpan.appendChild(makeVerifiedBadge())
+  const timeSpan = document.createElement('span')
+  timeSpan.className = 'time'
+  timeSpan.textContent = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  meta.appendChild(nameSpan)
+  meta.appendChild(timeSpan)
 
-  body.querySelector('.text').textContent = m.content
+  const textDiv = document.createElement('div')
+  textDiv.className = 'text'
+  textDiv.textContent = m.deleted ? 'message deleted' : m.content
+
+  body.appendChild(meta)
+  body.appendChild(textDiv)
+
+  // reactions
+  const reactions = m.reactions || {}
+  const reactionKeys = Object.keys(reactions).filter(k => Array.isArray(reactions[k]) && reactions[k].length > 0)
+  if (reactionKeys.length > 0) {
+    const rdiv = document.createElement('div')
+    rdiv.className = 'reactions'
+    for (const key of reactionKeys) {
+      const users = reactions[key]
+      const pill = document.createElement('div')
+      pill.className = 'reaction-pill' + (users.includes(me.email) ? ' mine' : '')
+      const icon = document.createElement('svg')
+      icon.setAttribute('class', 'ico ico-sm')
+      icon.setAttribute('viewBox', '0 0 24 24')
+      icon.innerHTML = `<use href="#${REACTIONS[key].ico}"/>`
+      pill.appendChild(icon)
+      const count = document.createElement('span')
+      count.className = 'rc'
+      count.textContent = users.length
+      pill.appendChild(count)
+      pill.title = users.map(u => displayNameFor(u)).join(', ')
+      pill.onclick = () => toggleReaction(m.id, key)
+      rdiv.appendChild(pill)
+    }
+    body.appendChild(rdiv)
+  }
 
   wrap.appendChild(avatarDiv)
   wrap.appendChild(body)
-  $('messages').appendChild(wrap)
+
+  // Hover actions
+  if (!m.deleted) {
+    const actions = document.createElement('div')
+    actions.className = 'msg-actions'
+
+    const replyBtn = document.createElement('button')
+    replyBtn.title = 'Reply'
+    replyBtn.innerHTML = '<svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-reply"/></svg>'
+    replyBtn.onclick = (e) => { e.stopPropagation(); startReply(m) }
+    actions.appendChild(replyBtn)
+
+    const reactBtn = document.createElement('button')
+    reactBtn.title = 'React'
+    reactBtn.innerHTML = '<svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-smile"/></svg>'
+    reactBtn.onclick = (e) => { e.stopPropagation(); showReactionPicker(reactBtn, m.id) }
+    actions.appendChild(reactBtn)
+
+    if (m.user_email === me.email) {
+      const delBtn = document.createElement('button')
+      delBtn.title = 'Delete'
+      delBtn.innerHTML = '<svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-trash"/></svg>'
+      delBtn.onclick = (e) => { e.stopPropagation(); softDelete(m.id) }
+      actions.appendChild(delBtn)
+    }
+    wrap.appendChild(actions)
+  }
+
+  return wrap
+}
+
+function renderMessage(m) {
+  const el = buildMessageEl(m)
+  $('messages').appendChild(el)
   $('messages').scrollTop = $('messages').scrollHeight
 }
 
+function flash(el) {
+  el.style.transition = 'background 0.3s'
+  const orig = el.style.background
+  el.style.background = '#1a1a1a'
+  setTimeout(() => { el.style.background = orig }, 500)
+}
+
+// ================= REPLY =================
+function startReply(m) {
+  replyTarget = m
+  $('replyBanner').classList.add('show')
+  $('replyBannerText').innerHTML = ''
+  const who = document.createElement('span')
+  who.className = 'who'
+  who.textContent = displayNameFor(m.user_email) + ': '
+  $('replyBannerText').appendChild(who)
+  $('replyBannerText').appendChild(document.createTextNode(
+    m.deleted ? '(deleted)' : m.content.slice(0, 80) + (m.content.length > 80 ? '…' : '')
+  ))
+  $('msgInput').focus()
+}
+
+function clearReply() {
+  replyTarget = null
+  $('replyBanner').classList.remove('show')
+}
+
+$('replyBannerCancel').onclick = clearReply
+
+// ================= REACTIONS =================
+function showReactionPicker(anchorEl, msgId) {
+  const picker = $('reactionPicker')
+  const rect = anchorEl.getBoundingClientRect()
+  picker.style.top = (rect.top - 44) + 'px'
+  picker.style.left = Math.max(8, rect.left - 130) + 'px'
+  picker.classList.add('show')
+  openPickerFor = msgId
+}
+
+document.querySelectorAll('#reactionPicker button').forEach(btn => {
+  btn.onclick = () => {
+    if (!openPickerFor) return
+    toggleReaction(openPickerFor, btn.dataset.r)
+    $('reactionPicker').classList.remove('show')
+    openPickerFor = null
+  }
+})
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#reactionPicker') && !e.target.closest('.msg-actions')) {
+    $('reactionPicker').classList.remove('show')
+    openPickerFor = null
+  }
+})
+
+async function toggleReaction(msgId, key) {
+  const m = messagesCache[msgId]
+  if (!m) return
+  const reactions = { ...(m.reactions || {}) }
+  const users = new Set(reactions[key] || [])
+  if (users.has(me.email)) users.delete(me.email)
+  else users.add(me.email)
+  reactions[key] = [...users]
+  if (reactions[key].length === 0) delete reactions[key]
+
+  const { error } = await supabase.from('messages')
+    .update({ reactions }).eq('id', msgId)
+  if (error) console.error(error)
+}
+
+// ================= DELETE (soft) =================
+async function softDelete(msgId) {
+  const { error } = await supabase.from('messages')
+    .update({ deleted: true, content: '' }).eq('id', msgId)
+  if (error) console.error(error)
+}
+
+// ================= SEND =================
 async function sendMessage() {
   if (!me) return
   const text = $('msgInput').value.trim()
   if (!text) return
   $('msgInput').value = ''
-  const { error } = await supabase.from('messages').insert({
-    room_id: activeRoom.id, content: text, user_email: me.email
-  })
+  const patch = {
+    room_id: activeRoom.id,
+    content: text,
+    user_email: me.email
+  }
+  if (replyTarget) patch.reply_to = replyTarget.id
+  clearReply()
+  const { error } = await supabase.from('messages').insert(patch)
   if (error) { alert(error.message); $('msgInput').value = text }
 }
 $('btnSend').onclick = sendMessage
@@ -1039,7 +1368,27 @@ $('msgInput').addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() }
 })
 
-// ================= SETTINGS / PROFILE EDIT =================
+// ================= RIGHT PANEL =================
+async function openProfilePanel(email) {
+  const p = profileCache[email] || await fetchProfileByEmail(email)
+  if (!p) return
+  renderAvatar($('panelPic'), p, email)
+  const nameEl = $('panelName')
+  nameEl.innerHTML = ''
+  nameEl.appendChild(document.createTextNode(p.display_name || email.split('@')[0]))
+  if (p.verified) nameEl.appendChild(makeVerifiedBadge())
+  $('panelPronouns').textContent = p.pronouns || ''
+  const bio = $('panelBio')
+  bio.textContent = p.bio || 'no inscription'
+  bio.classList.toggle('empty', !p.bio)
+  $('profilePanel').classList.add('open')
+}
+function closeProfilePanel() {
+  $('profilePanel').classList.remove('open')
+}
+$('profilePanelClose').onclick = closeProfilePanel
+
+// ================= SETTINGS =================
 function openProfileModal() {
   $('settingsModal').classList.add('show')
   $('profileMsg').textContent = ''
@@ -1052,15 +1401,8 @@ function openProfileModal() {
   $('pfPronouns').value = p.pronouns || ''
   $('pfBio').value = p.bio || ''
   renderAvatar($('avatarPreview'), p, me.email)
-
   const status = $('verifyStatus')
-  if (p.verified) {
-    status.textContent = '✓ verified'
-    status.style.color = '#fff'
-  } else {
-    status.textContent = 'not verified'
-    status.style.color = 'var(--ink-3)'
-  }
+  status.textContent = p.verified ? '✓ verified' : 'not verified'
 }
 $('btnSettings').onclick = openProfileModal
 $('myAvatar').onclick = openProfileModal
@@ -1074,10 +1416,7 @@ $('btnCancelProfile').onclick = () => {
 $('avatarInput').onchange = (e) => {
   const file = e.target.files?.[0]
   if (!file) return
-  if (file.size > 5 * 1024 * 1024) {
-    $('profileMsg').textContent = 'image too large'
-    return
-  }
+  if (file.size > 5 * 1024 * 1024) { $('profileMsg').textContent = 'image too large'; return }
   pendingAvatarFile = file
   const url = URL.createObjectURL(file)
   $('avatarPreview').innerHTML = ''
@@ -1086,32 +1425,27 @@ $('avatarInput').onchange = (e) => {
   $('avatarPreview').appendChild(img)
 }
 
-// Secret code check
 $('btnApplySecret').onclick = () => {
   const entered = $('secretCode').value
   const status = $('verifyStatus')
   if (entered === ADMIN_CODE) {
     pendingVerified = true
     status.textContent = '✓ code accepted — save to confirm'
-    status.style.color = '#fff'
   } else {
     pendingVerified = false
     status.textContent = 'invalid code'
-    status.style.color = '#fff'
   }
 }
 
 $('btnSaveProfile').onclick = async () => {
   $('profileMsg').textContent = ''
-
   let avatar_url = myProfile?.avatar_url || null
 
   if (pendingAvatarFile) {
     const ext = (pendingAvatarFile.name.split('.').pop() || 'png').toLowerCase()
     const path = `${me.id}/avatar.${ext}`
     const { error: upErr } = await supabase.storage
-      .from('avatars')
-      .upload(path, pendingAvatarFile, { upsert: true, contentType: pendingAvatarFile.type })
+      .from('avatars').upload(path, pendingAvatarFile, { upsert: true, contentType: pendingAvatarFile.type })
     if (upErr) { $('profileMsg').textContent = 'upload: ' + upErr.message; return }
     const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path)
     avatar_url = urlData.publicUrl + '?t=' + Date.now()
@@ -1124,7 +1458,6 @@ $('btnSaveProfile').onclick = async () => {
     avatar_url,
     updated_at: new Date().toISOString()
   }
-
   if (pendingVerified === true) patch.verified = true
   else if (pendingVerified === false) patch.verified = false
 
@@ -1136,7 +1469,6 @@ $('btnSaveProfile').onclick = async () => {
   profileCache[me.email] = data
   updateMySidebar()
   renderFriends()
-  // refresh messages so our own avatar/name updates
   if (activeRoom) openRoom(activeRoom.id, activeRoom.type, activeRoom.label)
 
   $('profileMsg').textContent = 'saved'
@@ -1152,7 +1484,7 @@ function setCallButtonState(state) {
   $('btnCall').disabled = state
   $('btnHangup').disabled = !state
   $('btnCall').classList.toggle('active', state)
-  $('btnCall').textContent = state ? 'In Call' : 'Begin Call'
+  $('btnCall').innerHTML = `<svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-phone"/></svg> ${state ? 'In Call' : 'Begin Call'}`
 }
 
 async function ensureLocalStream() {
@@ -1174,8 +1506,8 @@ function startMeter(stream) {
     analyser.getByteFrequencyData(data)
     for (let i = 0; i < bars.length; i++) {
       const v = data[i * 2] || 0
-      bars[i].style.height = (4 + (v / 255) * 18) + 'px'
-      bars[i].style.background = v > 15 ? '#ffffff' : '#222222'
+      bars[i].style.height = (3 + (v / 255) * 16) + 'px'
+      bars[i].style.background = v > 15 ? '#fff' : '#222'
     }
     meterRAF = requestAnimationFrame(tick)
   }
@@ -1185,7 +1517,7 @@ function startMeter(stream) {
 function stopMeter() {
   if (meterRAF) cancelAnimationFrame(meterRAF)
   meterRAF = null
-  for (const b of $('meter').children) { b.style.height = '4px'; b.style.background = '#222222' }
+  for (const b of $('meter').children) { b.style.height = '3px'; b.style.background = '#222' }
 }
 
 function callRoomId() {
@@ -1201,7 +1533,9 @@ function createPeer() {
   }
   pc.ontrack = e => { $('remoteAudio').srcObject = e.streams[0] }
   pc.onconnectionstatechange = () => {
-    if (pc.connectionState === 'connected') $('btnCall').textContent = 'Connected'
+    if (pc.connectionState === 'connected') {
+      $('btnCall').innerHTML = `<svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-phone"/></svg> Connected`
+    }
     if (['failed', 'disconnected', 'closed'].includes(pc.connectionState)) cleanupCall()
   }
   if (localStream) localStream.getTracks().forEach(t => pc.addTrack(t, localStream))
@@ -1249,7 +1583,6 @@ async function startCall() {
     setCallButtonState(true)
   } catch (e) {
     alert('Call failed: ' + e.message)
-    console.error(e)
   }
 }
 
