@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord‑like · monochrome</title>
+    <style>
+        /* reset & base — pure black & white */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: #0b0b0b;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+        }
+
+        /* main app grid: sidebar + main content */
+        .app {
+            display: flex;
+            width: 1400px;
+            max-width: 98vw;
+            height: 90vh;
+            max-height: 900px;
+            background: #000000;
+            border: 2px solid #2a2a2a;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        /* ---------- SIDEBAR (channels, like discord) ---------- */
+        .sidebar {
+            width: 240px;
+            background: #111111;
+            border-right: 1px solid #2a2a2a;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 16px 16px 16px;
+            border-bottom: 1px solid #2a2a2a;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            font-size: 1.25rem;
+            text-transform: uppercase;
+            color: #dddddd;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-header::before {
+            content: "⬤";
+            font-size: 1.8rem;
+            color: #ffffff;
+            line-height: 1;
+        }
+
+        .channel-list {
+            flex: 1;
+            padding: 16px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .channel {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: transparent;
+            color: #b0b0b0;
+            font-weight: 500;
+            transition: 0.15s;
+            cursor: default;
+            border: 1px solid transparent;
+        }
+
+        .channel.active {
+            background: #1f1f1f;
+            color: #ffffff;
+            border-color: #3a3a3a;
+        }
+
+        .channel::before {
+            content: "#";
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #777777;
+            width: 20px;
+        }
+
+        .channel.active::before {
+            color: #ffffff;
+        }
+
+        .sidebar-footer {
+            padding: 16px 16px 8px;
+            border-top: 1px solid #2a2a2a;
+            color: #888;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-badge {
+            width: 32px;
+            height: 32px;
+            background: #2a2a2a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #fff;
+            font-size: 1rem;
+            border: 1px solid #4a4a4a;
+        }
+
+        /* ---------- MAIN PANEL (chat + call area) ---------- */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #000000;
+            overflow: hidden;
+        }
+
+        /* header with call controls */
+        .main-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #2a2a2a;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #0a0a0a;
+        }
+
+        .channel-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .channel-title span {
+            color: #888;
+            font-weight: 400;
+            font-size: 1rem;
+            margin-left: 4px;
+        }
+
+        /* call action buttons */
+        .call-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .call-btn {
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            color: #efefef;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            letter-spacing: 0.3px;
+        }
+
+        .call-btn:hover {
+            background: #2a2a2a;
+            border-color: #5a5a5a;
+            color: #ffffff;
+        }
+
+        .call-btn.active {
+            background: #ffffff;
+            color: #000000;
+            border-color: #ffffff;
+        }
+
+        .call-btn.active:hover {
+            background: #e0e0e0;
+            border-color: #e0e0e0;
+        }
+
+        /* chat message list */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scrollbar-width: thin;
+            scrollbar-color: #3a3a3a #0a0a0a;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #3a3a3a;
+            border-radius: 8px;
+        }
+
+        .message {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: #1f1f1f;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #ffffff;
+            border: 1px solid #3a3a3a;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            flex: 1;
+        }
+
+        .message-header {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .username {
+            font-weight: 700;
+            color: #ffffff;
+            font-size: 0.95rem;
+        }
+
+        .timestamp {
+            font-size: 0.7rem;
+            color: #777777;
+            font-weight: 400;
+        }
+
+        .message-text {
+            color: #dddddd;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        /* input area */
+        .chat-input-area {
+            padding: 16px 24px 20px;
+            border-top: 1px solid #2a2a2a;
+            background: #0a0a0a;
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: #151515;
+            border: 1px solid #2f2f2f;
+            border-radius: 30px;
+            padding: 14px 20px;
+            color: #ffffff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: 0.15s;
+        }
+
+        .chat-input:focus {
+            border-color: #6a6a6a;
+            background: #1c1c1c;
+        }
+
+        .chat-input::placeholder {
+            color: #6a6a6a;
+        }
+
+        .send-btn {
+            background: #ffffff;
+            border: none;
+            color: #000000;
+            font-weight: 600;
+            padding: 0 24px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 0.3px;
+        }
+
+        .send-btn:hover {
+            background: #d4d4d4;
+        }
+
+        .send-btn:active {
+            background: #b0b0b0;
+        }
+
+        /* video / screen share preview strip */
+        .call-preview {
+            padding: 12px 24px;
+            background: #0d0d0d;
+            border-bottom: 1px solid #2a2a2a;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+            min-height: 100px;
+        }
+
+        .preview-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #141414;
+            padding: 8px 16px 8px 12px;
+            border-radius: 40px;
+            border: 1px solid #2f2f2f;
+            font-size: 0.9rem;
+            color: #e0e0e0;
+            font-weight: 500;
+        }
+
+        .preview-icon {
+            width: 36px;
+            height: 36px;
+            background: #222;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            border: 1px solid #3a3a3a;
+        }
+
+        .preview-label {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-label small {
+            font-size: 0.7rem;
+            color: #888;
+        }
+
+        .preview-item.active {
+            background: #1f1f1f;
+            border-color: #6a6a6a;
+        }
+
+        .empty-call {
+            color: #555;
+            font-size: 0.9rem;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* hidden video elements for screen share */
+        .hidden-video {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">monochat</div>
+            <div class="channel-list">
+                <div class="channel active">general</div>
+                <div class="channel">voice-lab</div>
+                <div class="channel">screen-share</div>
+                <div class="channel">off-topic</div>
+                <div class="channel">announcements</div>
+            </div>
+            <div class="sidebar-footer">
+                <div class="user-badge">U</div>
+                <span>you · online</span>
+            </div>
+        </aside>
+
+        <!-- main content -->
+        <main class="main">
+            <!-- channel header + call controls -->
+            <div class="main-header">
+                <div class="channel-title">
+                    # general <span>— text & call</span>
+                </div>
+                <div class="call-actions">
+                    <button class="call-btn" id="audioCallBtn">📞 Audio call</button>
+                    <button class="call-btn" id="screenShareBtn">🖥️ Share screen</button>
+                </div>
+            </div>
+
+            <!-- call preview strip (shows active calls / screen share) -->
+            <div class="call-preview" id="callPreview">
+                <div class="empty-call">✨ No active call — start one above</div>
+            </div>
+
+            <!-- chat messages -->
+            <div class="chat-messages" id="chatMessages">
+                <!-- static demo messages -->
+                <div class="message">
+                    <div class="avatar">A</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="username">alex</span>
+                            <span class="timestamp">10:23 AM</span>
+                        </div>
+                        <div class="message-text">Welcome to the monochrome server! 🖤🤍</div>
+                    </div>
+                </div>
+                <div class="message">
+                    <div class="avatar">J</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="username">jamie</span>
+                            <span class="timestamp">10:24 AM</span>
+                        </div>
+                        <div class="message-text">call me maybe? audio should work 👀</div>
+                    </div>
+                </div>
+                <div class="message">
+                    <div class="avatar">S</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="username">sam</span>
+                            <span class="timestamp">10:25 AM</span>
+                        </div>
+                        <div class="message-text">screen share is ready too. black & white style.</div>
+                    </div>
+                </div>
+                <div class="message">
+                    <div class="avatar">R</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="username">riley</span>
+                            <span class="timestamp">10:26 AM</span>
+                        </div>
+                        <div class="message-text">nice! I'll test the audio call.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- chat input -->
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="messageInput" placeholder="Message #general ..." autocomplete="off">
+                <button class="send-btn" id="sendBtn">Send</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- hidden video element used for screen share -->
+    <video id="screenVideo" class="hidden-video" autoplay playsinline muted></video>
+
+    <script>
+        (function() {
+            // ---------- DOM refs ----------
+            const chatMessages = document.getElementById('chatMessages');
+            const messageInput = document.getElementById('messageInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const audioCallBtn = document.getElementById('audioCallBtn');
+            const screenShareBtn = document.getElementById('screenShareBtn');
+            const callPreview = document.getElementById('callPreview');
+            const screenVideo = document.getElementById('screenVideo');
+
+            // ---------- state ----------
+            let audioCallActive = false;
+            let screenShareActive = false;
+            let screenStream = null;
+            let audioContext = null;
+            let oscillator = null;
+
+            // ---------- helper: add chat message ----------
+            function addMessage(text, isSystem = false) {
+                if (!text.trim()) return;
+
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message';
+
+                // avatar (first letter "Y" for you, "S" for system)
+                const avatarDiv = document.createElement('div');
+                avatarDiv.className = 'avatar';
+                avatarDiv.textContent = isSystem ? '⚙' : 'Y';
+
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'message-header';
+
+                const usernameSpan = document.createElement('span');
+                usernameSpan.className = 'username';
+                usernameSpan.textContent = isSystem ? 'system' : 'you';
+
+                const timestampSpan = document.createElement('span');
+                timestampSpan.className = 'timestamp';
+                timestampSpan.textContent = timeStr;
+
+                headerDiv.appendChild(usernameSpan);
+                headerDiv.appendChild(timestampSpan);
+
+                const textDiv = document.createElement('div');
+                textDiv.className = 'message-text';
+                textDiv.textContent = text;
+
+                contentDiv.appendChild(headerDiv);
+                contentDiv.appendChild(textDiv);
+
+                messageDiv.appendChild(avatarDiv);
+                messageDiv.appendChild(contentDiv);
+
+                chatMessages.appendChild(messageDiv);
+                // scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // ---------- send message ----------
+            function sendMessage() {
+                const text = messageInput.value.trim();
+                if (!text) return;
+                addMessage(text, false);
+                messageInput.value = '';
+                messageInput.focus();
+            }
+
+            // ---------- UI: update call preview area ----------
+            function updateCallPreview() {
+                callPreview.innerHTML = '';
+
+                if (!audioCallActive && !screenShareActive) {
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.className = 'empty-call';
+                    emptyDiv.innerHTML = '✨ No active call — start one above';
+                    callPreview.appendChild(emptyDiv);
+                    return;
+                }
+
+                if (audioCallActive) {
+                    const audioDiv = document.createElement('div');
+                    audioDiv.className = 'preview-item active';
+                    audioDiv.innerHTML = `
+                        <div class="preview-icon">🎤</div>
+                        <div class="preview-label">
+                            <span>Audio call</span>
+                            <small>connected</small>
+                        </div>
+                    `;
+                    callPreview.appendChild(audioDiv);
+                }
+
+                if (screenShareActive) {
+                    const screenDiv = document.createElement('div');
+                    screenDiv.className = 'preview-item active';
+                    screenDiv.innerHTML = `
+                        <div class="preview-icon">🖥️</div>
+                        <div class="preview-label">
+                            <span>Screen share</span>
+                            <small>broadcasting</small>
+                        </div>
+                    `;
+                    callPreview.appendChild(screenDiv);
+                }
+            }
+
+            // ---------- audio call simulation (tone) ----------
+            function startAudioCall() {
+                if (audioCallActive) return;
+
+                try {
+                    // create audio context on user gesture
+                    if (!audioContext) {
+                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+
+                    // gentle low-volume tone to simulate "call active" (no microphone permission needed)
+                    oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = 440; // A4
+                    gainNode.gain.value = 0.05; // very quiet, just for feedback
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    oscillator.start();
+
+                    audioCallActive = true;
+                    audioCallBtn.classList.add('active');
+                    audioCallBtn.textContent = '🔇 End audio';
+
+                    addMessage('📞 Audio call started (simulated tone — no mic required)', true);
+                    updateCallPreview();
+                } catch (e) {
+                    console.warn('Audio call error:', e);
+                    addMessage('⚠️ Could not start audio call (browser policy). Click again.', true);
+                }
+            }
+
+            function stopAudioCall() {
+                if (oscillator) {
+                    try {
+                        oscillator.stop();
+                        oscillator.disconnect();
+                    } catch (e) { /* already stopped */ }
+                    oscillator = null;
+                }
+                audioCallActive = false;
+                audioCallBtn.classList.remove('active');
+                audioCallBtn.textContent = '📞 Audio call';
+                addMessage('🔇 Audio call ended', true);
+                updateCallPreview();
+            }
+
+            // ---------- screen share (getDisplayMedia) ----------
+            async function startScreenShare() {
+                if (screenShareActive) return;
+
+                try {
+                    // request screen share
+                    screenStream = await navigator.mediaDevices.getDisplayMedia({
+                        video: true,
+                        audio: false
+                    });
+
+                    // attach to video element (hidden but active)
+                    screenVideo.srcObject = screenStream;
+                    screenVideo.play().catch(e => console.warn('video play error:', e));
+
+                    // listen for user ending share via browser UI
+                    screenStream.getVideoTracks()[0].addEventListener('ended', () => {
+                        stopScreenShare();
+                    });
+
+                    screenShareActive = true;
+                    screenShareBtn.classList.add('active');
+                    screenShareBtn.textContent = '⏹️ Stop sharing';
+
+                    addMessage('🖥️ Screen sharing started (check your system tray for preview)', true);
+                    updateCallPreview();
+                } catch (err) {
+                    console.error('Screen share error:', err);
+                    if (err.name === 'NotAllowedError') {
+                        addMessage('⚠️ Screen share permission denied', true);
+                    } else if (err.name === 'NotFoundError') {
+                        addMessage('⚠️ No screen available to share', true);
+                    } else {
+                        addMessage('⚠️ Could not start screen share', true);
+                    }
+                    // reset UI if error
+                    screenShareBtn.classList.remove('active');
+                    screenShareBtn.textContent = '🖥️ Share screen';
+                    screenShareActive = false;
+                    updateCallPreview();
+                }
+            }
+
+            function stopScreenShare() {
+                if (screenStream) {
+                    screenStream.getTracks().forEach(track => track.stop());
+                    screenStream = null;
+                }
+                screenVideo.srcObject = null;
+
+                screenShareActive = false;
+                screenShareBtn.classList.remove('active');
+                screenShareBtn.textContent = '🖥️ Share screen';
+
+                addMessage('⏹️ Screen sharing ended', true);
+                updateCallPreview();
+            }
+
+            // ---------- event listeners ----------
+            sendBtn.addEventListener('click', sendMessage);
+
+            messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // audio call toggle
+            audioCallBtn.addEventListener('click', () => {
+                if (audioCallActive) {
+                    stopAudioCall();
+                } else {
+                    startAudioCall();
+                }
+            });
+
+            // screen share toggle
+            screenShareBtn.addEventListener('click', () => {
+                if (screenShareActive) {
+                    stopScreenShare();
+                } else {
+                    startScreenShare();
+                }
+            });
+
+            // initialize preview
+            updateCallPreview();
+
+            // focus input on load
+            messageInput.focus();
+
+            // handle page unload: stop everything
+            window.addEventListener('beforeunload', () => {
+                if (oscillator) {
+                    try { oscillator.stop(); } catch (e) {}
+                }
+                if (screenStream) {
+                    screenStream.getTracks().forEach(t => t.stop());
+                }
+            });
+
+            // add a small welcome note
+            setTimeout(() => {
+                addMessage('💬 Type a message and hit Send — audio & screen share work!', true);
+            }, 500);
+        })();
+    </script>
+</body>
+</html>
