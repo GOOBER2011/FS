@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SUN CHAT</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg stroke='%23ffffff' fill='none' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M50 8 L52 22 L50 30'/%3E%3Cpath d='M50 92 L48 78 L50 70'/%3E%3Cpath d='M8 50 L22 48 L30 50'/%3E%3Cpath d='M92 50 L78 52 L70 50'/%3E%3Cpath d='M20 20 L30 30 L32 40'/%3E%3Cpath d='M80 80 L70 70 L68 60'/%3E%3Cpath d='M20 80 L30 70 L32 60'/%3E%3Cpath d='M80 20 L70 30 L68 40'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg stroke='%23ffffff' fill='none' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='50' cy='50' r='18'/%3E%3Cpath d='M50 6 Q53 14 50 22'/%3E%3Cpath d='M50 94 Q47 86 50 78'/%3E%3Cpath d='M6 50 Q14 47 22 50'/%3E%3Cpath d='M94 50 Q86 53 78 50'/%3E%3C/g%3E%3C/svg%3E">
 <style>
   :root {
     --bg: #000;
@@ -15,12 +15,11 @@
     --line-3: #444;
     --ink: #fff;
     --ink-2: #aaa;
-    --ink-3: #666;
-    --ink-4: #444;
-    --serif: 'Iowan Old Style', 'Palatino Linotype', Georgia, 'Times New Roman', serif;
-    --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    --ink-3: #777;
+    --ink-4: #4a4a4a;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   }
-  * { box-sizing: border-box; margin: 0; font-family: var(--mono); }
+  * { box-sizing: border-box; margin: 0; font-family: var(--sans); }
   html, body { height: 100%; overflow: hidden; }
   body { background: var(--bg); color: var(--ink); }
 
@@ -34,9 +33,9 @@
     width: 16px; height: 16px; display: inline-block;
     vertical-align: middle; flex-shrink: 0;
     stroke: currentColor; fill: none;
-    stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+    stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
   }
-  .ico-sm { width: 13px; height: 13px; }
+  .ico-sm { width: 14px; height: 14px; }
   .ico-lg { width: 20px; height: 20px; }
 
   /* ============ LOADER ============ */
@@ -49,12 +48,11 @@
   #loader .load-sun { margin-bottom: 30px; animation: slow-spin 24s linear infinite; }
   @keyframes slow-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
   #loader .load-title {
-    font-family: var(--serif); font-size: 22px;
-    letter-spacing: 12px; text-transform: uppercase; color: #fff; margin-bottom: 8px;
+    font-size: 22px; font-weight: 500;
+    letter-spacing: 12px; text-transform: uppercase; color: #fff; margin-bottom: 10px;
   }
   #loader .load-sub {
-    font-family: var(--serif); font-style: italic;
-    font-size: 12px; color: #777;
+    font-size: 13px; color: #777;
   }
   #loader .load-bar {
     margin-top: 32px; width: 200px; height: 1px;
@@ -78,64 +76,60 @@
   }
   .login-logo { display: flex; justify-content: center; margin-bottom: 20px; }
   .login-box .year {
-    font-size: 10px; letter-spacing: 5px; color: var(--ink-3); margin-bottom: 20px;
+    font-size: 11px; letter-spacing: 5px; color: var(--ink-3); margin-bottom: 20px;
   }
   .login-box h1 {
-    font-family: var(--serif); font-weight: 400;
-    font-size: 28px; letter-spacing: 14px; margin-bottom: 10px;
-    color: #fff; text-transform: uppercase;
+    font-weight: 400; font-size: 30px; letter-spacing: 14px;
+    margin-bottom: 12px; color: #fff; text-transform: uppercase;
   }
   .login-box .tagline {
-    font-family: var(--serif); font-style: italic;
-    font-size: 12px; color: var(--ink-3); margin-bottom: 32px; line-height: 1.6;
+    font-size: 13px; color: var(--ink-3); margin-bottom: 32px; line-height: 1.6;
   }
   .login-box .rule { height: 1px; background: var(--line); margin: 0 auto 28px; width: 40%; }
   .login-box input {
     width: 100%; background: #000; color: #fff;
     border: 1px solid var(--line-2); padding: 13px 16px;
-    font-size: 13px; letter-spacing: 1px; margin-bottom: 12px; outline: none;
-    transition: 0.15s;
+    font-size: 14px; margin-bottom: 12px; outline: none; transition: 0.15s;
+    border-radius: 4px;
   }
   .login-box input::placeholder {
-    color: var(--ink-3); text-transform: uppercase; font-size: 10px; letter-spacing: 3px;
+    color: var(--ink-3); font-size: 11px; letter-spacing: 2px;
   }
   .login-box input:focus { border-color: var(--ink-2); }
   .login-box button {
     width: 100%; padding: 14px; border: 1px solid var(--line-2);
     background: transparent; color: #fff;
-    font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+    font-size: 12px; font-weight: 500;
+    letter-spacing: 4px; text-transform: uppercase;
     cursor: pointer; margin-top: 6px; transition: 0.15s;
+    border-radius: 4px;
   }
   .login-box button:hover { background: var(--bg-3); border-color: var(--ink-2); }
   .login-box button.primary { background: #fff; color: #000; border-color: #fff; }
   .login-box button.primary:hover { background: #ddd; }
-  #loginMsg { font-size: 11px; min-height: 16px; margin-top: 14px; letter-spacing: 1px; }
+  #loginMsg { font-size: 12px; min-height: 16px; margin-top: 14px; }
 
-  /* ============ APP LAYOUT ============ */
+  /* ============ APP ============ */
   #app { display: none; height: 100vh; width: 100vw; }
   .sidebar {
     width: 240px; background: #000; border-right: 1px solid var(--line);
     display: flex; flex-direction: column; height: 100%;
-    transition: width 0.2s ease;
-    overflow: hidden;
-    flex-shrink: 0;
+    transition: width 0.2s ease; overflow: hidden; flex-shrink: 0;
   }
   .sidebar.collapsed { width: 48px; }
   .sidebar-header {
     padding: 18px 16px; border-bottom: 1px solid var(--line);
     display: flex; align-items: center; justify-content: space-between; gap: 8px;
-    min-height: 56px;
+    min-height: 58px;
   }
   .sidebar-header .brand {
-    font-family: var(--serif); font-weight: 400;
-    font-size: 14px; letter-spacing: 6px; text-transform: uppercase;
-    color: #fff; white-space: nowrap; overflow: hidden;
+    font-weight: 500; font-size: 15px; letter-spacing: 5px;
+    text-transform: uppercase; color: #fff; white-space: nowrap;
   }
   .sidebar.collapsed .brand { display: none; }
   .sidebar-toggle {
     background: none; border: none; color: var(--ink-3);
-    cursor: pointer; padding: 4px; transition: 0.15s;
-    flex-shrink: 0;
+    cursor: pointer; padding: 4px; transition: 0.15s; flex-shrink: 0;
   }
   .sidebar-toggle:hover { color: #fff; }
 
@@ -145,25 +139,27 @@
   .sidebar.collapsed .section-content { display: none; }
 
   .section-label {
-    font-size: 9px; text-transform: uppercase; letter-spacing: 3px;
+    font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 2px;
     color: var(--ink-3); padding: 12px 10px 6px;
     display: flex; justify-content: space-between; align-items: center;
     cursor: pointer; user-select: none;
   }
   .section-label .left { display: flex; align-items: center; gap: 6px; }
-  .section-label .chev { font-size: 9px; transition: transform 0.2s; }
+  .section-label .chev { font-size: 10px; transition: transform 0.2s; }
   .section-label.collapsed .chev { transform: rotate(-90deg); }
   .section-label button {
     background: none; border: 1px solid var(--line); color: var(--ink-2);
-    cursor: pointer; font-size: 11px; line-height: 1;
-    width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 12px; line-height: 1;
+    width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+    border-radius: 3px;
   }
   .section-label button:hover { color: #fff; border-color: var(--ink-2); }
   .section-content { overflow: hidden; transition: max-height 0.2s ease; }
 
   .sidebar-item {
-    padding: 7px 10px; cursor: pointer;
-    display: flex; align-items: center; gap: 8px; font-size: 12px;
+    padding: 8px 10px; cursor: pointer;
+    display: flex; align-items: center; gap: 8px; font-size: 13px;
     color: var(--ink-2); margin: 1px 0; transition: 0.12s;
     border-left: 2px solid transparent; border-radius: 3px;
     position: relative;
@@ -173,23 +169,24 @@
   .sidebar-item.active {
     background: var(--bg-3); color: #fff; border-left-color: #fff;
   }
-  .sidebar-item .hash { color: var(--ink-3); font-family: var(--serif); font-size: 13px; width: 12px; text-align: center; }
+  .sidebar-item .hash { color: var(--ink-3); font-size: 14px; width: 12px; text-align: center; font-weight: 500; }
   .sidebar-item.active .hash { color: #fff; }
   .sidebar-item .pending {
-    font-size: 8px; color: #fff; margin-left: auto;
-    border: 1px solid var(--line-3); padding: 1px 4px;
-    letter-spacing: 2px;
+    font-size: 9px; color: #fff; margin-left: auto;
+    border: 1px solid var(--line-3); padding: 1px 5px;
+    letter-spacing: 1px; border-radius: 3px;
   }
   .sidebar.collapsed .sidebar-item .label-text,
-  .sidebar.collapsed .sidebar-item .pending { display: none; }
+  .sidebar.collapsed .sidebar-item .pending,
+  .sidebar.collapsed .sidebar-item .verified { display: none; }
   .sidebar.collapsed .sidebar-item { justify-content: center; padding: 8px 4px; }
 
   .mini-avatar {
-    width: 20px; height: 20px; background: var(--bg-3);
+    width: 22px; height: 22px; background: var(--bg-3);
     display: flex; align-items: center; justify-content: center;
     font-size: 10px; overflow: hidden;
     border: 1px solid var(--line-2); flex-shrink: 0;
-    color: var(--ink-2); font-family: var(--serif); border-radius: 50%;
+    color: var(--ink-2); font-weight: 500; border-radius: 50%;
   }
   .mini-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -201,22 +198,23 @@
   .sidebar.collapsed .user-panel .info,
   .sidebar.collapsed .user-panel .icon-btn { display: none; }
   .user-avatar {
-    width: 32px; height: 32px; background: var(--bg-3);
+    width: 34px; height: 34px; background: var(--bg-3);
     display: flex; align-items: center; justify-content: center;
-    font-size: 12px; border: 1px solid var(--line-2);
+    font-size: 13px; font-weight: 500;
+    border: 1px solid var(--line-2);
     overflow: hidden; cursor: pointer; flex-shrink: 0;
-    color: #fff; font-family: var(--serif); border-radius: 50%;
+    color: #fff; border-radius: 50%;
   }
   .user-avatar:hover { border-color: var(--ink-2); }
   .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .user-panel .info { flex: 1; font-size: 11px; overflow: hidden; min-width: 0; }
+  .user-panel .info { flex: 1; font-size: 12px; overflow: hidden; min-width: 0; }
   .user-panel .info .name {
-    font-family: var(--serif); font-size: 12px; color: #fff;
+    font-size: 13px; font-weight: 600; color: #fff;
     display: flex; align-items: center;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .user-panel .info .sub {
-    color: var(--ink-3); font-size: 9px; letter-spacing: 2px;
+    color: var(--ink-3); font-size: 10px; letter-spacing: 1px;
     text-transform: uppercase; margin-top: 2px;
   }
   .user-panel .icon-btn {
@@ -232,37 +230,37 @@
   .main-header {
     padding: 14px 22px; border-bottom: 1px solid var(--line);
     display: flex; align-items: center; justify-content: space-between;
-    background: #000; min-height: 58px;
+    background: #000; min-height: 60px;
   }
   .main-header .title {
-    font-family: var(--serif); font-size: 15px;
+    font-size: 16px; font-weight: 500;
     display: flex; align-items: center; gap: 6px; color: #fff;
   }
-  .main-header .title .hash { color: #fff; font-size: 17px; }
+  .main-header .title .hash { color: #fff; font-size: 18px; }
   .main-header .sub {
-    color: var(--ink-3); font-size: 9px;
-    margin-left: 8px; text-transform: uppercase; letter-spacing: 3px;
+    color: var(--ink-3); font-size: 11px;
+    margin-left: 8px; text-transform: uppercase; letter-spacing: 2px;
   }
   .call-actions { display: flex; gap: 6px; align-items: center; }
   .call-actions button {
     background: transparent; border: 1px solid var(--line-2); color: var(--ink-2);
-    padding: 8px 14px; cursor: pointer; font-size: 10px;
-    letter-spacing: 2px; text-transform: uppercase;
+    padding: 8px 14px; cursor: pointer; font-size: 11px; font-weight: 500;
+    letter-spacing: 1px; text-transform: uppercase;
     display: flex; align-items: center; gap: 6px;
-    transition: 0.15s; border-radius: 3px;
+    transition: 0.15s; border-radius: 4px;
   }
   .call-actions button:hover { border-color: var(--ink-2); color: #fff; }
   .call-actions button.active { background: #fff; color: #000; border-color: #fff; }
   .call-actions button:disabled { opacity: 0.3; cursor: not-allowed; }
   .meter {
-    display: flex; gap: 2px; height: 22px; align-items: flex-end;
-    background: #000; padding: 3px; border: 1px solid var(--line-2); border-radius: 3px;
+    display: flex; gap: 2px; height: 24px; align-items: flex-end;
+    background: #000; padding: 3px; border: 1px solid var(--line-2); border-radius: 4px;
   }
   .bar { width: 3px; background: #222; height: 3px; border-radius: 1px; }
 
   .messages {
     flex: 1; overflow-y: auto; padding: 20px 28px;
-    display: flex; flex-direction: column; gap: 12px;
+    display: flex; flex-direction: column; gap: 14px;
   }
   .msg {
     display: flex; gap: 12px; padding: 6px 8px;
@@ -271,35 +269,33 @@
   }
   .msg:hover { background: #0a0a0a; }
   .msg .avatar {
-    width: 34px; height: 34px; background: var(--bg-3);
+    width: 36px; height: 36px; background: var(--bg-3);
     display: flex; align-items: center; justify-content: center;
-    font-size: 13px; border: 1px solid var(--line-2);
+    font-size: 14px; font-weight: 500; border: 1px solid var(--line-2);
     flex-shrink: 0; overflow: hidden;
-    color: #fff; font-family: var(--serif); border-radius: 50%;
+    color: #fff; border-radius: 50%;
   }
   .msg .avatar img { width: 100%; height: 100%; object-fit: cover; }
   .msg .body { flex: 1; min-width: 0; }
   .msg .meta {
     display: flex; align-items: baseline; gap: 8px;
-    margin-bottom: 2px; flex-wrap: wrap;
+    margin-bottom: 3px; flex-wrap: wrap;
   }
   .msg .name {
-    font-family: var(--serif); font-size: 13px; color: #fff;
-    display: flex; align-items: center; letter-spacing: 0.3px;
+    font-size: 14px; font-weight: 600; color: #fff;
+    display: flex; align-items: center;
   }
-  .msg .time { font-size: 9px; color: var(--ink-3); letter-spacing: 1px; }
+  .msg .time { font-size: 11px; color: var(--ink-3); }
   .msg .text {
-    color: var(--ink); font-size: 13px; line-height: 1.55;
-    word-break: break-word; font-weight: 300;
+    color: var(--ink); font-size: 14px; line-height: 1.6;
+    word-break: break-word; font-weight: 400;
   }
-  .msg.deleted .text {
-    color: var(--ink-4); font-style: italic;
-  }
+  .msg.deleted .text { color: var(--ink-4); font-style: italic; }
 
   .msg .reply-context {
     border-left: 2px solid var(--line-3);
-    padding: 2px 8px; margin-bottom: 4px;
-    font-size: 11px; color: var(--ink-3);
+    padding: 3px 8px; margin-bottom: 5px;
+    font-size: 12px; color: var(--ink-3);
     display: flex; align-items: center; gap: 6px;
     cursor: pointer;
   }
@@ -310,8 +306,8 @@
   }
   .reaction-pill {
     display: inline-flex; align-items: center; gap: 5px;
-    border: 1px solid var(--line-2); border-radius: 10px;
-    padding: 2px 7px; font-size: 11px; color: var(--ink-2);
+    border: 1px solid var(--line-2); border-radius: 12px;
+    padding: 3px 8px; font-size: 11px; font-weight: 500; color: var(--ink-2);
     cursor: pointer; transition: 0.12s; background: #000;
     user-select: none;
   }
@@ -320,7 +316,7 @@
   .reaction-pill .rc { font-size: 11px; }
 
   .msg .msg-actions {
-    position: absolute; top: -8px; right: 8px;
+    position: absolute; top: -10px; right: 8px;
     display: none; gap: 2px;
     background: #0a0a0a; border: 1px solid var(--line-2);
     border-radius: 5px; padding: 3px;
@@ -333,7 +329,6 @@
   }
   .msg-actions button:hover { color: #fff; background: var(--bg-3); }
 
-  /* Emoji picker for reactions */
   .reaction-picker {
     position: fixed; z-index: 80;
     background: #0a0a0a; border: 1px solid var(--line-2);
@@ -354,14 +349,14 @@
     background: #000;
   }
   .composer .reply-banner {
-    display: none; padding: 6px 10px; margin-bottom: 8px;
-    border-left: 2px solid var(--line-3); font-size: 11px;
+    display: none; padding: 8px 12px; margin-bottom: 8px;
+    border-left: 2px solid var(--line-3); font-size: 12px;
     color: var(--ink-3); background: #0a0a0a; border-radius: 3px;
     justify-content: space-between; align-items: center;
   }
   .composer .reply-banner.show { display: flex; }
   .composer .reply-banner .rb-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .composer .reply-banner .who { color: #fff; }
+  .composer .reply-banner .who { color: #fff; font-weight: 600; }
   .composer .reply-banner button {
     background: none; border: none; color: var(--ink-3);
     cursor: pointer; padding: 2px 6px;
@@ -371,18 +366,17 @@
   .composer input {
     flex: 1; background: #000; border: 1px solid var(--line-2);
     color: #fff; padding: 12px 16px;
-    font-size: 12px; outline: none; border-radius: 4px;
+    font-size: 14px; outline: none; border-radius: 4px;
     transition: 0.15s;
   }
   .composer input::placeholder {
-    color: var(--ink-3); text-transform: uppercase;
-    font-size: 10px; letter-spacing: 3px;
+    color: var(--ink-3); font-size: 12px; letter-spacing: 1px;
   }
   .composer input:focus { border-color: var(--ink-2); }
   .composer button.send {
     background: #fff; color: #000; border: 1px solid #fff;
-    padding: 0 22px; cursor: pointer; font-size: 10px;
-    letter-spacing: 3px; text-transform: uppercase;
+    padding: 0 22px; cursor: pointer; font-size: 12px; font-weight: 600;
+    letter-spacing: 2px; text-transform: uppercase;
     border-radius: 4px; display: flex; align-items: center; gap: 6px;
   }
   .composer button.send:hover { background: #ddd; }
@@ -390,8 +384,7 @@
   /* ============ RIGHT PROFILE PANEL ============ */
   .profile-panel {
     width: 0; background: #000; border-left: 1px solid var(--line);
-    overflow: hidden; transition: width 0.2s ease;
-    flex-shrink: 0;
+    overflow: hidden; transition: width 0.2s ease; flex-shrink: 0;
   }
   .profile-panel.open { width: 280px; }
   .profile-inner {
@@ -408,30 +401,28 @@
     width: 96px; height: 96px; border-radius: 50%;
     background: var(--bg-3); border: 1px solid var(--line-2);
     display: flex; align-items: center; justify-content: center;
-    font-family: var(--serif); font-size: 34px; color: #fff;
+    font-size: 36px; font-weight: 500; color: #fff;
     overflow: hidden; margin: 0 auto 16px;
   }
   .profile-pic img { width: 100%; height: 100%; object-fit: cover; }
   .profile-name {
-    font-family: var(--serif); font-size: 18px; color: #fff;
-    text-align: center; letter-spacing: 0.5px;
+    font-size: 18px; font-weight: 600; color: #fff;
+    text-align: center;
     display: flex; align-items: center; justify-content: center; gap: 6px;
     margin-bottom: 4px;
   }
   .profile-pronouns {
-    font-size: 10px; color: var(--ink-3);
-    text-align: center; letter-spacing: 2px;
+    font-size: 11px; color: var(--ink-3);
+    text-align: center; letter-spacing: 1px;
     text-transform: uppercase; margin-bottom: 20px;
   }
-  .profile-section {
-    border-top: 1px solid var(--line); padding-top: 14px; margin-top: 14px;
-  }
+  .profile-section { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 14px; }
   .profile-section-label {
-    font-size: 9px; color: var(--ink-3); letter-spacing: 3px;
-    text-transform: uppercase; margin-bottom: 6px;
+    font-size: 10px; font-weight: 600; color: var(--ink-3); letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 8px;
   }
   .profile-bio {
-    font-size: 12px; color: var(--ink-2); line-height: 1.6;
+    font-size: 13px; color: var(--ink-2); line-height: 1.6;
     word-break: break-word;
   }
   .profile-bio.empty { color: var(--ink-4); font-style: italic; }
@@ -449,43 +440,43 @@
     box-shadow: 0 40px 90px rgba(0,0,0,0.95);
   }
   .modal h3 {
-    font-family: var(--serif); font-weight: 400;
-    font-size: 15px; letter-spacing: 6px;
+    font-weight: 500; font-size: 16px; letter-spacing: 5px;
     text-transform: uppercase; color: #fff;
-    margin-bottom: 18px; padding-bottom: 12px;
+    margin-bottom: 20px; padding-bottom: 14px;
     border-bottom: 1px solid var(--line);
   }
   .modal label {
-    display: block; font-size: 9px; text-transform: uppercase;
-    color: var(--ink-3); margin-bottom: 6px; margin-top: 14px;
-    letter-spacing: 3px;
+    display: block; font-size: 10px; font-weight: 600;
+    text-transform: uppercase; color: var(--ink-3);
+    margin-bottom: 6px; margin-top: 14px; letter-spacing: 2px;
   }
   .modal input, .modal textarea {
     width: 100%; background: #000; color: #fff;
-    border: 1px solid var(--line-2); padding: 10px 12px;
-    font-size: 12px; outline: none; resize: vertical;
+    border: 1px solid var(--line-2); padding: 11px 13px;
+    font-size: 14px; outline: none; resize: vertical;
     border-radius: 4px; transition: 0.15s;
   }
-  .modal textarea { min-height: 72px; }
+  .modal textarea { min-height: 80px; }
   .modal input:focus, .modal textarea:focus { border-color: var(--ink-2); }
-  .modal .row { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  .modal .row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
   .modal button {
-    padding: 10px 16px; border: 1px solid var(--line-2);
+    padding: 11px 18px; border: 1px solid var(--line-2);
     background: transparent; color: #fff;
-    font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+    font-size: 12px; font-weight: 500;
+    letter-spacing: 2px; text-transform: uppercase;
     cursor: pointer; border-radius: 4px; transition: 0.15s;
   }
   .modal button:hover { background: var(--bg-3); border-color: var(--ink-2); }
   .modal button.primary { background: #fff; color: #000; border-color: #fff; }
   .modal button.primary:hover { background: #ddd; }
-  .modal .msg { font-size: 10px; min-height: 14px; margin-top: 10px; letter-spacing: 1px; }
+  .modal .msg { font-size: 12px; min-height: 16px; margin-top: 10px; }
 
   .avatar-picker { display: flex; align-items: center; gap: 18px; margin-top: 8px; }
   .avatar-preview {
     width: 84px; height: 84px; background: var(--bg-3);
     border: 1px solid var(--line-2); overflow: hidden;
     display: flex; align-items: center; justify-content: center;
-    font-size: 28px; color: #fff; font-family: var(--serif);
+    font-size: 30px; font-weight: 500; color: #fff;
     border-radius: 50%; flex-shrink: 0;
   }
   .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
@@ -493,8 +484,8 @@
   .avatar-picker label.pick {
     display: inline-block; padding: 10px 16px;
     border: 1px solid var(--line-2); cursor: pointer;
-    font-size: 10px; color: var(--ink-2);
-    letter-spacing: 2px; text-transform: uppercase;
+    font-size: 12px; color: var(--ink-2);
+    letter-spacing: 1px; text-transform: uppercase;
     border-radius: 4px;
   }
   .avatar-picker label.pick:hover { color: #fff; border-color: var(--ink-2); }
@@ -502,27 +493,24 @@
   .secret-row { display: flex; gap: 8px; margin-top: 8px; }
   .secret-row input { flex: 1; }
   .secret-row button { padding: 10px 14px; }
-  #verifyStatus { font-size: 10px; color: var(--ink-3); margin-top: 8px; letter-spacing: 1px; min-height: 14px; }
+  #verifyStatus { font-size: 11px; color: var(--ink-3); margin-top: 8px; min-height: 16px; }
 
   .verified {
     display: inline-flex; align-items: center; justify-content: center;
-    width: 13px; height: 13px; border-radius: 50%;
+    width: 14px; height: 14px; border-radius: 50%;
     background: #fff; color: #000; margin-left: 5px;
     flex-shrink: 0; position: relative; top: -1px;
   }
-  .verified svg { width: 8px; height: 8px; stroke: #000; stroke-width: 3; fill: none; }
+  .verified svg { width: 9px; height: 9px; stroke: #000; stroke-width: 3.5; fill: none; }
 </style>
 </head>
 <body>
 
-<!-- ============ SVG ICON LIBRARY ============ -->
+<!-- ICON LIBRARY -->
 <svg width="0" height="0" style="position:absolute">
-  <!-- Sun symbol with wavy rays (no face) — inspired by reference -->
   <symbol id="i-sun" viewBox="0 0 100 100">
     <g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-      <!-- core circle -->
       <circle cx="50" cy="50" r="18" stroke-width="2.4"/>
-      <!-- wavy rays -->
       <path d="M50 6 Q53 14 50 22"/>
       <path d="M50 94 Q47 86 50 78"/>
       <path d="M6 50 Q14 47 22 50"/>
@@ -541,51 +529,30 @@
       <path d="M90 67 Q82 62 76 60"/>
     </g>
   </symbol>
-
-  <!-- Chevron -->
-  <symbol id="i-chev" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></symbol>
-  <!-- Plus -->
   <symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
-  <!-- Gear / Settings -->
   <symbol id="i-gear" viewBox="0 0 24 24">
     <circle cx="12" cy="12" r="3"/>
     <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 8.9 19a1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 8.9a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>
   </symbol>
-  <!-- Logout -->
   <symbol id="i-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
-  <!-- Menu / hamburger -->
   <symbol id="i-menu" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
-  <!-- Phone (call) -->
   <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></symbol>
-  <!-- Phone off -->
   <symbol id="i-phone-off" viewBox="0 0 24 24"><path d="M10.7 13.3a16 16 0 0 0 2.4 2.3l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 2.7 3.7z"/><line x1="2" y1="2" x2="22" y2="22"/></symbol>
-  <!-- Send (arrow up) -->
   <symbol id="i-send" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></symbol>
-  <!-- Reply -->
   <symbol id="i-reply" viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></symbol>
-  <!-- Trash -->
   <symbol id="i-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></symbol>
-  <!-- Smile / reaction -->
   <symbol id="i-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></symbol>
-  <!-- Check (for verified) -->
   <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
-  <!-- Close / X -->
   <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
-  <!-- Thumbs up (reaction 1) -->
   <symbol id="i-thumb" viewBox="0 0 24 24"><path d="M7 22V11l5-9a2 2 0 0 1 3 2v5h5a2 2 0 0 1 2 2l-2 9a2 2 0 0 1-2 2z"/></symbol>
-  <!-- Heart (reaction 2) -->
   <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></symbol>
-  <!-- Laugh (reaction 3) -->
   <symbol id="i-laugh" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 3 4 3 4-3 4-3"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></symbol>
-  <!-- Sad (reaction 4) -->
   <symbol id="i-sad" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></symbol>
-  <!-- Fire (reaction 5) -->
   <symbol id="i-fire" viewBox="0 0 24 24"><path d="M12 2s4 5 4 10a4 4 0 0 1-8 0c0-2 1-3 1-3s-3 2-3 6a6 6 0 0 0 12 0c0-6-6-13-6-13z"/></symbol>
-  <!-- Star (reaction 6) -->
   <symbol id="i-star" viewBox="0 0 24 24"><polygon points="12 2 15 9 22 9.3 16.5 14 18.5 21 12 17 5.5 21 7.5 14 2 9.3 9 9 12 2"/></symbol>
 </svg>
 
-<!-- ============ LOADING ============ -->
+<!-- LOADER -->
 <div id="loader">
   <div class="load-sun">
     <svg width="100" height="100" viewBox="0 0 100 100"><use href="#i-sun" style="color:#fff"/></svg>
@@ -690,7 +657,6 @@
         <div class="profile-pic" id="panelPic">?</div>
         <div class="profile-name" id="panelName">—</div>
         <div class="profile-pronouns" id="panelPronouns"></div>
-
         <div class="profile-section">
           <div class="profile-section-label">Inscription</div>
           <div class="profile-bio empty" id="panelBio">no inscription</div>
@@ -700,7 +666,7 @@
   </main>
 </div>
 
-<!-- Reaction picker (floating) -->
+<!-- REACTION PICKER -->
 <div class="reaction-picker" id="reactionPicker">
   <button data-r="thumb" title="like"><svg class="ico" viewBox="0 0 24 24"><use href="#i-thumb"/></svg></button>
   <button data-r="heart" title="love"><svg class="ico" viewBox="0 0 24 24"><use href="#i-heart"/></svg></button>
@@ -770,12 +736,8 @@ const initial = s => (s || '?').charAt(0).toUpperCase()
 const ADMIN_CODE = 'googoogaga'
 
 const REACTIONS = {
-  thumb: { ico: 'i-thumb' },
-  heart: { ico: 'i-heart' },
-  laugh: { ico: 'i-laugh' },
-  sad:   { ico: 'i-sad' },
-  fire:  { ico: 'i-fire' },
-  star:  { ico: 'i-star' }
+  thumb: 'i-thumb', heart: 'i-heart', laugh: 'i-laugh',
+  sad: 'i-sad', fire: 'i-fire', star: 'i-star'
 }
 
 let me = null
@@ -785,14 +747,14 @@ let activeRoom = { id: 'general', type: 'channel', label: 'general' }
 let chatChannel = null
 let friendsChannel = null
 let friendships = []
-let messagesCache = {}     // id -> message row
+let messagesCache = {}
 let pendingAvatarFile = null
 let pendingVerified = null
 let notifyReady = false
 let replyTarget = null
 let openPickerFor = null
 
-// ================= LOADER =================
+// ===== LOADER =====
 window.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     $('loader').classList.add('hide')
@@ -803,12 +765,10 @@ window.addEventListener('DOMContentLoaded', () => {
   }, 3000)
 })
 
-// ================= SIDEBAR TOGGLE =================
-$('sidebarToggle').onclick = () => {
-  $('sidebar').classList.toggle('collapsed')
-}
+// ===== SIDEBAR TOGGLE =====
+$('sidebarToggle').onclick = () => $('sidebar').classList.toggle('collapsed')
 
-// ================= COLLAPSIBLE SECTIONS =================
+// ===== COLLAPSIBLE SECTIONS =====
 document.querySelectorAll('.section-label[data-target]').forEach(label => {
   const targetId = label.dataset.target
   const target = document.getElementById(targetId)
@@ -829,7 +789,7 @@ function resizeSection(id) {
   }
 }
 
-// ================= NOTIFICATIONS =================
+// ===== NOTIFICATIONS =====
 async function ensureNotifyPermission() {
   if (!('Notification' in window)) return false
   if (Notification.permission === 'granted') { notifyReady = true; return true }
@@ -838,19 +798,13 @@ async function ensureNotifyPermission() {
   notifyReady = r === 'granted'
   return notifyReady
 }
-
 function notify(title, body, tag) {
   if (!notifyReady) return
   if (document.visibilityState === 'visible' && document.hasFocus()) return
-  try {
-    new Notification(title, {
-      body, tag,
-      icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='18' fill='none' stroke='%23ffffff' stroke-width='2'/%3E%3C/svg%3E"
-    })
-  } catch (e) {}
+  try { new Notification(title, { body, tag }) } catch (e) {}
 }
 
-// ================= AUTH =================
+// ===== AUTH =====
 $('btnSignin').onclick = async () => {
   $('loginMsg').textContent = ''
   const { error } = await supabase.auth.signInWithPassword({
@@ -888,7 +842,7 @@ supabase.auth.onAuthStateChange((event, session) => {
   }
 })
 
-// ================= PROFILE =================
+// ===== PROFILE =====
 async function ensureMyProfile() {
   const { data: existing } = await supabase
     .from('profiles').select('*').eq('id', me.id).maybeSingle()
@@ -901,21 +855,18 @@ async function ensureMyProfile() {
   myProfile = data; profileCache[me.email] = data
   return data
 }
-
 async function fetchProfileByEmail(email) {
   if (profileCache[email]) return profileCache[email]
   const { data } = await supabase.from('profiles').select('*').eq('email', email).maybeSingle()
   if (data) profileCache[email] = data
   return data
 }
-
 async function loadProfilesFor(emails) {
   const missing = [...new Set(emails)].filter(e => e && !profileCache[e])
   if (missing.length === 0) return
   const { data } = await supabase.from('profiles').select('*').in('email', missing)
   ;(data || []).forEach(p => profileCache[p.email] = p)
 }
-
 function renderAvatar(el, profile, fallbackText) {
   el.innerHTML = ''
   if (profile?.avatar_url) {
@@ -926,14 +877,11 @@ function renderAvatar(el, profile, fallbackText) {
     el.textContent = initial(profile?.display_name || fallbackText || '?')
   }
 }
-
 function displayNameFor(email) {
   const p = profileCache[email]
   return p?.display_name || email.split('@')[0]
 }
-
 function isVerified(email) { return !!profileCache[email]?.verified }
-
 function makeVerifiedBadge() {
   const span = document.createElement('span')
   span.className = 'verified'
@@ -941,7 +889,6 @@ function makeVerifiedBadge() {
   span.innerHTML = '<svg viewBox="0 0 24 24"><use href="#i-check"/></svg>'
   return span
 }
-
 function updateMySidebar() {
   if (!myProfile) return
   renderAvatar($('myAvatar'), myProfile, me.email)
@@ -952,7 +899,7 @@ function updateMySidebar() {
   $('myPronouns').textContent = myProfile.pronouns || 'present'
 }
 
-// ================= BOOT =================
+// ===== BOOT =====
 async function boot() {
   await ensureMyProfile()
   updateMySidebar()
@@ -961,7 +908,6 @@ async function boot() {
   listenFriendships()
   openRoom('general', 'channel', 'general')
 }
-
 function renderChannels() {
   const el = $('channelList')
   el.innerHTML = ''
@@ -975,7 +921,7 @@ function renderChannels() {
   resizeSection('channelList')
 }
 
-// ================= FRIENDS =================
+// ===== FRIENDS =====
 async function loadFriendships() {
   const { data, error } = await supabase.from('friendships').select('*')
     .or(`user_a.eq.${me.email},user_b.eq.${me.email}`)
@@ -985,7 +931,6 @@ async function loadFriendships() {
   await loadProfilesFor(emails)
   renderFriends()
 }
-
 function listenFriendships() {
   if (friendsChannel) return
   const myEmail = me.email
@@ -1004,13 +949,12 @@ function listenFriendships() {
       })
     .subscribe()
 }
-
 function renderFriends() {
   const el = $('friendsList')
   el.innerHTML = ''
   if (friendships.length === 0) {
     const empty = document.createElement('div')
-    empty.style.cssText = 'color:#444;font-size:11px;padding:8px 12px;letter-spacing:1px'
+    empty.style.cssText = 'color:#444;font-size:12px;padding:8px 12px'
     empty.textContent = 'no kin yet'
     el.appendChild(empty)
   } else {
@@ -1032,17 +976,14 @@ function renderFriends() {
       label.textContent = displayNameFor(other)
       div.appendChild(label)
 
-      if (isVerified(other)) {
-        div.appendChild(makeVerifiedBadge())
-      }
+      if (isVerified(other)) div.appendChild(makeVerifiedBadge())
 
       if (isPending) {
-        const b = document.createElement('span')
-        b.className = 'pending'; b.textContent = 'NEW'
+        const b = document.createElement('span'); b.className = 'pending'; b.textContent = 'NEW'
         div.appendChild(b)
       } else if (outgoing) {
-        const b = document.createElement('span')
-        b.className = 'pending'; b.style.opacity = '0.4'; b.textContent = '…'
+        const b = document.createElement('span'); b.className = 'pending'
+        b.style.opacity = '0.4'; b.textContent = '…'
         div.appendChild(b)
       }
 
@@ -1061,7 +1002,6 @@ function renderFriends() {
   }
   resizeSection('friendsList')
 }
-
 function dmRoomId(a, b) { return 'dm:' + [a, b].sort().join('|') }
 
 $('addFriendBtn').onclick = (e) => {
@@ -1074,10 +1014,7 @@ $('addFriendBtn').onclick = (e) => {
 $('btnCloseModal').onclick = () => $('friendModal').classList.remove('show')
 $('btnSendRequest').onclick = async () => {
   const target = $('friendEmail').value.trim().toLowerCase()
-  if (!target || target === me.email) {
-    $('friendMsg').textContent = 'invalid'
-    return
-  }
+  if (!target || target === me.email) { $('friendMsg').textContent = 'invalid'; return }
   const { error } = await supabase.from('friendships').insert({
     user_a: me.email, user_b: target, status: 'pending', requested_by: me.email
   })
@@ -1089,7 +1026,7 @@ $('btnSendRequest').onclick = async () => {
   }
 }
 
-// ================= ROOM =================
+// ===== ROOM =====
 async function openRoom(roomId, type, label) {
   activeRoom = { id: roomId, type, label }
   renderChannels()
@@ -1097,21 +1034,14 @@ async function openRoom(roomId, type, label) {
 
   const title = $('channelTitle')
   if (type === 'dm') {
-    const nameHtml = document.createElement('span')
     title.innerHTML = `<span class="hash">@</span>${displayNameFor(label)} <span class="sub">whisper</span>`
-    // add verified badge in title if applicable
-    if (isVerified(label)) {
-      const badge = makeVerifiedBadge()
-      title.appendChild(badge)
-    }
-    // open right panel for DM
+    if (isVerified(label)) title.appendChild(makeVerifiedBadge())
     openProfilePanel(label)
   } else {
     title.innerHTML = `<span class="hash">#</span>${label} <span class="sub">chamber</span>`
   }
 
   clearReply()
-
   if (chatChannel) { await supabase.removeChannel(chatChannel); chatChannel = null }
   messagesCache = {}
 
@@ -1134,11 +1064,8 @@ async function openRoom(roomId, type, label) {
         renderMessage(m)
         if (m.user_email !== myEmail) {
           const roomLabel = type === 'dm' ? 'Whisper' : '#' + label
-          notify(
-            `${displayNameFor(m.user_email)} · ${roomLabel}`,
-            m.content.length > 100 ? m.content.slice(0, 100) + '…' : m.content,
-            roomId
-          )
+          notify(`${displayNameFor(m.user_email)} · ${roomLabel}`,
+            m.content.length > 100 ? m.content.slice(0, 100) + '…' : m.content, roomId)
         }
       })
     .on('postgres_changes',
@@ -1146,21 +1073,17 @@ async function openRoom(roomId, type, label) {
       ({ new: m }) => {
         messagesCache[m.id] = m
         const existing = document.querySelector(`.msg[data-id="${m.id}"]`)
-        if (existing) {
-          const newEl = buildMessageEl(m)
-          existing.replaceWith(newEl)
-        }
+        if (existing) existing.replaceWith(buildMessageEl(m))
       })
     .subscribe()
 }
 
-// ================= MESSAGE RENDER =================
+// ===== MESSAGE =====
 function buildMessageEl(m) {
   const wrap = document.createElement('div')
   wrap.className = 'msg' + (m.deleted ? ' deleted' : '')
   wrap.dataset.id = m.id
 
-  // Reply context (if this message is a reply)
   if (m.reply_to && messagesCache[m.reply_to]) {
     const parent = messagesCache[m.reply_to]
     const ctx = document.createElement('div')
@@ -1205,20 +1128,19 @@ function buildMessageEl(m) {
   body.appendChild(meta)
   body.appendChild(textDiv)
 
-  // reactions
   const reactions = m.reactions || {}
-  const reactionKeys = Object.keys(reactions).filter(k => Array.isArray(reactions[k]) && reactions[k].length > 0)
-  if (reactionKeys.length > 0) {
+  const keys = Object.keys(reactions).filter(k => Array.isArray(reactions[k]) && reactions[k].length > 0)
+  if (keys.length > 0) {
     const rdiv = document.createElement('div')
     rdiv.className = 'reactions'
-    for (const key of reactionKeys) {
+    for (const key of keys) {
       const users = reactions[key]
       const pill = document.createElement('div')
       pill.className = 'reaction-pill' + (users.includes(me.email) ? ' mine' : '')
       const icon = document.createElement('svg')
       icon.setAttribute('class', 'ico ico-sm')
       icon.setAttribute('viewBox', '0 0 24 24')
-      icon.innerHTML = `<use href="#${REACTIONS[key].ico}"/>`
+      icon.innerHTML = `<use href="#${REACTIONS[key]}"/>`
       pill.appendChild(icon)
       const count = document.createElement('span')
       count.className = 'rc'
@@ -1234,7 +1156,6 @@ function buildMessageEl(m) {
   wrap.appendChild(avatarDiv)
   wrap.appendChild(body)
 
-  // Hover actions
   if (!m.deleted) {
     const actions = document.createElement('div')
     actions.className = 'msg-actions'
@@ -1265,19 +1186,16 @@ function buildMessageEl(m) {
 }
 
 function renderMessage(m) {
-  const el = buildMessageEl(m)
-  $('messages').appendChild(el)
+  $('messages').appendChild(buildMessageEl(m))
   $('messages').scrollTop = $('messages').scrollHeight
 }
-
 function flash(el) {
   el.style.transition = 'background 0.3s'
-  const orig = el.style.background
   el.style.background = '#1a1a1a'
-  setTimeout(() => { el.style.background = orig }, 500)
+  setTimeout(() => el.style.background = '', 500)
 }
 
-// ================= REPLY =================
+// ===== REPLY =====
 function startReply(m) {
   replyTarget = m
   $('replyBanner').classList.add('show')
@@ -1291,20 +1209,18 @@ function startReply(m) {
   ))
   $('msgInput').focus()
 }
-
 function clearReply() {
   replyTarget = null
   $('replyBanner').classList.remove('show')
 }
-
 $('replyBannerCancel').onclick = clearReply
 
-// ================= REACTIONS =================
+// ===== REACTIONS =====
 function showReactionPicker(anchorEl, msgId) {
   const picker = $('reactionPicker')
   const rect = anchorEl.getBoundingClientRect()
-  picker.style.top = (rect.top - 44) + 'px'
-  picker.style.left = Math.max(8, rect.left - 130) + 'px'
+  picker.style.top = (rect.top - 46) + 'px'
+  picker.style.left = Math.max(8, rect.left - 140) + 'px'
   picker.classList.add('show')
   openPickerFor = msgId
 }
@@ -1337,17 +1253,24 @@ async function toggleReaction(msgId, key) {
 
   const { error } = await supabase.from('messages')
     .update({ reactions }).eq('id', msgId)
-  if (error) console.error(error)
+  if (error) {
+    console.error('reaction error:', error)
+    alert('Could not react: ' + error.message)
+  }
 }
 
-// ================= DELETE (soft) =================
+// ===== SOFT DELETE =====
 async function softDelete(msgId) {
+  if (!confirm('Delete this message?')) return
   const { error } = await supabase.from('messages')
     .update({ deleted: true, content: '' }).eq('id', msgId)
-  if (error) console.error(error)
+  if (error) {
+    console.error('delete error:', error)
+    alert('Could not delete: ' + error.message)
+  }
 }
 
-// ================= SEND =================
+// ===== SEND =====
 async function sendMessage() {
   if (!me) return
   const text = $('msgInput').value.trim()
@@ -1368,7 +1291,7 @@ $('msgInput').addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() }
 })
 
-// ================= RIGHT PANEL =================
+// ===== RIGHT PANEL =====
 async function openProfilePanel(email) {
   const p = profileCache[email] || await fetchProfileByEmail(email)
   if (!p) return
@@ -1383,12 +1306,10 @@ async function openProfilePanel(email) {
   bio.classList.toggle('empty', !p.bio)
   $('profilePanel').classList.add('open')
 }
-function closeProfilePanel() {
-  $('profilePanel').classList.remove('open')
-}
+function closeProfilePanel() { $('profilePanel').classList.remove('open') }
 $('profilePanelClose').onclick = closeProfilePanel
 
-// ================= SETTINGS =================
+// ===== SETTINGS =====
 function openProfileModal() {
   $('settingsModal').classList.add('show')
   $('profileMsg').textContent = ''
@@ -1401,8 +1322,7 @@ function openProfileModal() {
   $('pfPronouns').value = p.pronouns || ''
   $('pfBio').value = p.bio || ''
   renderAvatar($('avatarPreview'), p, me.email)
-  const status = $('verifyStatus')
-  status.textContent = p.verified ? '✓ verified' : 'not verified'
+  $('verifyStatus').textContent = p.verified ? '✓ verified' : 'not verified'
 }
 $('btnSettings').onclick = openProfileModal
 $('myAvatar').onclick = openProfileModal
@@ -1475,7 +1395,7 @@ $('btnSaveProfile').onclick = async () => {
   setTimeout(() => $('settingsModal').classList.remove('show'), 700)
 }
 
-// ================= CALLING =================
+// ===== CALLING =====
 let pc = null, localStream = null, callChannel = null
 let audioCtx = null, analyser = null, meterRAF = null
 const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
@@ -1486,14 +1406,12 @@ function setCallButtonState(state) {
   $('btnCall').classList.toggle('active', state)
   $('btnCall').innerHTML = `<svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-phone"/></svg> ${state ? 'In Call' : 'Begin Call'}`
 }
-
 async function ensureLocalStream() {
   if (localStream) return localStream
   localStream = await navigator.mediaDevices.getUserMedia({ audio: true })
   startMeter(localStream)
   return localStream
 }
-
 function startMeter(stream) {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)()
   const src = audioCtx.createMediaStreamSource(stream)
@@ -1513,17 +1431,14 @@ function startMeter(stream) {
   }
   tick()
 }
-
 function stopMeter() {
   if (meterRAF) cancelAnimationFrame(meterRAF)
   meterRAF = null
   for (const b of $('meter').children) { b.style.height = '3px'; b.style.background = '#222' }
 }
-
 function callRoomId() {
   return activeRoom.type === 'dm' ? 'call:' + activeRoom.id : 'call:channel:' + activeRoom.id
 }
-
 function createPeer() {
   pc = new RTCPeerConnection(rtcConfig)
   pc.onicecandidate = e => {
@@ -1541,17 +1456,15 @@ function createPeer() {
   if (localStream) localStream.getTracks().forEach(t => pc.addTrack(t, localStream))
   return pc
 }
-
 async function joinCallChannel() {
   if (callChannel) await supabase.removeChannel(callChannel)
   const room = activeRoom
   callChannel = supabase.channel(callRoomId(), { config: { broadcast: { self: false } } })
-
   callChannel
     .on('broadcast', { event: 'offer' }, async ({ payload }) => {
       if (!pc) {
         const who = payload.from || 'someone'
-        notify('Incoming Call', `${displayNameFor(who)} is calling in ${room.type === 'dm' ? 'a whisper' : '#' + room.label}`, 'call-' + room.id)
+        notify('Incoming Call', `${displayNameFor(who)} is calling`, 'call-' + room.id)
         await ensureLocalStream()
         createPeer()
       }
@@ -1571,7 +1484,6 @@ async function joinCallChannel() {
     .on('broadcast', { event: 'hangup' }, () => cleanupCall())
     .subscribe()
 }
-
 async function startCall() {
   try {
     await ensureLocalStream()
@@ -1581,11 +1493,8 @@ async function startCall() {
     await pc.setLocalDescription(offer)
     callChannel.send({ type: 'broadcast', event: 'offer', payload: { sdp: offer, from: me.email } })
     setCallButtonState(true)
-  } catch (e) {
-    alert('Call failed: ' + e.message)
-  }
+  } catch (e) { alert('Call failed: ' + e.message) }
 }
-
 async function cleanupCall() {
   try {
     if (callChannel) {
@@ -1600,7 +1509,6 @@ async function cleanupCall() {
   $('remoteAudio').srcObject = null
   setCallButtonState(false)
 }
-
 $('btnCall').onclick = startCall
 $('btnHangup').onclick = cleanupCall
 </script>
