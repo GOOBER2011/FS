@@ -7,9 +7,10 @@
   <input id="pass" type="password" placeholder="password">
   <button id="signup">Sign up</button>
   <button id="signin">Sign in</button>
+  <p id="status">Not signed in</p>
 
   <h3>Chat</h3>
-  <div id="msgs" style="border:1px solid #ccc;height:200px;overflow-y:auto"></div>
+  <div id="msgs" style="border:1px solid #ccc;height:200px;overflow-y:auto;padding:8px"></div>
   <input id="msg" placeholder="message">
   <button id="send">Send</button>
 
@@ -21,25 +22,41 @@ const supabase = createClient(
   'sb_publishable_XQQ0k_JJp0u-8q2twD_8Yg_Ve6mn0c4'
 )
 
-signup.onclick = async () => {
-  const { error } = await supabase.auth.signUp({
-    email: email.value, password: pass.value
-  })
-  alert(error ? error.message : 'Signed up!')
+const $ = id => document.getElementById(id)
+
+// Show who's signed in
+async function refreshUser() {
+  const { data: { user } } = await supabase.auth.getUser()
+  $('status').textContent = user ? `Signed in as ${user.email}` : 'Not signed in'
+  return user
 }
-signin.onclick = async () => {
+refreshUser()
+
+$('signup').onclick = async () => {
+  const { error } = await supabase.auth.signUp({
+    email: $('email').value, password: $('pass').value
+  })
+  alert(error ? error.message : 'Signed up! Check status below.')
+  refreshUser()
+}
+
+$('signin').onclick = async () => {
   const { error } = await supabase.auth.signInWithPassword({
-    email: email.value, password: pass.value
+    email: $('email').value, password: $('pass').value
   })
   alert(error ? error.message : 'Signed in!')
+  refreshUser()
 }
 
 async function loadMessages() {
-  const { data } = await supabase.from('messages')
+  const { data, error } = await supabase.from('messages')
     .select('*').order('created_at').limit(50)
-  msgs.innerHTML = ''
-  data?.forEach(m => msgs.innerHTML += `<div><b>${m.user_email}:</b> ${m.content}</div>`)
-  msgs.scrollTop = msgs.scrollHeight
+  if (error) { console.error('load error:', error); return }
+  $('msgs').innerHTML = ''
+  data?.forEach(m => {
+    $('msgs').innerHTML += `<div><b>${m.user_email}:</b> ${m.content}</div>`
+  })
+  $('msgs').scrollTop = $('msgs').scrollHeight
 }
 loadMessages()
 
@@ -48,19 +65,24 @@ supabase.channel('room')
       { event: 'INSERT', schema: 'public', table: 'messages' },
       (payload) => {
         const m = payload.new
-        msgs.innerHTML += `<div><b>${m.user_email}:</b> ${m.content}</div>`
-        msgs.scrollTop = msgs.scrollHeight
+        $('msgs').innerHTML += `<div><b>${m.user_email}:</b> ${m.content}</div>`
+        $('msgs').scrollTop = $('msgs').scrollHeight
       })
   .subscribe()
 
-send.onclick = async () => {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return alert('Sign in first')
-  const { error } = await supabase.from('messages').insert({
-    content: msg.value, user_email: user.email
+$('send').onclick = async () => {
+  console.log('send clicked, text =', $('msg').value)
+  const user = await refreshUser()
+  if (!user) { alert('Sign in first'); return }
+  if (!$('msg').value.trim()) { alert('Type something first'); return }
+  
+  const { data, error } = await supabase.from('messages').insert({
+    content: $('msg').value,
+    user_email: user.email
   })
-  if (error) alert(error.message)
-  msg.value = ''
+  console.log('insert result:', data, error)
+  if (error) { alert('Insert failed: ' + error.message); return }
+  $('msg').value = ''
 }
 </script>
 </body>
