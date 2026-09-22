@@ -444,7 +444,8 @@
 </div>
 
 <script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+// PINNED VERSION — fixes "onAuthStateChange is not a function" crash
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm'
 
 const supabase = createClient(
   'https://erxndglbywylopckbqjg.supabase.co',
@@ -551,26 +552,30 @@ $('btnSignout').onclick = async () => {
   await supabase.auth.signOut()
 }
 
-supabase.auth.onAuthStateChange((event, session) => {
-  if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') return
-  if (session?.user) {
-    me = session.user
-    $('login').style.display = 'none'
-    $('app').style.display = 'flex'
-    ensureNotifyPermission()
-    boot()
-  } else {
-    me = null; myProfile = null; profileCache = {}; messagesCache = {}
-    onlineEmails = new Set(); notifications = []
-    $('login').style.display = 'flex'
-    $('app').style.display = 'none'
-    if (chatChannel) { supabase.removeChannel(chatChannel); chatChannel = null }
-    if (friendsChannel) { supabase.removeChannel(friendsChannel); friendsChannel = null }
-    if (presenceChannel) { supabase.removeChannel(presenceChannel); presenceChannel = null }
-    if (notifChannel) { supabase.removeChannel(notifChannel); notifChannel = null }
-  }
-})
+// GUARDED — won't crash if the SDK changes the API again
+if (typeof supabase.auth.onAuthStateChange === 'function') {
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') return
+    if (session?.user) {
+      me = session.user
+      $('login').style.display = 'none'
+      $('app').style.display = 'flex'
+      ensureNotifyPermission()
+      boot()
+    } else {
+      me = null; myProfile = null; profileCache = {}; messagesCache = {}
+      onlineEmails = new Set(); notifications = []
+      $('login').style.display = 'flex'
+      $('app').style.display = 'none'
+      if (chatChannel) { supabase.removeChannel(chatChannel); chatChannel = null }
+      if (friendsChannel) { supabase.removeChannel(friendsChannel); friendsChannel = null }
+      if (presenceChannel) { supabase.removeChannel(presenceChannel); presenceChannel = null }
+      if (notifChannel) { supabase.removeChannel(notifChannel); notifChannel = null }
+    }
+  })
+}
 
+// Explicit session check — always runs regardless of the event
 (async () => {
   try {
     const { data: { session } } = await supabase.auth.getSession()
@@ -597,8 +602,7 @@ async function fetchProfileByEmail(email) {
   if (profileCache[email]) return profileCache[email]
   const { data } = await supabase.from('profiles').select('*').eq('email', email).maybeSingle()
   if (data) profileCache[email] = data
-  return data
-}
+  return data}
 async function loadProfilesFor(emails) {
   const missing = [...new Set(emails)].filter(e => e && !profileCache[e])
   if (missing.length === 0) return
@@ -747,7 +751,6 @@ async function boot() {
     listenNotifications()
     await loadNotifications()
     await openRoom('general', 'channel', 'general')
-    // Re-scroll after layout settles
     setTimeout(() => {
       const mc = $('messages')
       if (mc && mc.children.length > 0) {
