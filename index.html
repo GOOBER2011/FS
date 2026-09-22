@@ -4,21 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SPHYNX · chat</title>
-  <!-- Google Fonts: Inter + JetBrains Mono for a modern look -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <!-- Font Awesome 6 (free) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <!-- Supabase JS Client (v2) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* ---------- RESET & GLOBAL ---------- */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
       --bg-deep: #0b0b0d;
@@ -57,32 +49,18 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ---------- SCROLLBAR ---------- */
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: var(--border-med);
-      border-radius: 8px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--text-muted);
-    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-med); border-radius: 8px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-    /* ---------- AUTH MODAL ---------- */
+    /* AUTH MODAL */
     .auth-overlay {
-      position: fixed;
-      inset: 0;
+      position: fixed; inset: 0;
       background: rgba(0, 0, 0, 0.85);
       backdrop-filter: blur(12px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 20px;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000; padding: 20px;
     }
 
     .auth-card {
@@ -90,100 +68,64 @@
       border: 1px solid var(--border-dim);
       border-radius: var(--radius-lg);
       padding: 48px 40px;
-      width: 100%;
-      max-width: 420px;
+      width: 100%; max-width: 420px;
       box-shadow: var(--shadow-lg);
-      position: relative;
-      overflow: hidden;
+      position: relative; overflow: hidden;
     }
 
     .auth-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
       background: linear-gradient(90deg, var(--accent), var(--accent-dim), transparent);
     }
 
     .auth-logo {
-      font-size: 32px;
-      font-weight: 700;
-      letter-spacing: 3px;
-      color: var(--text-primary);
-      text-align: center;
-      margin-bottom: 8px;
+      font-size: 32px; font-weight: 700;
+      letter-spacing: 3px; color: var(--text-primary);
+      text-align: center; margin-bottom: 8px;
     }
 
-    .auth-logo span {
-      color: var(--accent);
-    }
+    .auth-logo span { color: var(--accent); }
 
     .auth-sub {
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 13px;
-      margin-bottom: 32px;
+      text-align: center; color: var(--text-muted);
+      font-size: 13px; margin-bottom: 32px;
       font-family: var(--font-mono);
     }
 
     .auth-tabs {
-      display: flex;
-      gap: 4px;
+      display: flex; gap: 4px;
       background: var(--bg-mid);
       border-radius: var(--radius-sm);
-      padding: 4px;
-      margin-bottom: 28px;
+      padding: 4px; margin-bottom: 28px;
     }
 
     .auth-tab {
-      flex: 1;
-      padding: 10px;
-      text-align: center;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-muted);
-      transition: all 0.2s;
-      border: none;
-      background: transparent;
+      flex: 1; padding: 10px; text-align: center;
+      border-radius: var(--radius-sm); cursor: pointer;
+      font-size: 14px; font-weight: 600;
+      color: var(--text-muted); transition: all 0.2s;
+      border: none; background: transparent;
       font-family: var(--font-sans);
     }
 
-    .auth-tab.active {
-      background: var(--bg-lighter);
-      color: var(--accent);
-    }
+    .auth-tab.active { background: var(--bg-lighter); color: var(--accent); }
+    .auth-tab:hover:not(.active) { color: var(--text-secondary); }
 
-    .auth-tab:hover:not(.active) {
-      color: var(--text-secondary);
-    }
-
-    .auth-field {
-      margin-bottom: 18px;
-    }
+    .auth-field { margin-bottom: 18px; }
 
     .auth-field label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      display: block; font-size: 12px; font-weight: 600;
+      color: var(--text-secondary); margin-bottom: 6px;
+      text-transform: uppercase; letter-spacing: 0.5px;
     }
 
     .auth-field input {
-      width: 100%;
-      background: var(--bg-mid);
+      width: 100%; background: var(--bg-mid);
       border: 1px solid var(--border-dim);
       border-radius: var(--radius-sm);
-      padding: 12px 14px;
-      color: var(--text-primary);
-      font-size: 15px;
-      font-family: var(--font-sans);
+      padding: 12px 14px; color: var(--text-primary);
+      font-size: 15px; font-family: var(--font-sans);
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
@@ -193,531 +135,302 @@
       box-shadow: 0 0 0 3px var(--accent-glow);
     }
 
-    .auth-field input::placeholder {
-      color: var(--text-muted);
-    }
+    .auth-field input::placeholder { color: var(--text-muted); }
 
     .auth-btn {
-      width: 100%;
-      padding: 14px;
-      background: var(--accent);
-      color: #0b0b0d;
-      border: none;
-      border-radius: var(--radius-sm);
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
+      width: 100%; padding: 14px;
+      background: var(--accent); color: #0b0b0d;
+      border: none; border-radius: var(--radius-sm);
+      font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
       font-family: var(--font-sans);
-      margin-top: 8px;
-      letter-spacing: 0.3px;
+      margin-top: 8px; letter-spacing: 0.3px;
     }
 
-    .auth-btn:hover {
-      background: var(--accent-dim);
-      transform: translateY(-1px);
-    }
-
-    .auth-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
+    .auth-btn:hover { background: var(--accent-dim); transform: translateY(-1px); }
+    .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
     .auth-error {
       background: rgba(231, 76, 76, 0.1);
       border: 1px solid rgba(231, 76, 76, 0.3);
       border-radius: var(--radius-sm);
-      padding: 10px 14px;
-      color: var(--danger);
-      font-size: 13px;
-      margin-bottom: 16px;
-      display: none;
+      padding: 10px 14px; color: var(--danger);
+      font-size: 13px; margin-bottom: 16px; display: none;
     }
 
     .auth-message {
       background: rgba(46, 204, 113, 0.1);
       border: 1px solid rgba(46, 204, 113, 0.3);
       border-radius: var(--radius-sm);
-      padding: 10px 14px;
-      color: var(--success);
-      font-size: 13px;
-      margin-bottom: 16px;
-      display: none;
+      padding: 10px 14px; color: var(--success);
+      font-size: 13px; margin-bottom: 16px; display: none;
     }
 
-    /* ---------- MAIN APP ---------- */
+    /* MAIN APP */
     .sphynx-app {
-      display: flex;
-      width: 1400px;
-      max-width: 98vw;
-      height: 92vh;
-      max-height: 900px;
-      background-color: var(--bg-dark);
+      display: flex; width: 1400px;
+      max-width: 98vw; height: 92vh;
+      max-height: 900px; background-color: var(--bg-dark);
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-lg);
-      overflow: hidden;
-      border: 1px solid var(--border-dim);
+      overflow: hidden; border: 1px solid var(--border-dim);
       display: none;
     }
 
-    .sphynx-app.visible {
-      display: flex;
-    }
+    .sphynx-app.visible { display: flex; }
 
-    /* ---------- SERVER SIDEBAR ---------- */
+    /* SERVER SIDEBAR */
     .server-sidebar {
-      width: 72px;
-      background-color: var(--bg-deep);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 12px 0;
-      gap: 8px;
+      width: 72px; background-color: var(--bg-deep);
+      display: flex; flex-direction: column;
+      align-items: center; padding: 12px 0; gap: 8px;
       border-right: 1px solid var(--border-dim);
       flex-shrink: 0;
     }
 
     .server-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
+      width: 48px; height: 48px; border-radius: 50%;
       background-color: var(--bg-light);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       color: var(--text-secondary);
-      font-weight: 700;
-      font-size: 18px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      position: relative;
-      border: 2px solid transparent;
+      font-weight: 700; font-size: 18px;
+      cursor: pointer; transition: all 0.2s ease;
+      position: relative; border: 2px solid transparent;
     }
 
     .server-icon.active {
-      border-radius: 16px;
-      background-color: var(--accent);
-      color: #0b0b0d;
-      border-color: var(--accent);
+      border-radius: 16px; background-color: var(--accent);
+      color: #0b0b0d; border-color: var(--accent);
       box-shadow: 0 0 20px rgba(245, 197, 66, 0.25);
     }
 
     .server-icon:not(.active):hover {
-      border-radius: 16px;
-      background-color: var(--accent);
+      border-radius: 16px; background-color: var(--accent);
       color: #0b0b0d;
     }
 
     .server-icon.spacer {
       background-color: var(--bg-mid);
-      color: var(--text-muted);
-      font-size: 22px;
-      font-weight: 400;
-      cursor: default;
+      color: var(--text-muted); font-size: 22px;
+      font-weight: 400; cursor: default;
       border: 1px dashed var(--border-med);
     }
 
     .server-icon.spacer:hover {
-      border-radius: 50%;
-      background-color: var(--bg-mid);
+      border-radius: 50%; background-color: var(--bg-mid);
       color: var(--text-muted);
     }
 
-    .server-icon .status-dot {
-      width: 10px;
-      height: 10px;
-      background-color: var(--success);
-      border: 2px solid var(--bg-deep);
-      border-radius: 50%;
-      position: absolute;
-      bottom: -2px;
-      right: -2px;
-    }
-
-    /* ---------- CHANNEL SIDEBAR ---------- */
+    /* CHANNEL SIDEBAR */
     .channel-sidebar {
-      width: 250px;
-      background-color: var(--bg-mid);
-      display: flex;
-      flex-direction: column;
+      width: 250px; background-color: var(--bg-mid);
+      display: flex; flex-direction: column;
       border-right: 1px solid var(--border-dim);
       flex-shrink: 0;
     }
 
     .server-header {
-      padding: 16px;
-      border-bottom: 1px solid var(--border-dim);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      color: var(--text-primary);
-      font-weight: 700;
-      font-size: 16px;
-      letter-spacing: 0.5px;
-      background: var(--bg-mid);
+      padding: 16px; border-bottom: 1px solid var(--border-dim);
+      display: flex; align-items: center; justify-content: space-between;
+      color: var(--text-primary); font-weight: 700; font-size: 16px;
+      letter-spacing: 0.5px; background: var(--bg-mid);
     }
 
-    .server-header .name {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .server-header .name i {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
+    .server-header .name { display: flex; align-items: center; gap: 6px; }
+    .server-header .name i { font-size: 12px; color: var(--text-muted); }
 
     .server-header .sphynx-badge {
-      color: var(--accent);
-      font-size: 11px;
-      font-weight: 600;
+      color: var(--accent); font-size: 11px; font-weight: 600;
       background: rgba(245, 197, 66, 0.1);
-      padding: 2px 8px;
-      border-radius: 20px;
-      font-family: var(--font-mono);
-      letter-spacing: 0.5px;
+      padding: 2px 8px; border-radius: 20px;
+      font-family: var(--font-mono); letter-spacing: 0.5px;
     }
 
     .channel-list {
-      flex: 1;
-      overflow-y: auto;
+      flex: 1; overflow-y: auto;
       padding: 12px 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+      display: flex; flex-direction: column; gap: 2px;
     }
 
     .channel-category {
-      color: var(--text-muted);
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
+      color: var(--text-muted); font-size: 11px;
+      font-weight: 700; text-transform: uppercase;
       letter-spacing: 0.08em;
-      padding: 10px 8px 4px 8px;
-      margin-top: 6px;
+      padding: 10px 8px 4px 8px; margin-top: 6px;
     }
 
     .channel {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 10px;
-      border-radius: var(--radius-sm);
-      color: var(--text-secondary);
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px; border-radius: var(--radius-sm);
+      color: var(--text-secondary); font-size: 14px;
+      font-weight: 500; cursor: pointer;
       transition: background 0.15s, color 0.15s;
     }
 
     .channel i {
-      width: 18px;
-      font-size: 15px;
-      color: var(--text-muted);
-      text-align: center;
+      width: 18px; font-size: 15px;
+      color: var(--text-muted); text-align: center;
     }
 
-    .channel:hover {
-      background-color: var(--bg-lighter);
-      color: var(--text-primary);
-    }
+    .channel:hover { background-color: var(--bg-lighter); color: var(--text-primary); }
 
     .channel.active {
       background-color: var(--bg-lighter);
-      color: var(--accent);
-      font-weight: 600;
+      color: var(--accent); font-weight: 600;
     }
 
-    .channel.active i {
-      color: var(--accent);
-    }
+    .channel.active i { color: var(--accent); }
 
-    .channel .unread-badge {
-      margin-left: auto;
-      background: var(--accent);
-      color: #0b0b0d;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 7px;
-      border-radius: 12px;
-      font-family: var(--font-mono);
-    }
-
-    /* ---------- USER PANEL ---------- */
+    /* USER PANEL */
     .user-area {
       background-color: var(--bg-deep);
       padding: 10px 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      display: flex; align-items: center; gap: 10px;
       border-top: 1px solid var(--border-dim);
     }
 
     .user-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
+      width: 36px; height: 36px; border-radius: 50%;
       background: linear-gradient(135deg, var(--accent), var(--accent-dim));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #0b0b0d;
-      font-weight: 700;
-      font-size: 15px;
-      flex-shrink: 0;
-      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      color: #0b0b0d; font-weight: 700; font-size: 15px;
+      flex-shrink: 0; overflow: hidden;
       border: 2px solid var(--border-med);
-      cursor: pointer;
-      transition: border-color 0.2s;
+      cursor: pointer; transition: border-color 0.2s;
     }
 
-    .user-avatar:hover {
-      border-color: var(--accent);
-    }
+    .user-avatar:hover { border-color: var(--accent); }
+    .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-    .user-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .user-info {
-      flex: 1;
-      min-width: 0;
-    }
+    .user-info { flex: 1; min-width: 0; }
 
     .user-name {
-      color: var(--text-primary);
-      font-size: 13px;
-      font-weight: 600;
-      line-height: 1.3;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      color: var(--text-primary); font-size: 13px;
+      font-weight: 600; line-height: 1.3;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
 
     .user-tag {
-      color: var(--text-muted);
-      font-size: 11px;
+      color: var(--text-muted); font-size: 11px;
       font-family: var(--font-mono);
     }
 
-    .user-actions {
-      display: flex;
-      gap: 2px;
-    }
+    .user-actions { display: flex; gap: 2px; }
 
     .user-actions button {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 14px;
-      cursor: pointer;
-      padding: 6px;
-      border-radius: var(--radius-sm);
-      transition: all 0.2s;
+      background: transparent; border: none;
+      color: var(--text-muted); font-size: 14px;
+      cursor: pointer; padding: 6px;
+      border-radius: var(--radius-sm); transition: all 0.2s;
     }
 
     .user-actions button:hover {
-      background-color: var(--bg-light);
-      color: var(--accent);
+      background-color: var(--bg-light); color: var(--accent);
     }
 
-    /* ---------- CHAT AREA ---------- */
+    /* CHAT AREA */
     .chat-area {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background-color: var(--bg-dark);
-      min-width: 0;
+      flex: 1; display: flex; flex-direction: column;
+      background-color: var(--bg-dark); min-width: 0;
     }
 
     .chat-header {
       padding: 14px 20px;
       border-bottom: 1px solid var(--border-dim);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--text-primary);
-      font-weight: 600;
-      font-size: 15px;
-      background: var(--bg-dark);
-      flex-shrink: 0;
+      display: flex; align-items: center; gap: 8px;
+      color: var(--text-primary); font-weight: 600; font-size: 15px;
+      background: var(--bg-dark); flex-shrink: 0;
     }
 
-    .chat-header i {
-      color: var(--text-muted);
-      font-size: 18px;
-    }
+    .chat-header i { color: var(--text-muted); font-size: 18px; }
 
     .chat-header .topic {
-      color: var(--text-muted);
-      font-size: 13px;
-      font-weight: 400;
-      margin-left: 8px;
+      color: var(--text-muted); font-size: 13px;
+      font-weight: 400; margin-left: 8px;
       border-left: 1px solid var(--border-med);
-      padding-left: 12px;
-      font-family: var(--font-mono);
+      padding-left: 12px; font-family: var(--font-mono);
     }
 
-    .chat-header .header-actions {
-      margin-left: auto;
-      display: flex;
-      gap: 4px;
-    }
+    .chat-header .header-actions { margin-left: auto; display: flex; gap: 4px; }
 
     .chat-header .header-actions button {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 16px;
-      cursor: pointer;
-      padding: 6px 8px;
-      border-radius: var(--radius-sm);
-      transition: all 0.2s;
+      background: transparent; border: none;
+      color: var(--text-muted); font-size: 16px;
+      cursor: pointer; padding: 6px 8px;
+      border-radius: var(--radius-sm); transition: all 0.2s;
     }
 
     .chat-header .header-actions button:hover {
-      background: var(--bg-light);
-      color: var(--accent);
+      background: var(--bg-light); color: var(--accent);
     }
 
     .messages-container {
-      flex: 1;
-      overflow-y: auto;
+      flex: 1; overflow-y: auto;
       padding: 20px 20px 8px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
+      display: flex; flex-direction: column; gap: 18px;
     }
 
     .message {
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
-      padding: 4px 8px;
-      border-radius: var(--radius-sm);
+      display: flex; gap: 14px; align-items: flex-start;
+      padding: 4px 8px; border-radius: var(--radius-sm);
       transition: background 0.15s;
     }
 
-    .message:hover {
-      background: rgba(255, 255, 255, 0.015);
-    }
+    .message:hover { background: rgba(255, 255, 255, 0.015); }
 
     .msg-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
+      width: 40px; height: 40px; border-radius: 50%;
       background: linear-gradient(135deg, var(--accent), var(--accent-dim));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #0b0b0d;
-      font-weight: 700;
-      font-size: 16px;
-      flex-shrink: 0;
-      overflow: hidden;
-      text-transform: uppercase;
-      border: 2px solid var(--border-dim);
+      display: flex; align-items: center; justify-content: center;
+      color: #0b0b0d; font-weight: 700; font-size: 16px;
+      flex-shrink: 0; overflow: hidden;
+      text-transform: uppercase; border: 2px solid var(--border-dim);
     }
 
-    .msg-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .msg-content {
-      flex: 1;
-      min-width: 0;
-    }
+    .msg-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .msg-content { flex: 1; min-width: 0; }
 
     .msg-header {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      margin-bottom: 3px;
+      display: flex; align-items: baseline;
+      gap: 8px; margin-bottom: 3px;
     }
 
     .msg-author {
-      color: var(--text-primary);
-      font-weight: 600;
-      font-size: 15px;
-      cursor: pointer;
+      color: var(--text-primary); font-weight: 600;
+      font-size: 15px; cursor: pointer;
     }
 
-    .msg-author:hover {
-      color: var(--accent);
-      text-decoration: underline;
-    }
+    .msg-author:hover { color: var(--accent); text-decoration: underline; }
 
     .msg-time {
-      color: var(--text-muted);
-      font-size: 11px;
-      font-weight: 400;
-      font-family: var(--font-mono);
+      color: var(--text-muted); font-size: 11px;
+      font-weight: 400; font-family: var(--font-mono);
     }
 
     .msg-text {
-      color: var(--text-secondary);
-      font-size: 14.5px;
-      line-height: 1.55;
-      word-wrap: break-word;
-      white-space: pre-wrap;
-    }
-
-    .msg-text a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    .msg-text a:hover {
-      text-decoration: underline;
+      color: var(--text-secondary); font-size: 14.5px;
+      line-height: 1.55; word-wrap: break-word; white-space: pre-wrap;
     }
 
     .no-messages {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      color: var(--text-muted);
-      gap: 12px;
-      text-align: center;
-      padding: 40px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      height: 100%; color: var(--text-muted);
+      gap: 12px; text-align: center; padding: 40px;
     }
 
-    .no-messages i {
-      font-size: 48px;
-      color: var(--border-med);
-    }
+    .no-messages i { font-size: 48px; color: var(--border-med); }
+    .no-messages h3 { font-size: 18px; color: var(--text-secondary); font-weight: 600; }
+    .no-messages p { font-size: 14px; max-width: 300px; }
 
-    .no-messages h3 {
-      font-size: 18px;
-      color: var(--text-secondary);
-      font-weight: 600;
-    }
-
-    .no-messages p {
-      font-size: 14px;
-      max-width: 300px;
-    }
-
-    /* ---------- MESSAGE INPUT ---------- */
-    .message-input-wrapper {
-      padding: 0 20px 20px 20px;
-      flex-shrink: 0;
-    }
+    /* MESSAGE INPUT */
+    .message-input-wrapper { padding: 0 20px 20px 20px; flex-shrink: 0; }
 
     .message-input-box {
       background-color: var(--bg-mid);
       border-radius: var(--radius-md);
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      gap: 10px;
+      display: flex; align-items: center;
+      padding: 0 16px; gap: 10px;
       border: 1px solid var(--border-dim);
       transition: border-color 0.2s, box-shadow 0.2s;
     }
@@ -728,199 +441,125 @@
     }
 
     .message-input-box i {
-      color: var(--text-muted);
-      font-size: 18px;
-      cursor: pointer;
-      transition: color 0.2s;
-      padding: 4px;
+      color: var(--text-muted); font-size: 18px;
+      cursor: pointer; transition: color 0.2s; padding: 4px;
     }
 
-    .message-input-box i:hover {
-      color: var(--accent);
-    }
+    .message-input-box i:hover { color: var(--accent); }
 
     .message-input-box input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: var(--text-primary);
-      font-size: 15px;
-      padding: 16px 0;
-      font-family: var(--font-sans);
+      flex: 1; background: transparent;
+      border: none; outline: none;
+      color: var(--text-primary); font-size: 15px;
+      padding: 16px 0; font-family: var(--font-sans);
     }
 
-    .message-input-box input::placeholder {
-      color: var(--text-muted);
-    }
+    .message-input-box input::placeholder { color: var(--text-muted); }
 
     .message-input-box .send-btn {
-      background: var(--accent);
-      border: none;
-      color: #0b0b0d;
-      width: 34px;
-      height: 34px;
+      background: var(--accent); border: none;
+      color: #0b0b0d; width: 34px; height: 34px;
       border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s; font-size: 14px;
     }
 
     .message-input-box .send-btn:hover {
-      background: var(--accent-dim);
-      transform: scale(1.05);
+      background: var(--accent-dim); transform: scale(1.05);
     }
 
     .message-input-box .send-btn:disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
-      transform: none;
+      opacity: 0.3; cursor: not-allowed; transform: none;
     }
 
-    /* ---------- PROFILE MODAL ---------- */
+    /* PROFILE MODAL */
     .modal-overlay {
-      position: fixed;
-      inset: 0;
+      position: fixed; inset: 0;
       background: rgba(0, 0, 0, 0.8);
       backdrop-filter: blur(10px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-      padding: 20px;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 2000; padding: 20px;
     }
 
     .modal-card {
       background: var(--bg-dark);
       border: 1px solid var(--border-dim);
       border-radius: var(--radius-lg);
-      padding: 36px;
-      width: 100%;
-      max-width: 480px;
+      padding: 36px; width: 100%; max-width: 480px;
       box-shadow: var(--shadow-lg);
-      position: relative;
-      max-height: 90vh;
-      overflow-y: auto;
+      position: relative; max-height: 90vh; overflow-y: auto;
     }
 
     .modal-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
       background: linear-gradient(90deg, var(--accent), var(--accent-dim), transparent);
       border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     }
 
     .modal-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      font-size: 20px; font-weight: 700;
+      color: var(--text-primary); margin-bottom: 24px;
+      display: flex; align-items: center; justify-content: space-between;
     }
 
     .modal-title button {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 20px;
-      cursor: pointer;
-      padding: 4px;
-      border-radius: var(--radius-sm);
-      transition: all 0.2s;
+      background: transparent; border: none;
+      color: var(--text-muted); font-size: 20px;
+      cursor: pointer; padding: 4px;
+      border-radius: var(--radius-sm); transition: all 0.2s;
     }
 
-    .modal-title button:hover {
-      background: var(--bg-light);
-      color: var(--accent);
-    }
+    .modal-title button:hover { background: var(--bg-light); color: var(--accent); }
 
     .profile-preview {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 28px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 16px; margin-bottom: 28px;
     }
 
     .profile-avatar-large {
-      width: 96px;
-      height: 96px;
-      border-radius: 50%;
+      width: 96px; height: 96px; border-radius: 50%;
       background: linear-gradient(135deg, var(--accent), var(--accent-dim));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #0b0b0d;
-      font-weight: 700;
-      font-size: 36px;
-      overflow: hidden;
-      border: 3px solid var(--border-med);
+      display: flex; align-items: center; justify-content: center;
+      color: #0b0b0d; font-weight: 700; font-size: 36px;
+      overflow: hidden; border: 3px solid var(--border-med);
       text-transform: uppercase;
     }
 
-    .profile-avatar-large img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    .profile-avatar-large img { width: 100%; height: 100%; object-fit: cover; }
 
     .avatar-options {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: center;
+      display: flex; gap: 8px;
+      flex-wrap: wrap; justify-content: center;
     }
 
     .avatar-color-option {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid transparent;
+      width: 32px; height: 32px; border-radius: 50%;
+      cursor: pointer; border: 2px solid transparent;
       transition: all 0.2s;
     }
 
-    .avatar-color-option:hover {
-      transform: scale(1.15);
-    }
+    .avatar-color-option:hover { transform: scale(1.15); }
 
     .avatar-color-option.selected {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--accent-glow);
     }
 
-    .modal-field {
-      margin-bottom: 18px;
-    }
+    .modal-field { margin-bottom: 18px; }
 
     .modal-field label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      display: block; font-size: 12px; font-weight: 600;
+      color: var(--text-secondary); margin-bottom: 6px;
+      text-transform: uppercase; letter-spacing: 0.5px;
     }
 
     .modal-field input {
-      width: 100%;
-      background: var(--bg-mid);
+      width: 100%; background: var(--bg-mid);
       border: 1px solid var(--border-dim);
       border-radius: var(--radius-sm);
-      padding: 12px 14px;
-      color: var(--text-primary);
-      font-size: 15px;
-      font-family: var(--font-sans);
+      padding: 12px 14px; color: var(--text-primary);
+      font-size: 15px; font-family: var(--font-sans);
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
@@ -930,147 +569,76 @@
       box-shadow: 0 0 0 3px var(--accent-glow);
     }
 
-    .modal-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 28px;
-    }
+    .modal-actions { display: flex; gap: 10px; margin-top: 28px; }
 
     .modal-actions button {
-      flex: 1;
-      padding: 13px;
+      flex: 1; padding: 13px;
       border-radius: var(--radius-sm);
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      font-family: var(--font-sans);
-      transition: all 0.2s;
-      border: none;
+      font-size: 14px; font-weight: 700;
+      cursor: pointer; font-family: var(--font-sans);
+      transition: all 0.2s; border: none;
     }
 
-    .btn-primary {
-      background: var(--accent);
-      color: #0b0b0d;
-    }
-
-    .btn-primary:hover {
-      background: var(--accent-dim);
-    }
+    .btn-primary { background: var(--accent); color: #0b0b0d; }
+    .btn-primary:hover { background: var(--accent-dim); }
 
     .btn-secondary {
-      background: var(--bg-light);
-      color: var(--text-secondary);
+      background: var(--bg-light); color: var(--text-secondary);
       border: 1px solid var(--border-dim);
     }
 
-    .btn-secondary:hover {
-      background: var(--bg-lighter);
-      color: var(--text-primary);
-    }
+    .btn-secondary:hover { background: var(--bg-lighter); color: var(--text-primary); }
 
-    /* ---------- TOAST ---------- */
+    /* TOAST */
     .toast {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
+      position: fixed; bottom: 24px; right: 24px;
       background: var(--bg-light);
       border: 1px solid var(--border-med);
       border-left: 3px solid var(--accent);
       border-radius: var(--radius-sm);
-      padding: 14px 20px;
-      color: var(--text-primary);
-      font-size: 14px;
-      box-shadow: var(--shadow-md);
-      z-index: 3000;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      animation: slideIn 0.3s ease;
-      max-width: 360px;
+      padding: 14px 20px; color: var(--text-primary);
+      font-size: 14px; box-shadow: var(--shadow-md);
+      z-index: 3000; display: flex; align-items: center; gap: 10px;
+      animation: slideIn 0.3s ease; max-width: 360px;
     }
 
-    .toast.success {
-      border-left-color: var(--success);
-    }
-
-    .toast.error {
-      border-left-color: var(--danger);
-    }
+    .toast.success { border-left-color: var(--success); }
+    .toast.error { border-left-color: var(--danger); }
 
     @keyframes slideIn {
-      from {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
 
-    /* ---------- LOADING ---------- */
     .loading-spinner {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
+      display: inline-block; width: 16px; height: 16px;
       border: 2px solid rgba(11, 11, 13, 0.3);
-      border-radius: 50%;
-      border-top-color: #0b0b0d;
+      border-radius: 50%; border-top-color: #0b0b0d;
       animation: spin 0.6s linear infinite;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ---------- RESPONSIVE ---------- */
     @media (max-width: 900px) {
-      .sphynx-app {
-        height: 100vh;
-        max-height: 100vh;
-        border-radius: 0;
-        max-width: 100vw;
-      }
-      .server-sidebar {
-        width: 60px;
-      }
-      .server-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 15px;
-      }
-      .channel-sidebar {
-        width: 200px;
-      }
-      .chat-header .topic {
-        display: none;
-      }
+      .sphynx-app { height: 100vh; max-height: 100vh; border-radius: 0; max-width: 100vw; }
+      .server-sidebar { width: 60px; }
+      .server-icon { width: 40px; height: 40px; font-size: 15px; }
+      .channel-sidebar { width: 200px; }
+      .chat-header .topic { display: none; }
     }
 
     @media (max-width: 640px) {
-      .channel-sidebar {
-        display: none;
-      }
-      .server-sidebar {
-        width: 54px;
-      }
-      .server-icon {
-        width: 36px;
-        height: 36px;
-        font-size: 13px;
-      }
-      .auth-card {
-        padding: 32px 24px;
-      }
-      .modal-card {
-        padding: 28px 20px;
-      }
+      .channel-sidebar { display: none; }
+      .server-sidebar { width: 54px; }
+      .server-icon { width: 36px; height: 36px; font-size: 13px; }
+      .auth-card { padding: 32px 24px; }
+      .modal-card { padding: 28px 20px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- ========== AUTH MODAL ========== -->
+  <!-- AUTH MODAL -->
   <div class="auth-overlay" id="authOverlay">
     <div class="auth-card">
       <div class="auth-logo">SPHYNX<span>.</span></div>
@@ -1084,7 +652,6 @@
       <div class="auth-error" id="authError"></div>
       <div class="auth-message" id="authMessage"></div>
 
-      <!-- SIGN IN FORM -->
       <form id="signInForm" onsubmit="handleSignIn(event)">
         <div class="auth-field">
           <label>Email</label>
@@ -1097,7 +664,6 @@
         <button type="submit" class="auth-btn" id="signInBtn">Sign In</button>
       </form>
 
-      <!-- SIGN UP FORM -->
       <form id="signUpForm" style="display:none;" onsubmit="handleSignUp(event)">
         <div class="auth-field">
           <label>Username</label>
@@ -1116,9 +682,8 @@
     </div>
   </div>
 
-  <!-- ========== MAIN APP ========== -->
+  <!-- MAIN APP -->
   <div class="sphynx-app" id="app">
-    <!-- LEFT: server list -->
     <div class="server-sidebar">
       <div class="server-icon active" title="SPHYNX home">S</div>
       <div class="server-icon" title="Server 1">🐍</div>
@@ -1127,12 +692,9 @@
       <div class="server-icon spacer" title="Explore">⌖</div>
     </div>
 
-    <!-- MIDDLE: channel sidebar -->
     <div class="channel-sidebar">
       <div class="server-header">
-        <div class="name">
-          SPHYNX <i class="fas fa-chevron-down"></i>
-        </div>
+        <div class="name">SPHYNX <i class="fas fa-chevron-down"></i></div>
         <span class="sphynx-badge">v1.0</span>
       </div>
       <div class="channel-list">
@@ -1161,7 +723,6 @@
           <i class="fas fa-bullhorn"></i> announcements
         </div>
       </div>
-      <!-- user mini profile -->
       <div class="user-area">
         <div class="user-avatar" id="userAvatarMini" onclick="openProfileModal()">
           <span id="userInitialMini">?</span>
@@ -1179,7 +740,6 @@
       </div>
     </div>
 
-    <!-- RIGHT: chat -->
     <div class="chat-area">
       <div class="chat-header">
         <i class="fas fa-hashtag"></i>
@@ -1191,10 +751,7 @@
           <button title="Pin" onclick="showToast('Pinned messages coming soon', 'info')"><i class="fas fa-thumbtack"></i></button>
         </div>
       </div>
-      <div class="messages-container" id="messagesContainer">
-        <!-- messages will be loaded here -->
-      </div>
-      <!-- message input -->
+      <div class="messages-container" id="messagesContainer"></div>
       <div class="message-input-wrapper">
         <div class="message-input-box">
           <i class="fas fa-plus-circle" title="Attach" onclick="showToast('Attachments coming soon', 'info')"></i>
@@ -1209,7 +766,7 @@
     </div>
   </div>
 
-  <!-- ========== PROFILE MODAL ========== -->
+  <!-- PROFILE MODAL -->
   <div class="modal-overlay" id="profileModal" style="display:none;">
     <div class="modal-card">
       <div class="modal-title">
@@ -1221,9 +778,7 @@
         <div class="profile-avatar-large" id="profileAvatarLarge">
           <span id="profileInitialLarge">?</span>
         </div>
-        <div class="avatar-options" id="avatarColorOptions">
-          <!-- color options will be populated by JS -->
-        </div>
+        <div class="avatar-options" id="avatarColorOptions"></div>
       </div>
 
       <div class="modal-field">
@@ -1243,20 +798,18 @@
     </div>
   </div>
 
-  <!-- ========== SUPABASE & APP LOGIC ========== -->
   <script>
     // ============================================================
-    // 1. SUPABASE CONFIGURATION
+    // SUPABASE CONFIGURATION — YOUR CREDENTIALS
     // ============================================================
-    // REPLACE THESE WITH YOUR ACTUAL SUPABASE PROJECT VALUES
-    const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
-    const SUPABASE_ANON_KEY = 'YOUR_ANON_PUBLIC_KEY';
+    const SUPABASE_URL = 'https://ogwfnuqexjyveolpgdrnt.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_vax-uQJUHoUvXQffY6gcUQ_Ziu9WyuE';
 
     const { createClient } = supabase;
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ============================================================
-    // 2. GLOBAL STATE
+    // GLOBAL STATE
     // ============================================================
     let currentUser = null;
     let currentProfile = null;
@@ -1270,7 +823,7 @@
     ];
 
     // ============================================================
-    // 3. UTILITY FUNCTIONS
+    // UTILITIES
     // ============================================================
     function showToast(message, type = 'info') {
       const existing = document.querySelector('.toast');
@@ -1315,19 +868,24 @@
       return div.innerHTML;
     }
 
+    function adjustColor(hex, amount) {
+      const num = parseInt(hex.replace('#', ''), 16);
+      const r = Math.max(0, Math.min(255, (num >> 16) + amount));
+      const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) + amount));
+      const b = Math.max(0, Math.min(255, (num & 0x0000FF) + amount));
+      return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+    }
+
     // ============================================================
-    // 4. AUTHENTICATION
+    // AUTHENTICATION
     // ============================================================
     function switchAuthTab(tab) {
       const signInForm = document.getElementById('signInForm');
       const signUpForm = document.getElementById('signUpForm');
       const tabSignIn = document.getElementById('tabSignIn');
       const tabSignUp = document.getElementById('tabSignUp');
-      const errorEl = document.getElementById('authError');
-      const messageEl = document.getElementById('authMessage');
-
-      errorEl.style.display = 'none';
-      messageEl.style.display = 'none';
+      document.getElementById('authError').style.display = 'none';
+      document.getElementById('authMessage').style.display = 'none';
 
       if (tab === 'signin') {
         signInForm.style.display = 'block';
@@ -1373,13 +931,9 @@
 
       try {
         const { data, error } = await supabaseClient.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { username }
-          }
+          email, password,
+          options: { data: { username } }
         });
-
         if (error) throw error;
 
         if (data.user && !data.session) {
@@ -1406,11 +960,7 @@
       btn.innerHTML = '<span class="loading-spinner"></span> Signing in...';
 
       try {
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-          email,
-          password
-        });
-
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) throw error;
         showToast('Welcome back!', 'success');
       } catch (err) {
@@ -1435,76 +985,57 @@
     }
 
     // ============================================================
-    // 5. PROFILE MANAGEMENT
+    // PROFILE
     // ============================================================
     async function loadProfile(userId) {
       const { data, error } = await supabaseClient
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
+        .from('profiles').select('*').eq('id', userId).single();
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error loading profile:', error);
         return null;
       }
 
-      // If no profile exists, create one
       if (!data) {
         const username = currentUser.user_metadata?.username || 'user_' + userId.slice(0, 6);
         const { data: newProfile, error: createError } = await supabaseClient
           .from('profiles')
-          .insert({
-            id: userId,
-            username: username,
-            avatar_color: '#f5c542'
-          })
-          .select()
-          .single();
-
+          .insert({ id: userId, username, avatar_color: '#f5c542' })
+          .select().single();
         if (createError) {
           console.error('Error creating profile:', createError);
           return null;
         }
         return newProfile;
       }
-
       return data;
     }
 
     function updateUserUI() {
       if (!currentProfile) return;
-
       const initial = getInitial(currentProfile.username);
       const name = currentProfile.username || 'User';
       const tag = '#' + (currentUser.id.slice(0, 4).toUpperCase());
 
-      // Update mini profile
+      document.getElementById('userNameMini').textContent = name;
+      document.getElementById('userTagMini').textContent = tag;
+
       const miniAvatar = document.getElementById('userAvatarMini');
-      const miniInitial = document.getElementById('userInitialMini');
-      const miniName = document.getElementById('userNameMini');
-      const miniTag = document.getElementById('userTagMini');
-
-      miniName.textContent = name;
-      miniTag.textContent = tag;
-
       if (currentProfile.avatar_url) {
         miniAvatar.innerHTML = `<img src="${escapeHtml(currentProfile.avatar_url)}" alt="" onerror="this.remove(); document.getElementById('userInitialMini').style.display='';">`;
-        if (miniInitial) miniInitial.style.display = 'none';
+        if (document.getElementById('userInitialMini')) document.getElementById('userInitialMini').style.display = 'none';
       } else {
         miniAvatar.innerHTML = `<span id="userInitialMini">${initial}</span>`;
-        miniAvatar.style.background = currentProfile.avatar_color || '#f5c542';
+        miniAvatar.style.background = `linear-gradient(135deg, ${currentProfile.avatar_color || '#f5c542'}, ${adjustColor(currentProfile.avatar_color || '#f5c542', -30)})`;
       }
     }
 
     function openProfileModal() {
       if (!currentProfile) return;
-
       document.getElementById('profileModal').style.display = 'flex';
       document.getElementById('profileUsername').value = currentProfile.username || '';
       document.getElementById('profileAvatarUrl').value = currentProfile.avatar_url || '';
       selectedAvatarColor = currentProfile.avatar_color || '#f5c542';
-
       updateProfilePreview();
       renderAvatarColors();
     }
@@ -1514,26 +1045,17 @@
     }
 
     function updateProfilePreview() {
-      const initial = getInitial(document.getElementById('profileUsername').value || currentProfile.username);
+      const username = document.getElementById('profileUsername').value || currentProfile.username;
+      const initial = getInitial(username);
       const url = document.getElementById('profileAvatarUrl').value.trim();
       const largeAvatar = document.getElementById('profileAvatarLarge');
 
       if (url) {
-        largeAvatar.innerHTML = `<img src="${escapeHtml(url)}" alt="" onerror="this.remove(); document.getElementById('profileInitialLarge').style.display='';">`;
-        const initialEl = document.getElementById('profileInitialLarge');
-        if (initialEl) initialEl.style.display = 'none';
+        largeAvatar.innerHTML = `<img src="${escapeHtml(url)}" alt="" onerror="this.remove(); this.parentElement.innerHTML='<span id=\\'profileInitialLarge\\'>${initial}</span>';">`;
       } else {
         largeAvatar.innerHTML = `<span id="profileInitialLarge">${initial}</span>`;
         largeAvatar.style.background = `linear-gradient(135deg, ${selectedAvatarColor}, ${adjustColor(selectedAvatarColor, -30)})`;
       }
-    }
-
-    function adjustColor(hex, amount) {
-      const num = parseInt(hex.replace('#', ''), 16);
-      const r = Math.max(0, Math.min(255, (num >> 16) + amount));
-      const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) + amount));
-      const b = Math.max(0, Math.min(255, (num & 0x0000FF) + amount));
-      return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
     }
 
     function renderAvatarColors() {
@@ -1574,11 +1096,7 @@
           updated_at: new Date().toISOString()
         };
 
-        const { error } = await supabaseClient
-          .from('profiles')
-          .update(updates)
-          .eq('id', currentUser.id);
-
+        const { error } = await supabaseClient.from('profiles').update(updates).eq('id', currentUser.id);
         if (error) throw error;
 
         currentProfile = { ...currentProfile, ...updates };
@@ -1594,7 +1112,7 @@
     }
 
     // ============================================================
-    // 6. CHANNELS & MESSAGES
+    // CHANNELS & MESSAGES
     // ============================================================
     function selectChannel(channelName, el) {
       document.querySelectorAll('.channel').forEach(c => c.classList.remove('active'));
@@ -1603,7 +1121,6 @@
       document.getElementById('channelName').textContent = channelName;
       document.getElementById('messageInput').placeholder = `Message #${channelName}`;
 
-      // Update topic based on channel
       const topics = {
         general: 'Welcome to SPHYNX · be kind',
         introductions: 'Introduce yourself to the community',
@@ -1615,6 +1132,8 @@
       };
       document.getElementById('channelTopic').textContent = topics[channelName] || '';
 
+      // Re-subscribe to the new channel
+      subscribeToMessages();
       loadMessages();
     }
 
@@ -1625,13 +1144,7 @@
       try {
         const { data, error } = await supabaseClient
           .from('messages')
-          .select(`
-            id,
-            content,
-            created_at,
-            user_id,
-            profiles:user_id (username, avatar_url, avatar_color)
-          `)
+          .select('id, content, created_at, user_id, profiles:user_id (username, avatar_url, avatar_color)')
           .eq('channel', currentChannel)
           .order('created_at', { ascending: true })
           .limit(100);
@@ -1643,7 +1156,7 @@
             <div class="no-messages">
               <i class="fas fa-comment-dots"></i>
               <h3>No messages yet</h3>
-              <p>Be the first to say something in #${currentChannel}!</p>
+              <p>Be the first to say something in #${escapeHtml(currentChannel)}!</p>
             </div>
           `;
           return;
@@ -1694,14 +1207,11 @@
           <div class="msg-text">${escapeHtml(msg.content)}</div>
         </div>
       `;
-
       container.appendChild(messageEl);
     }
 
     function subscribeToMessages() {
-      if (messagesSubscription) {
-        messagesSubscription.unsubscribe();
-      }
+      if (messagesSubscription) messagesSubscription.unsubscribe();
 
       messagesSubscription = supabaseClient
         .channel('messages-realtime')
@@ -1711,7 +1221,6 @@
           table: 'messages',
           filter: `channel=eq.${currentChannel}`
         }, async (payload) => {
-          // Fetch the profile for the new message
           const { data: profile } = await supabaseClient
             .from('profiles')
             .select('username, avatar_url, avatar_color')
@@ -1745,7 +1254,6 @@
     async function sendMessage() {
       const input = document.getElementById('messageInput');
       const content = input.value.trim();
-
       if (!content || !currentUser) return;
 
       input.value = '';
@@ -1754,28 +1262,20 @@
       try {
         const { error } = await supabaseClient
           .from('messages')
-          .insert({
-            channel: currentChannel,
-            user_id: currentUser.id,
-            content: content
-          });
-
+          .insert({ channel: currentChannel, user_id: currentUser.id, content });
         if (error) throw error;
       } catch (err) {
         showToast(err.message || 'Failed to send message', 'error');
         input.value = content;
-      } finally {
-        document.getElementById('sendBtn').disabled = input.value.trim().length === 0;
       }
     }
 
-    // Enable/disable send button based on input
     document.getElementById('messageInput').addEventListener('input', (e) => {
       document.getElementById('sendBtn').disabled = e.target.value.trim().length === 0;
     });
 
     // ============================================================
-    // 7. APP INITIALIZATION
+    // APP INITIALIZATION
     // ============================================================
     async function initializeApp(session) {
       currentUser = session.user;
@@ -1784,7 +1284,6 @@
 
       currentProfile = await loadProfile(currentUser.id);
       if (!currentProfile) {
-        // Fallback profile
         currentProfile = {
           username: currentUser.user_metadata?.username || 'user_' + currentUser.id.slice(0, 6),
           avatar_url: null,
@@ -1798,7 +1297,7 @@
     }
 
     // ============================================================
-    // 8. AUTH STATE LISTENER
+    // AUTH STATE LISTENER
     // ============================================================
     supabaseClient.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
@@ -1815,7 +1314,6 @@
       }
     });
 
-    // Check for existing session on load
     (async () => {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session) {
@@ -1825,23 +1323,15 @@
       }
     })();
 
-    // Close modals on overlay click
     document.getElementById('profileModal').addEventListener('click', (e) => {
       if (e.target.id === 'profileModal') closeProfileModal();
     });
 
-    // Update profile preview on input
     document.getElementById('profileUsername').addEventListener('input', updateProfilePreview);
-    document.getElementById('profileAvatarUrl').addEventListener('input', () => {
-      selectedAvatarColor = selectedAvatarColor; // Keep color but URL takes precedence
-      updateProfilePreview();
-    });
+    document.getElementById('profileAvatarUrl').addEventListener('input', updateProfilePreview);
 
-    // Keyboard shortcut: Escape closes modals
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        closeProfileModal();
-      }
+      if (e.key === 'Escape') closeProfileModal();
     });
   </script>
 </body>
