@@ -463,6 +463,11 @@ let pendingAttachment = null, mediaRecorder = null, recordedChunks = [], editing
 let notifications = []
 let booted = false
 
+// Normalize room IDs so both users sort the same way
+function dmRoomId(a, b) {
+  return 'dm:' + [a.trim().toLowerCase(), b.trim().toLowerCase()].sort().join('|')
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     $('loader').classList.add('hide')
@@ -515,13 +520,13 @@ function toast(title, body) {
 
 $('btnSignin').onclick = async () => {
   $('loginMsg').textContent = ''
-  const { error } = await supabase.auth.signInWithPassword({ email: $('email').value, password: $('pass').value })
+  const { error } = await supabase.auth.signInWithPassword({ email: $('email').value.trim(), password: $('pass').value })
   if (error) $('loginMsg').textContent = error.message
   else ensureNotifyPermission()
 }
 $('btnSignup').onclick = async () => {
   $('loginMsg').textContent = ''
-  const { error } = await supabase.auth.signUp({ email: $('email').value, password: $('pass').value })
+  const { error } = await supabase.auth.signUp({ email: $('email').value.trim(), password: $('pass').value })
   if (error) $('loginMsg').textContent = error.message
   else ensureNotifyPermission()
 }
@@ -605,7 +610,7 @@ function updateMySidebar() {
 
 function trackPresence() {
   if (!me || presenceChannel) return
-  presenceChannel = supabase.channel('presence:lobby', { config: { presence: { key: me.email } } })
+  presenceChannel = supabase.channel('presence:lobby', { config: { presence: { key: me.email.toLowerCase() } } })
   presenceChannel
     .on('presence', { event: 'sync' }, () => {
       const state = presenceChannel.presenceState()
@@ -621,7 +626,7 @@ function trackPresence() {
 function refreshDMTitle() {
   if (activeRoom.type !== 'dm') return
   const title = $('channelTitle'), label = activeRoom.label
-  const status = onlineEmails.has(label) ? 'online' : 'offline'
+  const status = onlineEmails.has(label.toLowerCase()) ? 'online' : 'offline'
   title.innerHTML = `<span class="hash">@</span>${displayNameFor(label)} <span class="sub">${status}</span>`
   if (isVerified(label)) title.appendChild(makeVerifiedBadge())
   const tag = makeTag(profileCache[label]); if (tag) title.appendChild(tag)
@@ -676,7 +681,11 @@ function renderNotifications() {
       item.querySelector('.np-time').textContent = new Date(n.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit' })
       item.onclick = async (e) => {
         if (e.target.closest('.np-dismiss')) { e.stopPropagation(); await supabase.from('notifications').delete().eq('id', n.id); return }
-        if (n.room_id) openRoom(n.room_id, n.room_id.startsWith('dm:') ? 'dm' : 'channel', n.room_id.startsWith('dm:') ? n.from_email : n.room_id.replace('dm:', ''))
+        if (n.room_id) {
+          const type = n.room_id.startsWith('dm:') ? 'dm' : 'channel'
+          const label = type === 'dm' ? n.from_email : n.room_id.replace('dm:', '')
+          openRoom(n.room_id, type, label)
+        }
         if (!n.read) await supabase.from('notifications').update({ read: true }).eq('id', n.id)
         $('notifPanel').classList.remove('show')
       }
@@ -725,8 +734,11 @@ function renderChannels() {
 
 function renderMembers() {
   const el = $('onlineMembers'); el.innerHTML = ''
-  const members = new Set([me.email])
-  for (const f of friendships) { members.add(f.user_a === me.email ? f.user_b : f.user_a) }
+  const members = new Set([me.email.toLowerCase()])
+  for (const f of friendships) {
+    const other = f.user_a === me.email ? f.user_b : f.user_a
+    members.add((other || '').toLowerCase())
+  }
   for (const email of onlineEmails) members.add(email)
   const list = [...members].sort((a, b) => {
     const aOn = onlineEmails.has(a) ? 0 : 1, bOn = onlineEmails.has(b) ? 0 : 1
@@ -739,11 +751,14 @@ function renderMembers() {
     chip.className = 'member-chip' + (isOn ? '' : ' offline')
     const dot = document.createElement('span'); dot.className = 'dot'; chip.appendChild(dot)
     const label = document.createElement('span')
-    label.textContent = displayNameFor(email) + (email === me.email ? ' (you)' : '')
+    label.textContent = displayNameFor(email) + (email === me.email.toLowerCase() ? ' (you)' : '')
     if (profileCache[email]?.name_color) label.style.color = profileCache[email].name_color
     chip.appendChild(label)
     chip.title = isOn ? 'online' : 'offline'
-    if (email !== me.email) chip.onclick = () => { const roomId = dmRoomId(me.email, email); openRoom(roomId, 'dm', email) }
+    if (email !== me.email.toLowerCase()) chip.onclick = () => {
+      const roomId = dmRoomId(me.email, email)
+      openRoom(roomId, 'dm', email)
+    }
     el.appendChild(chip)
   }
 }
@@ -752,7 +767,7 @@ async function loadFriendships() {
   const { data, error } = await supabase.from('friendships').select('*').or(`user_a.eq.${me.email},user_b.eq.${me.email}`)
   if (error) { console.error(error); return }
   friendships = data || []
-  const emails = friendships.map(f => f.user_a === me.email ? f.user_b : f.user_a)
+  const emails = friendships.map(f => (f.user_a === me.email ? f.user_b : f.user_a)).filter(Boolean)
   await loadProfilesFor(emails)
   renderFriends(); renderMembers()
 }
@@ -792,7 +807,7 @@ function renderFriends() {
       avatarWrap.style.cssText = 'position:relative;flex-shrink:0;display:flex;'
       const avatarBox = document.createElement('div'); avatarBox.className = 'mini-avatar'
       renderAvatar(avatarBox, profileCache[other], other); avatarWrap.appendChild(avatarBox)
-      if (onlineEmails.has(other)) { const dot = document.createElement('span'); dot.className = 'presence-dot'; avatarWrap.appendChild(dot) }
+      if (onlineEmails.has((other || '').toLowerCase())) { const dot = document.createElement('span'); dot.className = 'presence-dot'; avatarWrap.appendChild(dot) }
       div.appendChild(avatarWrap)
       const label = document.createElement('span'); label.className = 'label-text'
       label.textContent = displayNameFor(other)
@@ -814,7 +829,6 @@ function renderFriends() {
   }
   resizeSection('friendsList')
 }
-function dmRoomId(a, b) { return 'dm:' + [a, b].sort().join('|') }
 
 $('addFriendBtn').onclick = (e) => {
   e.stopPropagation()
@@ -831,11 +845,15 @@ $('btnSendRequest').onclick = async () => {
 }
 
 async function openRoom(roomId, type, label) {
+  // Normalize DM room id so sender and receiver always match
+  if (type === 'dm') {
+    roomId = dmRoomId(me.email, label)
+  }
   activeRoom = { id: roomId, type, label }
   renderChannels(); closeProfilePanel()
   const title = $('channelTitle')
   if (type === 'dm') {
-    const status = onlineEmails.has(label) ? 'online' : 'offline'
+    const status = onlineEmails.has((label || '').toLowerCase()) ? 'online' : 'offline'
     title.innerHTML = `<span class="hash">@</span>${displayNameFor(label)} <span class="sub">${status}</span>`
     if (isVerified(label)) title.appendChild(makeVerifiedBadge())
     const tag = makeTag(profileCache[label]); if (tag) title.appendChild(tag)
@@ -844,12 +862,16 @@ async function openRoom(roomId, type, label) {
   clearReply(); clearPendingAttachment()
   if (chatChannel) { await supabase.removeChannel(chatChannel); chatChannel = null }
   messagesCache = {}
+
   const { data, error } = await supabase.from('messages').select('*').eq('room_id', roomId).order('created_at', { ascending: true }).limit(100)
   if (error) { console.error('load messages error:', error); return }
+
   const emails = (data || []).map(m => m.user_email)
   await loadProfilesFor(emails)
+
   $('messages').innerHTML = ''
   ;(data || []).forEach(m => { messagesCache[m.id] = m; renderMessage(m) })
+
   const myEmail = me.email
   chatChannel = supabase.channel('chat:' + roomId)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_id=eq.${roomId}` }, async ({ new: m }) => {
@@ -1079,7 +1101,13 @@ async function sendMessage() {
   const text = $('msgInput').value.trim()
   if (!text && !pendingAttachment) return
   $('msgInput').value = ''
-  const patch = { room_id: activeRoom.id, content: text || '', user_email: me.email }
+
+  // Normalize room id so DM messages always land in the same room for both users
+  const normalizedRoom = activeRoom.type === 'dm'
+    ? dmRoomId(me.email, activeRoom.label)
+    : activeRoom.id
+
+  const patch = { room_id: normalizedRoom, content: text || '', user_email: me.email }
   if (replyTarget) patch.reply_to = replyTarget.id
   if (pendingAttachment) {
     try {
@@ -1091,16 +1119,14 @@ async function sendMessage() {
   const replyTo = replyTarget; clearReply()
   const { data, error } = await supabase.from('messages').insert(patch).select().single()
   if (error) { alert(error.message); $('msgInput').value = text; return }
-  if (data) {
-    if (!messagesCache[data.id]) {
-      messagesCache[data.id] = data
-      renderMessage(data)
-    }
+  if (data && !messagesCache[data.id]) {
+    messagesCache[data.id] = data
+    renderMessage(data)
   }
   if (replyTo && replyTo.user_email !== me.email) {
     const title = `${displayNameFor(me.email)} replied to you`
     const body = text.slice(0, 120) + (text.length > 120 ? '…' : '')
-    pushNotification({ user_email: replyTo.user_email, kind: 'reply', title, body, room_id: activeRoom.id, from_email: me.email })
+    pushNotification({ user_email: replyTo.user_email, kind: 'reply', title, body, room_id: normalizedRoom, from_email: me.email })
   }
 }
 $('btnSend').onclick = sendMessage
@@ -1110,14 +1136,14 @@ async function openProfilePanel(email) {
   const p = profileCache[email] || await fetchProfileByEmail(email)
   if (!p) return
   renderAvatar($('panelPic'), p, email)
-  if (onlineEmails.has(email)) { const dot = document.createElement('span'); dot.className = 'presence-dot'; $('panelPic').appendChild(dot) }
+  if (onlineEmails.has((email || '').toLowerCase())) { const dot = document.createElement('span'); dot.className = 'presence-dot'; $('panelPic').appendChild(dot) }
   const nameEl = $('panelName'); nameEl.innerHTML = ''
   const nameText = document.createElement('span'); nameText.textContent = p.display_name || email.split('@')[0]
   if (p.name_color) nameText.style.color = p.name_color
   nameEl.appendChild(nameText)
   if (p.verified) nameEl.appendChild(makeVerifiedBadge())
   const tag = makeTag(p); if (tag) nameEl.appendChild(tag)
-  const onlineTag = onlineEmails.has(email) ? ' · online' : ' · offline'
+  const onlineTag = onlineEmails.has((email || '').toLowerCase()) ? ' · online' : ' · offline'
   $('panelPronouns').textContent = (p.pronouns || '') + onlineTag
   const bio = $('panelBio'); bio.textContent = p.bio || 'no inscription'; bio.classList.toggle('empty', !p.bio)
   $('profilePanel').classList.add('open')
