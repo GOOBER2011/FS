@@ -32,6 +32,8 @@
   @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes pulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0.4); } 50% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(255,255,255,0); } }
 
+  #debugBanner { position: fixed; bottom: 8px; left: 8px; z-index: 99999; background: #0a0a0a; color: #0f0; font-family: monospace; font-size: 11px; padding: 8px 12px; border: 1px solid #333; border-radius: 4px; max-width: 600px; white-space: pre-wrap; pointer-events: none; line-height: 1.4; }
+
   #loader { position: fixed; inset: 0; z-index: 200; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.7s var(--ease), visibility 0.7s var(--ease); }
   #loader.hide { opacity: 0; visibility: hidden; pointer-events: none; }
   #loader .load-sun { margin-bottom: 30px; animation: slow-spin 24s linear infinite; }
@@ -245,6 +247,8 @@
 </style>
 </head>
 <body>
+
+<div id="debugBanner">booting…</div>
 
 <svg width="0" height="0" style="position:absolute">
   <symbol id="i-sun" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="50" cy="50" r="18" stroke-width="2.4"/><path d="M50 6 Q53 14 50 22"/><path d="M50 94 Q47 86 50 78"/><path d="M6 50 Q14 47 22 50"/><path d="M94 50 Q86 53 78 50"/><path d="M18 18 Q26 24 30 30"/><path d="M82 82 Q74 76 70 70"/><path d="M18 82 Q26 76 30 70"/><path d="M82 18 Q74 24 70 30"/><path d="M33 10 Q38 18 40 24"/><path d="M67 10 Q62 18 60 24"/><path d="M33 90 Q38 82 40 76"/><path d="M67 90 Q62 82 60 76"/><path d="M10 33 Q18 38 24 40"/><path d="M10 67 Q18 62 24 60"/><path d="M90 33 Q82 38 76 40"/><path d="M90 67 Q82 62 76 60"/></g></symbol>
@@ -463,6 +467,18 @@ let pendingAttachment = null, mediaRecorder = null, recordedChunks = [], editing
 let notifications = []
 let booted = false
 
+// Visible debug logger
+function dbgOut(msg) {
+  const el = document.getElementById('debugBanner')
+  if (el) { el.style.color = '#0f0'; el.textContent = String(msg) }
+}
+function dbgErr(msg) {
+  const el = document.getElementById('debugBanner')
+  if (el) { el.style.color = '#f66'; el.textContent = String(msg) }
+}
+window.addEventListener('error', (e) => { dbgErr('ERROR: ' + e.message) })
+window.addEventListener('unhandledrejection', (e) => { dbgErr('PROMISE: ' + (e.reason?.message || e.reason)) })
+
 function dmRoomId(a, b) {
   return 'dm:' + [a.trim().toLowerCase(), b.trim().toLowerCase()].sort().join('|')
 }
@@ -537,6 +553,7 @@ $('btnSignout').onclick = async () => {
 }
 
 supabase.auth.onAuthStateChange((event, session) => {
+  dbgOut('auth event: ' + event + (session ? ' (has session)' : ''))
   if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') return
   if (session?.user) {
     me = session.user
@@ -555,6 +572,25 @@ supabase.auth.onAuthStateChange((event, session) => {
     if (notifChannel) { supabase.removeChannel(notifChannel); notifChannel = null }
   }
 })
+
+// Explicit session check so we don't rely solely on the auth event
+(async () => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session?.user && !booted) {
+      dbgOut('found existing session, booting')
+      me = session.user
+      $('login').style.display = 'none'
+      $('app').style.display = 'flex'
+      ensureNotifyPermission()
+      boot()
+    } else if (!session) {
+      dbgOut('no session — showing login')
+    }
+  } catch (e) {
+    dbgErr('session check: ' + e.message)
+  }
+})()
 
 async function ensureMyProfile() {
   const { data: existing } = await supabase.from('profiles').select('*').eq('id', me.id).maybeSingle()
@@ -707,17 +743,24 @@ document.addEventListener('click', (e) => {
 })
 
 async function boot() {
-  if (booted) return
+  if (booted) { dbgOut('boot: already ran'); return }
   booted = true
-  await ensureMyProfile()
-  updateMySidebar()
-  renderChannels()
-  await loadFriendships()
-  listenFriendships()
-  trackPresence()
-  listenNotifications()
-  await loadNotifications()
-  openRoom('general', 'channel', 'general')
+  dbgOut('boot: starting')
+  try {
+    await ensureMyProfile()
+    dbgOut('boot: profile ok')
+    updateMySidebar()
+    renderChannels()
+    await loadFriendships()
+    listenFriendships()
+    trackPresence()
+    listenNotifications()
+    await loadNotifications()
+    dbgOut('boot: opening general')
+    await openRoom('general', 'channel', 'general')
+  } catch (e) {
+    dbgErr('boot error: ' + e.message)
+  }
 }
 function renderChannels() {
   const el = $('channelList'); el.innerHTML = ''
@@ -859,14 +902,17 @@ async function openRoom(roomId, type, label) {
   if (chatChannel) { await supabase.removeChannel(chatChannel); chatChannel = null }
   messagesCache = {}
 
+  dbgOut('openRoom: ' + roomId)
   const { data, error } = await supabase.from('messages').select('*').eq('room_id', roomId).order('created_at', { ascending: true }).limit(100)
-  if (error) { console.error('load messages error:', error); return }
+  if (error) { dbgErr('load error: ' + error.message); return }
+  dbgOut('openRoom: got ' + (data?.length || 0) + ' msgs for ' + roomId)
 
   const emails = (data || []).map(m => m.user_email)
   await loadProfilesFor(emails)
 
   $('messages').innerHTML = ''
   ;(data || []).forEach(m => { messagesCache[m.id] = m; renderMessage(m) })
+  dbgOut('openRoom: rendered ' + (data?.length || 0) + ' msgs, DOM=' + $('messages').innerHTML.length)
 
   const myEmail = me.email
   chatChannel = supabase.channel('chat:' + roomId)
@@ -1098,14 +1144,9 @@ async function sendMessage() {
   if (!text && !pendingAttachment) return
   $('msgInput').value = ''
 
-  // Force the room ID to be exactly what the UI is showing
   let normalizedRoom
-  if (activeRoom.type === 'dm') {
-    normalizedRoom = dmRoomId(me.email, activeRoom.label)
-  } else {
-    // Channel — use the channel label directly, lowercased and trimmed
-    normalizedRoom = String(activeRoom.label || activeRoom.id || 'general').trim().toLowerCase()
-  }
+  if (activeRoom.type === 'dm') normalizedRoom = dmRoomId(me.email, activeRoom.label)
+  else normalizedRoom = String(activeRoom.label || activeRoom.id || 'general').trim().toLowerCase()
 
   const patch = { room_id: normalizedRoom, content: text || '', user_email: me.email }
   if (replyTarget) patch.reply_to = replyTarget.id
