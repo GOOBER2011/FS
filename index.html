@@ -60,7 +60,7 @@
   .login-box button.primary:hover { background: #ddd; }
   #loginMsg { font-size: 12px; min-height: 16px; margin-top: 14px; }
 
-  #app { display: none; height: 100vh; width: 100vw; }
+  #app { display: none; height: 100vh; width: 100vw; min-height: 0; }
   .sidebar { width: 240px; background: #000; border-right: 1px solid var(--line); display: flex; flex-direction: column; height: 100%; transition: width 0.25s var(--ease); overflow: hidden; flex-shrink: 0; }
   .sidebar.collapsed { width: 48px; }
   .sidebar-header { padding: 18px 16px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 58px; }
@@ -104,9 +104,9 @@
   .user-panel .icon-btn .badge { position: absolute; top: -2px; right: -2px; background: var(--danger); color: #fff; font-size: 9px; font-weight: 700; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; display: none; align-items: center; justify-content: center; border: 2px solid #000; }
   .user-panel .icon-btn .badge.show { display: flex; }
 
-  .main { flex: 1; display: flex; flex-direction: column; height: 100%; min-width: 0; position: relative; }
+  .main { flex: 1; display: flex; flex-direction: column; height: 100%; min-width: 0; min-height: 0; position: relative; }
   .main-row { flex: 1; display: flex; flex-direction: row; min-height: 0; }
-  .chat-col { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .chat-col { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
   .main-header { padding: 14px 22px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; background: #000; min-height: 60px; flex-shrink: 0; }
   .main-header .title { font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 6px; color: #fff; }
   .main-header .title .hash { color: #fff; font-size: 18px; }
@@ -120,7 +120,7 @@
   .member-chip.offline { opacity: 0.45; }
   .member-chip.offline .dot { background: #555; box-shadow: none; }
 
-  .messages { flex: 1; overflow-y: auto; padding: 20px 28px; display: flex; flex-direction: column; gap: 14px; }
+  .messages { flex: 1; overflow-y: auto; padding: 20px 28px; display: flex; flex-direction: column; gap: 14px; min-height: 0; }
   .msg { display: flex; gap: 12px; padding: 6px 8px; border-radius: 4px; position: relative; animation: fadeIn 0.25s var(--ease); transition: background 0.15s var(--ease); }
   .msg:hover { background: #0a0a0a; }
   .msg .avatar { width: 36px; height: 36px; background: var(--bg-3); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; border: 1px solid var(--line-2); flex-shrink: 0; overflow: hidden; color: #fff; border-radius: 50%; }
@@ -467,7 +467,6 @@ let pendingAttachment = null, mediaRecorder = null, recordedChunks = [], editing
 let notifications = []
 let booted = false
 
-// Visible debug logger
 function dbgOut(msg) {
   const el = document.getElementById('debugBanner')
   if (el) { el.style.color = '#0f0'; el.textContent = String(msg) }
@@ -553,7 +552,6 @@ $('btnSignout').onclick = async () => {
 }
 
 supabase.auth.onAuthStateChange((event, session) => {
-  dbgOut('auth event: ' + event + (session ? ' (has session)' : ''))
   if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') return
   if (session?.user) {
     me = session.user
@@ -573,23 +571,17 @@ supabase.auth.onAuthStateChange((event, session) => {
   }
 })
 
-// Explicit session check so we don't rely solely on the auth event
 (async () => {
   try {
     const { data: { session } } = await supabase.auth.getSession()
     if (session?.user && !booted) {
-      dbgOut('found existing session, booting')
       me = session.user
       $('login').style.display = 'none'
       $('app').style.display = 'flex'
       ensureNotifyPermission()
       boot()
-    } else if (!session) {
-      dbgOut('no session — showing login')
     }
-  } catch (e) {
-    dbgErr('session check: ' + e.message)
-  }
+  } catch (e) {}
 })()
 
 async function ensureMyProfile() {
@@ -743,12 +735,10 @@ document.addEventListener('click', (e) => {
 })
 
 async function boot() {
-  if (booted) { dbgOut('boot: already ran'); return }
+  if (booted) return
   booted = true
-  dbgOut('boot: starting')
   try {
     await ensureMyProfile()
-    dbgOut('boot: profile ok')
     updateMySidebar()
     renderChannels()
     await loadFriendships()
@@ -756,8 +746,19 @@ async function boot() {
     trackPresence()
     listenNotifications()
     await loadNotifications()
-    dbgOut('boot: opening general')
     await openRoom('general', 'channel', 'general')
+    // Re-scroll after layout settles
+    setTimeout(() => {
+      const mc = $('messages')
+      if (mc && mc.children.length > 0) {
+        mc.style.display = 'flex'
+        mc.style.flexDirection = 'column'
+        mc.style.overflowY = 'auto'
+        mc.style.flex = '1'
+        mc.style.minHeight = '0'
+        mc.scrollTop = mc.scrollHeight
+      }
+    }, 300)
   } catch (e) {
     dbgErr('boot error: ' + e.message)
   }
@@ -902,17 +903,22 @@ async function openRoom(roomId, type, label) {
   if (chatChannel) { await supabase.removeChannel(chatChannel); chatChannel = null }
   messagesCache = {}
 
-  dbgOut('openRoom: ' + roomId)
   const { data, error } = await supabase.from('messages').select('*').eq('room_id', roomId).order('created_at', { ascending: true }).limit(100)
   if (error) { dbgErr('load error: ' + error.message); return }
-  dbgOut('openRoom: got ' + (data?.length || 0) + ' msgs for ' + roomId)
 
   const emails = (data || []).map(m => m.user_email)
   await loadProfilesFor(emails)
 
-  $('messages').innerHTML = ''
+  const mc = $('messages')
+  mc.style.display = 'flex'
+  mc.style.flexDirection = 'column'
+  mc.style.overflowY = 'auto'
+  mc.style.flex = '1'
+  mc.style.minHeight = '0'
+
+  mc.innerHTML = ''
   ;(data || []).forEach(m => { messagesCache[m.id] = m; renderMessage(m) })
-  dbgOut('openRoom: rendered ' + (data?.length || 0) + ' msgs, DOM=' + $('messages').innerHTML.length)
+  mc.scrollTop = mc.scrollHeight
 
   const myEmail = me.email
   chatChannel = supabase.channel('chat:' + roomId)
@@ -1026,7 +1032,11 @@ function buildMessageEl(m) {
   }
   return wrap
 }
-function renderMessage(m) { $('messages').appendChild(buildMessageEl(m)); $('messages').scrollTop = $('messages').scrollHeight }
+function renderMessage(m) {
+  const mc = $('messages')
+  mc.appendChild(buildMessageEl(m))
+  mc.scrollTop = mc.scrollHeight
+}
 function flash(el) { el.style.transition = 'background 0.3s var(--ease)'; el.style.background = '#1a1a1a'; setTimeout(() => el.style.background = '', 500) }
 function startReply(m) {
   replyTarget = m
