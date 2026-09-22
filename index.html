@@ -461,6 +461,7 @@ let pendingAvatarFile = null, pendingVerified = null, notifyReady = false
 let replyTarget = null, openPickerFor = null
 let pendingAttachment = null, mediaRecorder = null, recordedChunks = [], editingMessageId = null
 let notifications = []
+let booted = false
 
 window.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
@@ -527,10 +528,12 @@ $('btnSignup').onclick = async () => {
 $('btnSignout').onclick = async () => {
   if (presenceChannel) { await supabase.removeChannel(presenceChannel); presenceChannel = null }
   if (notifChannel) { await supabase.removeChannel(notifChannel); notifChannel = null }
+  booted = false
   await supabase.auth.signOut()
 }
 
 supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') return
   if (session?.user) {
     me = session.user
     $('login').style.display = 'none'
@@ -696,6 +699,8 @@ document.addEventListener('click', (e) => {
 })
 
 async function boot() {
+  if (booted) return
+  booted = true
   await ensureMyProfile()
   updateMySidebar()
   renderChannels()
@@ -839,7 +844,8 @@ async function openRoom(roomId, type, label) {
   clearReply(); clearPendingAttachment()
   if (chatChannel) { await supabase.removeChannel(chatChannel); chatChannel = null }
   messagesCache = {}
-  const { data } = await supabase.from('messages').select('*').eq('room_id', roomId).order('created_at', { ascending: true }).limit(100)
+  const { data, error } = await supabase.from('messages').select('*').eq('room_id', roomId).order('created_at', { ascending: true }).limit(100)
+  if (error) { console.error('load messages error:', error); return }
   const emails = (data || []).map(m => m.user_email)
   await loadProfilesFor(emails)
   $('messages').innerHTML = ''
@@ -847,6 +853,7 @@ async function openRoom(roomId, type, label) {
   const myEmail = me.email
   chatChannel = supabase.channel('chat:' + roomId)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_id=eq.${roomId}` }, async ({ new: m }) => {
+      if (messagesCache[m.id]) return
       if (!profileCache[m.user_email]) await fetchProfileByEmail(m.user_email)
       messagesCache[m.id] = m; renderMessage(m)
       if (m.user_email !== myEmail) {
@@ -1082,8 +1089,14 @@ async function sendMessage() {
     clearPendingAttachment()
   }
   const replyTo = replyTarget; clearReply()
-  const { error } = await supabase.from('messages').insert(patch)
+  const { data, error } = await supabase.from('messages').insert(patch).select().single()
   if (error) { alert(error.message); $('msgInput').value = text; return }
+  if (data) {
+    if (!messagesCache[data.id]) {
+      messagesCache[data.id] = data
+      renderMessage(data)
+    }
+  }
   if (replyTo && replyTo.user_email !== me.email) {
     const title = `${displayNameFor(me.email)} replied to you`
     const body = text.slice(0, 120) + (text.length > 120 ? '…' : '')
