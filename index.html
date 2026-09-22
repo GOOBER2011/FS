@@ -463,7 +463,6 @@ let pendingAttachment = null, mediaRecorder = null, recordedChunks = [], editing
 let notifications = []
 let booted = false
 
-// Normalize room IDs so both users sort the same way
 function dmRoomId(a, b) {
   return 'dm:' + [a.trim().toLowerCase(), b.trim().toLowerCase()].sort().join('|')
 }
@@ -845,10 +844,7 @@ $('btnSendRequest').onclick = async () => {
 }
 
 async function openRoom(roomId, type, label) {
-  // Normalize DM room id so sender and receiver always match
-  if (type === 'dm') {
-    roomId = dmRoomId(me.email, label)
-  }
+  if (type === 'dm') roomId = dmRoomId(me.email, label)
   activeRoom = { id: roomId, type, label }
   renderChannels(); closeProfilePanel()
   const title = $('channelTitle')
@@ -1102,10 +1098,14 @@ async function sendMessage() {
   if (!text && !pendingAttachment) return
   $('msgInput').value = ''
 
-  // Normalize room id so DM messages always land in the same room for both users
-  const normalizedRoom = activeRoom.type === 'dm'
-    ? dmRoomId(me.email, activeRoom.label)
-    : activeRoom.id
+  // Force the room ID to be exactly what the UI is showing
+  let normalizedRoom
+  if (activeRoom.type === 'dm') {
+    normalizedRoom = dmRoomId(me.email, activeRoom.label)
+  } else {
+    // Channel — use the channel label directly, lowercased and trimmed
+    normalizedRoom = String(activeRoom.label || activeRoom.id || 'general').trim().toLowerCase()
+  }
 
   const patch = { room_id: normalizedRoom, content: text || '', user_email: me.email }
   if (replyTarget) patch.reply_to = replyTarget.id
