@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SUN CHAT v2</title>
+<title>SUN CHAT</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg stroke='%23ffffff' fill='none' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='50' cy='50' r='18'/%3E%3Cpath d='M50 6 Q53 14 50 22'/%3E%3Cpath d='M50 94 Q47 86 50 78'/%3E%3Cpath d='M6 50 Q14 47 22 50'/%3E%3Cpath d='M94 50 Q86 53 78 50'/%3E%3C/g%3E%3C/svg%3E">
 <style>
   :root {
@@ -31,10 +31,6 @@
   @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
   @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes pulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0.4); } 50% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(255,255,255,0); } }
-  @keyframes shake { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-12deg); } 75% { transform: rotate(12deg); } }
-  @keyframes pulseBorder { 0%, 100% { border-color: var(--line-2); box-shadow: 0 40px 100px rgba(0,0,0,0.95); } 50% { border-color: #fff; box-shadow: 0 40px 100px rgba(0,0,0,0.95), 0 0 40px rgba(255,255,255,0.2); } }
-
-  #debugBanner { position: fixed; top: 0; left: 0; right: 0; background: #111; color: #fff; font-family: monospace; font-size: 12px; padding: 8px 12px; z-index: 9999; display: none; border-bottom: 1px solid #333; }
 
   #loader { position: fixed; inset: 0; z-index: 200; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.7s var(--ease), visibility 0.7s var(--ease); }
   #loader.hide { opacity: 0; visibility: hidden; pointer-events: none; }
@@ -113,14 +109,6 @@
   .main-header .title { font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 6px; color: #fff; }
   .main-header .title .hash { color: #fff; font-size: 18px; }
   .main-header .sub { color: var(--ink-3); font-size: 11px; margin-left: 8px; text-transform: uppercase; letter-spacing: 2px; }
-  .call-actions { display: flex; gap: 6px; align-items: center; }
-  .call-actions button { background: transparent; border: 1px solid var(--line-2); color: var(--ink-2); padding: 8px 14px; cursor: pointer; font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; gap: 6px; border-radius: 4px; }
-  .call-actions button:hover { border-color: var(--ink-2); color: #fff; background: var(--bg-3); transform: translateY(-1px); }
-  .call-actions button:disabled { opacity: 0.3; cursor: not-allowed; }
-  .call-actions button.end-live { color: var(--danger); border-color: #3a1a1a; }
-  .call-actions button.end-live:hover { background: var(--danger); color: #000; border-color: var(--danger); }
-  .meter { display: flex; gap: 2px; height: 24px; align-items: flex-end; background: #000; padding: 3px; border: 1px solid var(--line-2); border-radius: 4px; }
-  .bar { width: 3px; background: #222; height: 3px; border-radius: 1px; transition: height 0.08s linear, background 0.15s var(--ease); }
 
   .member-strip { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 8px 22px; border-bottom: 1px solid var(--line); background: #050505; font-size: 11px; color: var(--ink-3); flex-shrink: 0; min-height: 34px; }
   .member-strip .label { text-transform: uppercase; letter-spacing: 2px; margin-right: 6px; font-weight: 600; color: var(--ink-3); }
@@ -129,42 +117,6 @@
   .member-chip .dot { width: 6px; height: 6px; border-radius: 50%; background: #3fff7a; box-shadow: 0 0 6px rgba(63, 255, 122, 0.6); }
   .member-chip.offline { opacity: 0.45; }
   .member-chip.offline .dot { background: #555; box-shadow: none; }
-
-  .call-dock { display: none; background: #050505; border-bottom: 1px solid var(--line); flex-shrink: 0; position: relative; animation: slideInUp 0.3s var(--ease); }
-  .call-dock.show { display: block; }
-  .call-dock.floating { position: fixed; bottom: 20px; right: 20px; width: 360px; border: 1px solid var(--line-2); border-radius: 10px; box-shadow: 0 20px 60px rgba(0,0,0,0.9); z-index: 220; border-bottom: none; overflow: hidden; animation: fadeInScale 0.25s var(--ease); }
-  .call-dock.dragging { transition: none !important; user-select: none; }
-  .call-dock .drag-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #0d0d0d; border-bottom: 1px solid var(--line); cursor: grab; user-select: none; gap: 10px; }
-  .call-dock.dragging .drag-header { cursor: grabbing; }
-  .call-dock:not(.floating) .drag-header { cursor: default; }
-  .call-dock .drag-header .grip { display: flex; align-items: center; gap: 8px; color: var(--ink-3); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; overflow: hidden; }
-  .call-dock:not(.floating) .drag-header .grip-icon { display: none; }
-  .call-dock .drag-header .grip-icon { color: var(--ink-3); display: inline-flex; animation: pulse 2.5s infinite; }
-  .call-dock .drag-header .call-status-pill { font-size: 10px; color: var(--ink-2); padding: 3px 8px; border: 1px solid var(--line-2); border-radius: 10px; letter-spacing: 1.5px; text-transform: uppercase; background: #000; }
-  .call-dock .drag-header .call-status-pill.live { color: #3fff7a; border-color: #1a3a1a; background: rgba(63,255,122,0.06); }
-  .call-dock .drag-header .call-status-pill.ringing { color: #ffcc55; border-color: #3a2f1a; background: rgba(255,204,85,0.06); }
-  .call-dock .drag-header .header-actions { display: flex; gap: 4px; }
-  .call-dock .drag-header .header-actions button { background: none; border: 1px solid var(--line-2); color: var(--ink-2); width: 26px; height: 26px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-  .call-dock .drag-header .header-actions button:hover { color: #fff; border-color: var(--ink-2); background: var(--bg-3); }
-  .call-dock .drag-header .header-actions button.end { color: var(--danger); border-color: #3a1a1a; }
-  .call-dock .drag-header .header-actions button.end:hover { background: var(--danger); color: #000; border-color: var(--danger); }
-  .call-dock .video-grid { display: grid; gap: 2px; background: #000; grid-template-columns: 1fr; }
-  .call-dock .video-grid.two { grid-template-columns: 1fr 1fr; }
-  .call-dock .video-cell { position: relative; aspect-ratio: 16/9; background: #050505; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-  .call-dock .video-cell video { width: 100%; height: 100%; object-fit: cover; background: #050505; }
-  .call-dock .video-cell .name-badge { position: absolute; bottom: 6px; left: 6px; padding: 3px 8px; background: rgba(0,0,0,0.7); font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #fff; border-radius: 3px; backdrop-filter: blur(4px); }
-  .call-dock .video-cell .video-placeholder { display: flex; align-items: center; justify-content: center; color: #333; flex-direction: column; gap: 8px; }
-  .call-dock .video-cell .video-placeholder .name { font-size: 13px; color: var(--ink-2); font-weight: 600; }
-  .call-dock .video-cell .video-placeholder .status { font-size: 10px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 2px; }
-  .call-dock .call-info { padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); }
-  .call-dock .call-info .who { font-size: 13px; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px; }
-  .call-dock .call-info .status { font-size: 10px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 2px; margin-top: 2px; }
-  .call-dock .call-controls { display: flex; gap: 6px; }
-  .call-dock .call-controls button { background: transparent; border: 1px solid var(--line-2); color: var(--ink-2); width: 34px; height: 34px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-  .call-dock .call-controls button:hover { color: #fff; border-color: var(--ink-2); background: var(--bg-3); transform: scale(1.05); }
-  .call-dock .call-controls button.on { background: #fff; color: #000; border-color: #fff; }
-  .call-dock .call-controls button.end { color: var(--danger); border-color: #3a1a1a; }
-  .call-dock .call-controls button.end:hover { background: var(--danger); color: #000; border-color: var(--danger); }
 
   .messages { flex: 1; overflow-y: auto; padding: 20px 28px; display: flex; flex-direction: column; gap: 14px; }
   .msg { display: flex; gap: 12px; padding: 6px 8px; border-radius: 4px; position: relative; animation: fadeIn 0.25s var(--ease); transition: background 0.15s var(--ease); }
@@ -233,9 +185,6 @@
   .profile-pic .presence-dot { width: 16px; height: 16px; bottom: 4px; right: 4px; }
   .profile-name { font-size: 18px; font-weight: 600; color: #fff; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 4px; }
   .profile-pronouns { font-size: 11px; color: var(--ink-3); text-align: center; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
-  .profile-actions { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
-  .profile-actions button { background: transparent; border: 1px solid var(--line-2); color: var(--ink-2); padding: 8px 14px; cursor: pointer; font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; gap: 6px; border-radius: 4px; }
-  .profile-actions button:hover { border-color: var(--ink-2); color: #fff; transform: translateY(-1px); background: var(--bg-3); }
   .profile-section { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 14px; }
   .profile-section-label { font-size: 10px; font-weight: 600; color: var(--ink-3); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
   .profile-bio { font-size: 13px; color: var(--ink-2); line-height: 1.6; word-break: break-word; }
@@ -291,39 +240,11 @@
   .notif-panel .np-item .np-dismiss:hover { color: #fff; }
   .notif-panel .np-empty { padding: 40px 20px; text-align: center; color: var(--ink-3); font-size: 12px; }
 
-  #incomingCall {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    width: 100vw; height: 100vh;
-    z-index: 99999;
-    background: rgba(0, 0, 0, 0.92);
-    display: none;
-    align-items: center;
-    justify-content: center;
-  }
-  #incomingCall.show {
-    display: flex !important;
-  }
-  .incoming-box { background: #000; border: 1px solid var(--line-2); padding: 40px 40px 32px; width: 380px; max-width: 90vw; text-align: center; box-shadow: 0 40px 100px rgba(0,0,0,0.95); animation: pulseBorder 2s ease-in-out infinite; }
-  .incoming-box .caller-pic { width: 88px; height: 88px; border-radius: 50%; background: var(--bg-3); border: 1px solid var(--line-2); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 500; color: #fff; overflow: hidden; margin: 0 auto 16px; animation: pulse 1.5s infinite; }
-  .incoming-box .caller-pic img { width: 100%; height: 100%; object-fit: cover; }
-  .incoming-box h3 { font-size: 18px; font-weight: 600; margin-bottom: 6px; color: #fff; }
-  .incoming-box .sub { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 28px; }
-  .incoming-box .btns { display: flex; gap: 12px; justify-content: center; }
-  .incoming-box .btns button { padding: 14px 28px; border-radius: 4px; border: 1px solid var(--line-2); background: transparent; color: #fff; cursor: pointer; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
-  .incoming-box .btns button.accept { background: #fff; color: #000; border-color: #fff; }
-  .incoming-box .btns button.accept:hover { background: #ddd; transform: scale(1.05); }
-  .incoming-box .btns button.reject:hover { border-color: var(--danger); color: var(--danger); transform: scale(1.05); }
-  .incoming-box .btns button.reject svg { animation: shake 0.6s infinite; }
-
   .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #0a0a0a; border: 1px solid var(--line-2); padding: 12px 20px; border-radius: 6px; color: #fff; font-size: 13px; z-index: 400; box-shadow: 0 10px 30px rgba(0,0,0,0.9); display: flex; align-items: center; gap: 10px; animation: slideInUp 0.3s var(--ease); }
   .toast.hide { opacity: 0; transform: translateX(-50%) translateY(10px); transition: 0.3s var(--ease); }
 </style>
 </head>
 <body>
-
-<div id="debugBanner"><span id="debugText">ready</span></div>
-<button id="testIncoming" style="position:fixed;bottom:10px;right:10px;z-index:9999;background:#fff;color:#000;border:1px solid #fff;padding:8px 14px;font-family:monospace;font-size:11px;cursor:pointer;">test incoming call</button>
 
 <svg width="0" height="0" style="position:absolute">
   <symbol id="i-sun" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="50" cy="50" r="18" stroke-width="2.4"/><path d="M50 6 Q53 14 50 22"/><path d="M50 94 Q47 86 50 78"/><path d="M6 50 Q14 47 22 50"/><path d="M94 50 Q86 53 78 50"/><path d="M18 18 Q26 24 30 30"/><path d="M82 82 Q74 76 70 70"/><path d="M18 82 Q26 76 30 70"/><path d="M82 18 Q74 24 70 30"/><path d="M33 10 Q38 18 40 24"/><path d="M67 10 Q62 18 60 24"/><path d="M33 90 Q38 82 40 76"/><path d="M67 90 Q62 82 60 76"/><path d="M10 33 Q18 38 24 40"/><path d="M10 67 Q18 62 24 60"/><path d="M90 33 Q82 38 76 40"/><path d="M90 67 Q82 62 76 60"/></g></symbol>
@@ -331,8 +252,6 @@
   <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 8.9 19a1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 8.9a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
   <symbol id="i-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
   <symbol id="i-menu" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
-  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></symbol>
-  <symbol id="i-phone-off" viewBox="0 0 24 24"><path d="M10.7 13.3a16 16 0 0 0 2.4 2.3l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 2.7 3.7z"/><line x1="2" y1="2" x2="22" y2="22"/></symbol>
   <symbol id="i-send" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></symbol>
   <symbol id="i-reply" viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></symbol>
   <symbol id="i-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></symbol>
@@ -347,17 +266,8 @@
   <symbol id="i-star" viewBox="0 0 24 24"><polygon points="12 2 15 9 22 9.3 16.5 14 18.5 21 12 17 5.5 21 7.5 14 2 9.3 9 9 12 2"/></symbol>
   <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></symbol>
   <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></symbol>
-  <symbol id="i-mic-off" viewBox="0 0 24 24"><path d="M9 5a3 3 0 0 1 6 0v5M9 9v1a3 3 0 0 0 4.5 2.6"/><path d="M5 10v2a7 7 0 0 0 11 5.5M19 10v2a7 7 0 0 1-1 3.7"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="2" x2="22" y2="22"/></symbol>
   <symbol id="i-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></symbol>
-  <symbol id="i-video" viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2"/><polygon points="23 7 16 12 23 17 23 7"/></symbol>
-  <symbol id="i-video-off" viewBox="0 0 24 24"><path d="M16 16v2a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2"/><polygon points="23 7 16 12 23 17 23 7"/><line x1="2" y1="2" x2="22" y2="22"/></symbol>
-  <symbol id="i-screen" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="14" rx="2"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="12" y1="18" x2="12" y2="20"/></symbol>
-  <symbol id="i-screen-off" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="14" rx="2"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="12" y1="18" x2="12" y2="20"/><line x1="2" y1="2" x2="22" y2="22"/></symbol>
   <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></symbol>
-  <symbol id="i-move" viewBox="0 0 24 24"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></symbol>
-  <symbol id="i-grip" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></symbol>
-  <symbol id="i-expand" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></symbol>
-  <symbol id="i-minimize" viewBox="0 0 24 24"><path d="M4 14h6v6"/><path d="M20 10h-6V4"/><path d="M14 10l7-7"/><path d="M3 21l7-7"/></symbol>
 </svg>
 
 <div id="loader">
@@ -409,39 +319,6 @@
   <main class="main">
     <div class="main-header">
       <div class="title" id="channelTitle"><span class="hash">#</span> general</div>
-      <div class="call-actions">
-        <div class="meter" id="meter"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
-        <button id="btnCall"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-phone"/></svg> Audio</button>
-        <button id="btnVideo"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-video"/></svg> Video</button>
-        <button id="btnScreen"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-screen"/></svg> Screen</button>
-        <button id="btnHangup" disabled><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-phone-off"/></svg> End</button>
-      </div>
-    </div>
-
-    <div class="call-dock" id="callDock">
-      <div class="drag-header" id="callDragHeader">
-        <div class="grip"><span class="grip-icon"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-grip"/></svg></span><span id="dragTitle">Call</span></div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span class="call-status-pill" id="callStatusPill">connecting</span>
-          <div class="header-actions">
-            <button id="btnDockToggle" title="Toggle docked / floating"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-move"/></svg></button>
-            <button id="btnHeaderEnd" class="end" title="End call"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-phone-off"/></svg></button>
-          </div>
-        </div>
-      </div>
-      <div class="video-grid" id="videoGrid"></div>
-      <div class="call-info">
-        <div>
-          <div class="who"><svg class="ico ico-sm" viewBox="0 0 24 24" style="color:#3fff7a"><use href="#i-phone"/></svg> <span id="callWho">—</span></div>
-          <div class="status" id="callStatus">connecting…</div>
-        </div>
-        <div class="call-controls">
-          <button id="ctlMic" title="Toggle microphone"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-mic"/></svg></button>
-          <button id="ctlVideo" title="Toggle camera"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-video"/></svg></button>
-          <button id="ctlScreen" title="Share screen"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-screen"/></svg></button>
-          <button id="ctlEnd" class="end" title="End call"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-phone-off"/></svg></button>
-        </div>
-      </div>
     </div>
 
     <div class="member-strip" id="memberStrip">
@@ -471,7 +348,6 @@
           <div class="profile-pic" id="panelPic">?</div>
           <div class="profile-name" id="panelName">—</div>
           <div class="profile-pronouns" id="panelPronouns"></div>
-          <div class="profile-actions" id="panelActions"></div>
           <div class="profile-section">
             <div class="profile-section-label">Inscription</div>
             <div class="profile-bio empty" id="panelBio">no inscription</div>
@@ -563,20 +439,6 @@
   <div class="np-list" id="notifList"></div>
 </div>
 
-<div id="incomingCall">
-  <div class="incoming-box">
-    <div class="caller-pic" id="incomingPic">?</div>
-    <h3 id="incomingName">—</h3>
-    <div class="sub" id="incomingSub">incoming call</div>
-    <div class="btns">
-      <button class="accept" id="btnAcceptCall"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-phone"/></svg> Accept</button>
-      <button class="reject" id="btnRejectCall"><svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-phone-off"/></svg> Decline</button>
-    </div>
-  </div>
-</div>
-
-<audio id="remoteAudio" autoplay></audio>
-
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
@@ -593,26 +455,12 @@ const REACTIONS = { thumb: 'i-thumb', heart: 'i-heart', laugh: 'i-laugh', sad: '
 let me = null, myProfile = null
 let profileCache = {}
 let activeRoom = { id: 'general', type: 'channel', label: 'general' }
-let chatChannel = null, friendsChannel = null, presenceChannel = null, notifChannel = null, inboxChannel = null
+let chatChannel = null, friendsChannel = null, presenceChannel = null, notifChannel = null
 let onlineEmails = new Set(), friendships = [], messagesCache = {}
 let pendingAvatarFile = null, pendingVerified = null, notifyReady = false
 let replyTarget = null, openPickerFor = null
 let pendingAttachment = null, mediaRecorder = null, recordedChunks = [], editingMessageId = null
 let notifications = []
-
-let callPc = null, localStream = null, remoteStream = null, screenStream = null
-let callChannel = null, currentCallId = null, currentPeer = null
-let callKind = 'audio', incomingOffer = null, isCaller = false
-let micOn = true, camOn = false, screenOn = false
-let ringtoneCtx = null, ringtoneInterval = null, ringTimeout = null
-let callDockFloating = false, dragState = null
-
-function dbg(msg) {
-  const el = document.getElementById('debugText')
-  if (el) el.textContent = '[call] ' + msg
-  const banner = document.getElementById('debugBanner')
-  if (banner) banner.style.display = 'block'
-}
 
 window.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
@@ -664,37 +512,6 @@ function toast(title, body) {
   setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 300) }, 4000)
 }
 
-function startRingtone(mode) {
-  stopRingtone()
-  try {
-    ringtoneCtx = new (window.AudioContext || window.webkitAudioContext)()
-    const playRing = () => {
-      if (!ringtoneCtx) return
-      const now = ringtoneCtx.currentTime
-      const osc = ringtoneCtx.createOscillator()
-      const gain = ringtoneCtx.createGain()
-      osc.type = mode === 'outgoing' ? 'sine' : 'triangle'
-      const baseFreq = mode === 'outgoing' ? 420 : 880
-      osc.frequency.setValueAtTime(baseFreq, now)
-      osc.frequency.setValueAtTime(baseFreq * 1.15, now + 0.15)
-      osc.frequency.setValueAtTime(baseFreq, now + 0.3)
-      const peak = mode === 'outgoing' ? 0.05 : 0.12
-      gain.gain.setValueAtTime(0.0001, now)
-      gain.gain.exponentialRampToValueAtTime(peak, now + 0.05)
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.55)
-      osc.connect(gain).connect(ringtoneCtx.destination)
-      osc.start(now); osc.stop(now + 0.6)
-    }
-    playRing()
-    ringtoneInterval = setInterval(playRing, mode === 'outgoing' ? 2500 : 1400)
-  } catch (e) {}
-}
-function stopRingtone() {
-  if (ringtoneInterval) { clearInterval(ringtoneInterval); ringtoneInterval = null }
-  if (ringtoneCtx) { try { ringtoneCtx.close() } catch (e) {} ringtoneCtx = null }
-  if (ringTimeout) { clearTimeout(ringTimeout); ringTimeout = null }
-}
-
 $('btnSignin').onclick = async () => {
   $('loginMsg').textContent = ''
   const { error } = await supabase.auth.signInWithPassword({ email: $('email').value, password: $('pass').value })
@@ -708,10 +525,8 @@ $('btnSignup').onclick = async () => {
   else ensureNotifyPermission()
 }
 $('btnSignout').onclick = async () => {
-  await cleanupCall()
   if (presenceChannel) { await supabase.removeChannel(presenceChannel); presenceChannel = null }
   if (notifChannel) { await supabase.removeChannel(notifChannel); notifChannel = null }
-  if (inboxChannel) { await supabase.removeChannel(inboxChannel); inboxChannel = null }
   await supabase.auth.signOut()
 }
 
@@ -731,7 +546,6 @@ supabase.auth.onAuthStateChange((event, session) => {
     if (friendsChannel) { supabase.removeChannel(friendsChannel); friendsChannel = null }
     if (presenceChannel) { supabase.removeChannel(presenceChannel); presenceChannel = null }
     if (notifChannel) { supabase.removeChannel(notifChannel); notifChannel = null }
-    if (inboxChannel) { supabase.removeChannel(inboxChannel); inboxChannel = null }
   }
 })
 
@@ -826,8 +640,6 @@ function listenNotifications() {
         if (n.from_email === me.email) return
         browserNotify(n.title || 'New message', n.body || '', 'msg-' + n.id)
         if (document.hasFocus()) toast(n.title || 'New message', n.body || '')
-      } else if (n.kind === 'call') {
-        browserNotify(n.title || 'Missed call', n.body || '', 'call-' + n.id)
       } else if (n.kind === 'friend_request') {
         browserNotify(n.title || 'New friend request', n.body || '', 'fr-' + n.id)
       }
@@ -850,7 +662,6 @@ function renderNotifications() {
       let iconId = 'i-bell'
       if (n.kind === 'message') iconId = 'i-send'
       if (n.kind === 'reply') iconId = 'i-reply'
-      if (n.kind === 'call') iconId = 'i-phone'
       if (n.kind === 'friend_request') iconId = 'i-plus'
       item.innerHTML = `
         <div class="np-icon"><svg class="ico" viewBox="0 0 24 24"><use href="#${iconId}"/></svg></div>
@@ -893,7 +704,6 @@ async function boot() {
   trackPresence()
   listenNotifications()
   await loadNotifications()
-  listenIncomingCalls()
   openRoom('general', 'channel', 'general')
 }
 function renderChannels() {
@@ -1296,18 +1106,6 @@ async function openProfilePanel(email) {
   const tag = makeTag(p); if (tag) nameEl.appendChild(tag)
   const onlineTag = onlineEmails.has(email) ? ' · online' : ' · offline'
   $('panelPronouns').textContent = (p.pronouns || '') + onlineTag
-  const actions = $('panelActions'); actions.innerHTML = ''
-  if (email !== me.email) {
-    const audioBtn = document.createElement('button')
-    audioBtn.innerHTML = '<svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-phone"/></svg> Audio'
-    audioBtn.onclick = () => startCallWith(email, 'audio'); actions.appendChild(audioBtn)
-    const videoBtn = document.createElement('button')
-    videoBtn.innerHTML = '<svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-video"/></svg> Video'
-    videoBtn.onclick = () => startCallWith(email, 'video'); actions.appendChild(videoBtn)
-    const screenBtn = document.createElement('button')
-    screenBtn.innerHTML = '<svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-screen"/></svg> Screen'
-    screenBtn.onclick = () => startCallWith(email, 'screen'); actions.appendChild(screenBtn)
-  }
   const bio = $('panelBio'); bio.textContent = p.bio || 'no inscription'; bio.classList.toggle('empty', !p.bio)
   $('profilePanel').classList.add('open')
 }
@@ -1377,396 +1175,9 @@ $('btnSaveProfile').onclick = async () => {
   setTimeout(() => $('settingsModal').classList.remove('show'), 700)
 }
 
-// ===== CALLING =====
-const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
-function newCallId() { return 'call_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) }
-
-async function getMedia(kind) {
-  const constraints = { audio: true, video: kind === 'video' }
-  try { return await navigator.mediaDevices.getUserMedia(constraints) }
-  catch (err) {
-    if (kind === 'video') { try { return await navigator.mediaDevices.getUserMedia({ audio: true, video: false }) } catch (e2) { throw e2 } }
-    throw err
-  }
-}
-
-async function startCallWith(peerEmail, kind) {
-  if (callPc) { alert('Already in a call'); return }
-  currentPeer = peerEmail; currentCallId = newCallId(); callKind = kind; isCaller = true
-  try { localStream = await getMedia(kind) }
-  catch (err) { alert('Could not access mic/camera: ' + err.message); return }
-  if (kind === 'screen') {
-    try { screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false }) }
-    catch (err) { localStream.getTracks().forEach(t => t.stop()); localStream = null; return }
-  }
-  await openCallChannel()
-  createPeerConnection()
-  if (kind === 'screen') {
-    screenStream.getVideoTracks().forEach(t => callPc.addTrack(t, screenStream))
-    localStream.getAudioTracks().forEach(t => callPc.addTrack(t, localStream))
-  } else localStream.getTracks().forEach(t => callPc.addTrack(t, localStream))
-  micOn = true; camOn = kind === 'video'; screenOn = kind === 'screen'
-  showCallDock(); updateCallControls(); setCallStatus('calling…', 'ringing')
-
-  const offer = await callPc.createOffer()
-  await callPc.setLocalDescription(offer)
-  await sendSignal('offer', { sdp: offer, kind, callId: currentCallId })
-
-  await pushNotification({
-    user_email: peerEmail, kind: 'call',
-    title: `Incoming ${kind} call`,
-    body: `${displayNameFor(me.email)} is calling`,
-    from_email: me.email
-  })
-
-  startRingtone('outgoing')
-
-  ringTimeout = setTimeout(() => {
-    if (callPc && callPc.connectionState !== 'connected') {
-      toast('Call ended', 'No answer')
-      cleanupCall()
-    }
-  }, 45000)
-}
-
-async function openCallChannel() {
-  if (callChannel) await supabase.removeChannel(callChannel)
-  const pair = [me.email, currentPeer].sort()
-  const channelName = 'call:' + pair.join('|') + ':' + currentCallId
-  callChannel = supabase.channel(channelName, { config: { broadcast: { self: false } } })
-  callChannel.on('broadcast', { event: 'signal' }, async ({ payload }) => { await handleSignal(payload) }).subscribe()
-}
-async function sendSignal(kind, payload) {
-  if (!callChannel) return
-  await callChannel.send({ type: 'broadcast', event: 'signal', payload: { kind, from: me.email, to: currentPeer, ...payload } })
-}
-async function handleSignal(payload) {
-  const { kind } = payload
-  if (kind === 'offer') {
-    if (payload.to !== me.email) return
-    incomingOffer = payload; currentPeer = payload.from; currentCallId = payload.callId
-    callKind = payload.kind || 'audio'; isCaller = false
-    showIncomingCall(payload)
-  } else if (kind === 'answer') {
-    if (callPc && callPc.signalingState === 'have-local-offer') {
-      await callPc.setRemoteDescription(payload.sdp)
-      setCallStatus('connected', 'live'); stopRingtone()
-      updateCallPill('live', 'connected')
-    }
-  } else if (kind === 'ice') {
-    if (callPc) { try { await callPc.addIceCandidate(payload.candidate) } catch (e) {} }
-  } else if (kind === 'end') {
-    cleanupCall()
-  }
-}
-function createPeerConnection() {
-  callPc = new RTCPeerConnection(rtcConfig)
-  callPc.onicecandidate = e => { if (e.candidate) sendSignal('ice', { candidate: e.candidate }) }
-  callPc.ontrack = (e) => { remoteStream = e.streams[0]; attachRemoteStream() }
-  callPc.onconnectionstatechange = () => {
-    if (callPc.connectionState === 'connected') { setCallStatus('connected', 'live'); stopRingtone(); updateCallPill('live', 'connected') }
-    if (['failed', 'disconnected', 'closed'].includes(callPc.connectionState)) {
-      setCallStatus('call ended', 'ended')
-      setTimeout(() => cleanupCall(), 800)
-    }
-  }
-}
-
-function updateCallPill(state, text) {
-  const pill = $('callStatusPill')
-  pill.classList.remove('live', 'ringing')
-  if (state === 'live') pill.classList.add('live')
-  if (state === 'ringing') pill.classList.add('ringing')
-  pill.textContent = text || state
-}
-
-function showIncomingCall(payload) {
-  dbg('showIncomingCall firing')
-  const box = document.getElementById('incomingCall')
-  if (!box) { dbg('ERROR: #incomingCall missing from DOM'); return }
-
-  const p = profileCache[payload.from] || {}
-  const pic = document.getElementById('incomingPic')
-  if (pic) {
-    pic.innerHTML = ''
-    if (p.avatar_url) { const img = document.createElement('img'); img.src = p.avatar_url; pic.appendChild(img) }
-    else pic.textContent = (p.display_name || payload.from || '?').charAt(0).toUpperCase()
-  }
-  const nameEl = document.getElementById('incomingName')
-  if (nameEl) nameEl.textContent = displayNameFor(payload.from)
-  const subEl = document.getElementById('incomingSub')
-  if (subEl) {
-    const kindLabel = payload.kind === 'video' ? 'video call' : payload.kind === 'screen' ? 'screen share' : 'audio call'
-    subEl.textContent = 'incoming ' + kindLabel
-  }
-
-  box.classList.add('show')
-  box.style.display = 'flex'
-  try { startRingtone('incoming') } catch (e) {}
-  try { browserNotify('Incoming Call', `${displayNameFor(payload.from)} is calling`, 'call-' + payload.callId) } catch (e) {}
-
-  ringTimeout = setTimeout(() => {
-    if (incomingOffer) {
-      document.getElementById('btnRejectCall').click()
-      toast('Missed call', `You missed a call from ${displayNameFor(payload.from)}`)
-    }
-  }, 45000)
-}
-
-$('btnRejectCall').onclick = async () => {
-  dbg('declined')
-  stopRingtone()
-  await sendSignal('end', {})
-  const box = $('incomingCall')
-  box.classList.remove('show')
-  box.style.display = ''
-  incomingOffer = null; cleanupCall()
-}
-$('btnAcceptCall').onclick = async () => {
-  dbg('accepting')
-  stopRingtone()
-  const box = $('incomingCall')
-  box.classList.remove('show')
-  box.style.display = ''
-  if (!incomingOffer) return
-  callKind = incomingOffer.kind || 'audio'; isCaller = false
-  try { localStream = await getMedia(callKind) }
-  catch (err) { alert('Could not access mic/camera: ' + err.message); await sendSignal('end', {}); cleanupCall(); return }
-  await openCallChannel(); createPeerConnection()
-  micOn = true; camOn = callKind === 'video'; screenOn = false
-  localStream.getTracks().forEach(t => callPc.addTrack(t, localStream))
-  await callPc.setRemoteDescription(incomingOffer.sdp)
-  const answer = await callPc.createAnswer()
-  await callPc.setLocalDescription(answer)
-  await sendSignal('answer', { sdp: answer })
-  showCallDock(); updateCallControls(); setCallStatus('connecting…', 'ringing')
-  incomingOffer = null
-}
-
-function showCallDock() {
-  $('callDock').classList.add('show')
-  $('dragTitle').textContent = `${callKind} call with ${displayNameFor(currentPeer)}`
-  $('callWho').textContent = displayNameFor(currentPeer)
-  buildVideoGrid()
-  callDockFloating = activeRoom.type !== 'dm' || activeRoom.label !== currentPeer
-  applyDockMode()
-  $('btnHangup').disabled = false
-  $('btnHangup').classList.add('end-live')
-}
-function applyDockMode() {
-  const dock = $('callDock')
-  if (callDockFloating) {
-    dock.classList.add('floating')
-    const saved = sessionStorage.getItem('callDockPos')
-    if (saved) {
-      try {
-        const { x, y } = JSON.parse(saved)
-        dock.style.left = Math.max(8, Math.min(window.innerWidth - 360, x)) + 'px'
-        dock.style.top = Math.max(8, Math.min(window.innerHeight - 200, y)) + 'px'
-        dock.style.right = 'auto'; dock.style.bottom = 'auto'
-      } catch (e) {}
-    } else {
-      dock.style.left = 'auto'; dock.style.top = 'auto'
-      dock.style.right = '20px'; dock.style.bottom = '20px'
-    }
-    $('btnDockToggle').title = 'Dock to top'
-    $('btnDockToggle').innerHTML = '<svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-minimize"/></svg>'
-  } else {
-    dock.classList.remove('floating')
-    dock.style.left = ''; dock.style.top = ''; dock.style.right = ''; dock.style.bottom = ''
-    $('btnDockToggle').title = 'Pop out floating'
-    $('btnDockToggle').innerHTML = '<svg class="ico ico-sm" viewBox="0 0 24 24"><use href="#i-expand"/></svg>'
-  }
-}
-$('btnDockToggle').onclick = () => { callDockFloating = !callDockFloating; applyDockMode() }
-
-function buildVideoGrid() {
-  const grid = $('videoGrid')
-  grid.innerHTML = ''
-  grid.classList.remove('two', 'three')
-  const hasVideo = callKind === 'video' || callKind === 'screen'
-  if (hasVideo) grid.classList.add('two')
-  const localCell = document.createElement('div'); localCell.className = 'video-cell'
-  const localVideo = document.createElement('video')
-  localVideo.autoplay = true; localVideo.muted = true; localVideo.playsInline = true
-  if (screenStream) localVideo.srcObject = screenStream
-  else if (localStream && callKind === 'video') localVideo.srcObject = localStream
-  else {
-    localVideo.style.display = 'none'
-    const ph = document.createElement('div'); ph.className = 'video-placeholder'
-    ph.innerHTML = '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><use href="#i-mic"/></svg>'
-    const nm = document.createElement('div'); nm.className = 'name'; nm.textContent = 'You'
-    const st = document.createElement('div'); st.className = 'status'; st.textContent = 'on call'
-    ph.appendChild(nm); ph.appendChild(st); localCell.appendChild(ph)
-  }
-  localCell.appendChild(localVideo)
-  const localBadge = document.createElement('div'); localBadge.className = 'name-badge'
-  localBadge.textContent = 'You' + (screenStream ? ' · screen' : '')
-  localCell.appendChild(localBadge)
-  grid.appendChild(localCell)
-  if (hasVideo) {
-    const remoteCell = document.createElement('div'); remoteCell.className = 'video-cell'; remoteCell.id = 'remoteCell'
-    const remoteVideo = document.createElement('video'); remoteVideo.id = 'remoteVideoEl'
-    remoteVideo.autoplay = true; remoteVideo.playsInline = true
-    remoteCell.appendChild(remoteVideo)
-    const remoteBadge = document.createElement('div'); remoteBadge.className = 'name-badge'
-    remoteBadge.textContent = displayNameFor(currentPeer)
-    remoteCell.appendChild(remoteBadge)
-    grid.appendChild(remoteCell)
-    attachRemoteStream()
-  }
-}
-function attachRemoteStream() {
-  if (!remoteStream) return
-  const rv = document.getElementById('remoteVideoEl')
-  if (!rv) { $('remoteAudio').srcObject = remoteStream; return }
-  rv.srcObject = remoteStream
-}
-function updateCallControls() {
-  $('ctlMic').classList.toggle('on', micOn)
-  $('ctlVideo').classList.toggle('on', camOn)
-  $('ctlScreen').classList.toggle('on', screenOn)
-  $('ctlMic').querySelector('use').setAttribute('href', micOn ? '#i-mic' : '#i-mic-off')
-  $('ctlVideo').querySelector('use').setAttribute('href', camOn ? '#i-video' : '#i-video-off')
-  $('ctlScreen').querySelector('use').setAttribute('href', screenOn ? '#i-screen' : '#i-screen-off')
-}
-function setCallStatus(text, pill) {
-  $('callStatus').textContent = text
-  if (pill) updateCallPill(pill, text)
-}
-$('ctlMic').onclick = () => {
-  if (!localStream) return
-  micOn = !micOn
-  localStream.getAudioTracks().forEach(t => t.enabled = micOn)
-  updateCallControls()
-}
-$('ctlVideo').onclick = async () => {
-  if (!localStream) return
-  let videoTrack = localStream.getVideoTracks()[0]
-  if (!videoTrack) {
-    try {
-      const vs = await navigator.mediaDevices.getUserMedia({ video: true })
-      const newTrack = vs.getVideoTracks()[0]
-      localStream.addTrack(newTrack)
-      if (callPc) {
-        const sender = callPc.getSenders().find(s => s.track && s.track.kind === 'video')
-        if (sender) await sender.replaceTrack(newTrack); else callPc.addTrack(newTrack, localStream)
-      }
-      camOn = true
-    } catch (e) { alert('Camera error: ' + e.message); return }
-  } else { camOn = !camOn; videoTrack.enabled = camOn }
-  updateCallControls(); buildVideoGrid()
-}
-$('ctlScreen').onclick = async () => {
-  if (screenOn) {
-    if (screenStream) { screenStream.getTracks().forEach(t => t.stop()); screenStream = null }
-    screenOn = false; updateCallControls(); buildVideoGrid(); return
-  }
-  try { screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false }) }
-  catch (e) { return }
-  screenOn = true
-  const screenTrack = screenStream.getVideoTracks()[0]
-  if (callPc) {
-    const sender = callPc.getSenders().find(s => s.track && s.track.kind === 'video')
-    if (sender) await sender.replaceTrack(screenTrack); else callPc.addTrack(screenTrack, screenStream)
-  }
-  screenTrack.onended = () => { $('ctlScreen').click() }
-  updateCallControls(); buildVideoGrid()
-}
-
-async function cleanupCall() {
-  stopRingtone()
-  try { if (callChannel) await supabase.removeChannel(callChannel) } catch (e) {}
-  callChannel = null
-  if (callPc) { try { callPc.close() } catch (e) {} callPc = null }
-  if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null }
-  if (screenStream) { screenStream.getTracks().forEach(t => t.stop()); screenStream = null }
-  remoteStream = null; currentPeer = null; currentCallId = null; incomingOffer = null
-  micOn = true; camOn = false; screenOn = false
-  $('callDock').classList.remove('show', 'dragging')
-  const box = $('incomingCall')
-  box.classList.remove('show')
-  box.style.display = ''
-  $('remoteAudio').srcObject = null
-  $('btnHangup').disabled = true
-  $('btnHangup').classList.remove('end-live')
-}
-
-$('ctlEnd').onclick = async () => { await sendSignal('end', {}); cleanupCall() }
-$('btnHeaderEnd').onclick = async () => { await sendSignal('end', {}); cleanupCall() }
-$('btnHangup').onclick = async () => { await sendSignal('end', {}); cleanupCall() }
-
-const dragHeader = $('callDragHeader')
-dragHeader.addEventListener('mousedown', (e) => {
-  if (!callDockFloating) return
-  if (e.target.closest('button')) return
-  e.preventDefault()
-  const dock = $('callDock')
-  const rect = dock.getBoundingClientRect()
-  dragState = { offX: e.clientX - rect.left, offY: e.clientY - rect.top }
-  dock.style.left = rect.left + 'px'; dock.style.top = rect.top + 'px'
-  dock.style.right = 'auto'; dock.style.bottom = 'auto'
-  dock.classList.add('dragging')
-})
-document.addEventListener('mousemove', (e) => {
-  if (!dragState) return
-  const dock = $('callDock')
-  let x = e.clientX - dragState.offX
-  let y = e.clientY - dragState.offY
-  x = Math.max(4, Math.min(window.innerWidth - dock.offsetWidth - 4, x))
-  y = Math.max(4, Math.min(window.innerHeight - dock.offsetHeight - 4, y))
-  dock.style.left = x + 'px'; dock.style.top = y + 'px'
-})
-document.addEventListener('mouseup', () => {
-  if (dragState) {
-    const dock = $('callDock')
-    sessionStorage.setItem('callDockPos', JSON.stringify({ x: parseInt(dock.style.left), y: parseInt(dock.style.top) }))
-    dragState = null
-    dock.classList.remove('dragging')
-  }
-})
-
-$('btnCall').onclick = () => { if (activeRoom.type !== 'dm') { alert('Open a whisper with a friend to call them.'); return } startCallWith(activeRoom.label, 'audio') }
-$('btnVideo').onclick = () => { if (activeRoom.type !== 'dm') { alert('Open a whisper with a friend to call them.'); return } startCallWith(activeRoom.label, 'video') }
-$('btnScreen').onclick = () => { if (activeRoom.type !== 'dm') { alert('Open a whisper with a friend to call them.'); return } startCallWith(activeRoom.label, 'screen') }
-
-function listenIncomingCalls() {
-  if (!me) return
-  if (inboxChannel) return
-  dbg('listening on ' + me.email)
-
-  inboxChannel = supabase.channel('inbox:' + me.email)
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'call_signals' }, async (payload) => {
-      dbg('signal received')
-      const row = payload.new
-      if (!row) { dbg('no row'); return }
-      if (row.to_email !== me.email) { dbg('not for me'); return }
-      if (callPc) { dbg('already in call'); return }
-      if (row.kind !== 'offer') { dbg('kind=' + row.kind); return }
-      incomingOffer = { sdp: row.payload.sdp, kind: row.payload.kind, callId: row.call_id, from: row.from_email }
-      currentPeer = row.from_email
-      currentCallId = row.call_id
-      try { await fetchProfileByEmail(row.from_email) } catch (e) {}
-      dbg('showing modal from DB listener')
-      try { showIncomingCall(incomingOffer); dbg('modal shown OK') }
-      catch (err) { dbg('ERROR: ' + err.message) }
-    })
-    .subscribe((status) => { dbg('channel: ' + status) })
-}
-
-setTimeout(() => {
-  const btn = document.getElementById('testIncoming')
-  if (btn) {
-    btn.onclick = () => {
-      dbg('TEST: firing showIncomingCall')
-      showIncomingCall({ from: me?.email || 'test@example.com', kind: 'audio', callId: 'test', sdp: { type: 'offer', sdp: 'x' } })
-    }
-  }
-}, 2000)
-
 window.addEventListener('beforeunload', () => {
-  stopRingtone()
-  if (callPc) { try { callPc.close() } catch (e) {} }
+  if (presenceChannel) { try { supabase.removeChannel(presenceChannel) } catch (e) {} }
+  if (notifChannel) { try { supabase.removeChannel(notifChannel) } catch (e) {} }
 })
 </script>
 </body>
