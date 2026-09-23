@@ -7,40 +7,25 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <style>
-        /* ============================================================
-           FS — OCEAN GLASSMORPHISM
-           Deep blue base · cyan accents · peach/sand highlights
-           ============================================================ */
-
         :root {
-            /* Ocean blues */
             --abyss:        #030710;
             --deep-sea:     #060d1c;
             --ocean-floor:  #0a1526;
             --tide:         #0e2038;
             --shallow:      #14304f;
-
-            /* Light blue / cyan */
             --sky:          #4a9eff;
             --foam:         #7fc4ff;
             --cyan:         #2ee5d5;
             --neon-cyan:    #00ffd9;
-
-            /* Sand / peach */
             --sand:         #f5c9a8;
             --peach:        #ffb38a;
             --coral:        #ff9478;
-
-            /* Text */
             --text-bright:  #eaf4ff;
             --text:         #b8cfe6;
             --text-dim:     #6d8aa8;
             --text-mute:    #4a6685;
-
-            /* Glass */
             --glass-bg:     rgba(10, 25, 45, 0.45);
             --glass-border: rgba(120, 180, 255, 0.12);
-            --glass-glow:   rgba(74, 158, 255, 0.15);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -53,7 +38,6 @@
             position: relative;
         }
 
-        /* Animated ocean gradient background */
         .ocean-bg {
             position: fixed; inset: 0;
             z-index: 0;
@@ -70,7 +54,6 @@
             50%      { background-position: 30% 20%, 70% 80%, 40% 60%, 0% 0%; }
         }
 
-        /* Floating bubble orbs */
         .bubbles {
             position: fixed; inset: 0;
             z-index: 0; pointer-events: none;
@@ -91,7 +74,6 @@
             100% { transform: translateY(-10vh) scale(1.1); opacity: 0; }
         }
 
-        /* ===== AUTH SCREEN ===== */
         .auth-screen {
             position: fixed; inset: 0;
             display: flex; align-items: center; justify-content: center;
@@ -229,7 +211,6 @@
         }
         .auth-msg.error { color: var(--coral); }
 
-        /* ===== APP ===== */
         .app {
             width: 100%; height: 100%;
             display: none;
@@ -242,7 +223,6 @@
             to   { opacity: 1; transform: scale(1); }
         }
 
-        /* Ambient light bloom */
         .app::before {
             content: ''; position: absolute;
             top: -20%; left: 30%; width: 40%; height: 60%;
@@ -255,7 +235,6 @@
             50%      { transform: translate(-20%, 10%); }
         }
 
-        /* ========== SERVER RAIL ========== */
         .server-rail {
             width: 76px;
             background: rgba(4, 10, 22, 0.55);
@@ -341,7 +320,6 @@
             box-shadow: 0 0 12px var(--cyan);
         }
 
-        /* ========== CHANNEL SIDEBAR ========== */
         .channel-sidebar {
             width: 264px;
             background: rgba(5, 12, 26, 0.55);
@@ -444,7 +422,6 @@
             box-shadow: 0 0 10px var(--cyan);
         }
 
-        /* Voice panel */
         .voice-panel {
             margin: 8px 12px 14px;
             padding: 12px 14px;
@@ -463,7 +440,6 @@
         }
         .voice-panel i { color: var(--cyan); font-size: 14px; }
 
-        /* ========== CHAT AREA ========== */
         .chat-area {
             flex: 1;
             display: flex; flex-direction: column;
@@ -516,7 +492,6 @@
             transform: translateY(-1px);
         }
 
-        /* Messages */
         .messages-container {
             flex: 1;
             overflow-y: auto;
@@ -610,7 +585,6 @@
             font-weight: 500;
         }
 
-        /* Message input */
         .message-input-area {
             padding: 18px 30px 24px;
             background: rgba(5, 12, 26, 0.6);
@@ -695,7 +669,6 @@
         .send-button:active { transform: translateY(0) scale(1); }
         .send-button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-        /* ========== MEMBER SIDEBAR ========== */
         .member-sidebar {
             width: 248px;
             background: rgba(5, 12, 26, 0.55);
@@ -813,7 +786,6 @@
             box-shadow: none;
         }
 
-        /* Bottom user panel */
         .user-panel {
             padding: 14px 16px;
             background: rgba(4, 10, 22, 0.7);
@@ -856,21 +828,13 @@
             transform: scale(1.1);
             filter: drop-shadow(0 0 6px rgba(46, 229, 213, 0.6));
         }
-
-        /* Message input send button tint on hover — subtle peach tint on mentions */
-        .mention-highlight {
-            border-color: var(--sand) !important;
-            box-shadow: 0 0 12px rgba(245, 201, 168, 0.4) !important;
-        }
     </style>
 </head>
 <body>
 
-    <!-- Ambient ocean background -->
     <div class="ocean-bg"></div>
     <div class="bubbles" id="bubbles"></div>
 
-    <!-- ===== AUTH SCREEN ===== -->
     <div class="auth-screen" id="authScreen">
         <div class="auth-card">
             <h1><i class="fas fa-cube"></i> FS</h1>
@@ -895,15 +859,12 @@
         </div>
     </div>
 
-    <!-- ===== APP ===== -->
     <div class="app" id="app">
-        <!-- Server Rail -->
         <nav class="server-rail" id="serverRail">
             <div class="home-icon"><i class="fas fa-home"></i></div>
             <div class="server-sep"></div>
         </nav>
 
-        <!-- Channel Sidebar -->
         <aside class="channel-sidebar">
             <div class="server-header">
                 <h2><i class="fas fa-cube"></i> <span id="serverName">FS</span></h2>
@@ -918,7 +879,6 @@
             </div>
         </aside>
 
-        <!-- Chat Area -->
         <main class="chat-area">
             <header class="chat-header">
                 <div class="chat-header-left">
@@ -955,7 +915,6 @@
             </div>
         </main>
 
-        <!-- Member Sidebar -->
         <aside class="member-sidebar">
             <div class="member-header">
                 <i class="fas fa-users"></i> members — <span id="memberCount">0</span>
@@ -980,7 +939,6 @@
         </aside>
     </div>
 
-    <!-- ===== FLOATING BUBBLES GENERATOR ===== -->
     <script>
         (function spawnBubbles() {
             const container = document.getElementById('bubbles');
@@ -999,10 +957,14 @@
         })();
     </script>
 
-    <!-- ===== SUPABASE APP LOGIC (unchanged) ===== -->
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
+        // ============================================================
+        // SUPABASE CONFIG
+        // URL and key typed fresh — no paste artifacts.
+        // Project ref: rziozrqkinxmjpqwpdi
+        // ============================================================
         const SUPABASE_URL = 'https://rziozrqkinxmjpqwpdi.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_m9kwzBXxhweDmUtREyPhYQ_INo8q_';
 
@@ -1055,7 +1017,6 @@
 
         const statusClass = (s) => s || 'offline';
 
-        // ===== AUTH =====
         toggleMode.addEventListener('click', () => {
             isSignupMode = !isSignupMode;
             authSubmit.textContent = isSignupMode ? 'Create Account' : 'Sign In';
@@ -1163,7 +1124,6 @@
             }
         }
 
-        // ===== SERVERS =====
         async function loadServers() {
             const { data: servers, error } = await supabase
                 .from('servers').select('id, name, slug, icon_emoji, icon_url')
@@ -1216,7 +1176,6 @@
             await loadMembers(serverId);
         }
 
-        // ===== CHANNELS =====
         async function loadChannels(serverId) {
             channelList.innerHTML = '<div class="empty-msg">Loading channels…</div>';
 
@@ -1279,7 +1238,6 @@
             }
         }
 
-        // ===== MESSAGES =====
         async function openChannel(channelId, channelNameStr) {
             currentChannelId = channelId;
             channelName.textContent = channelNameStr;
@@ -1354,7 +1312,6 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        // ===== SEND =====
         async function sendMessage() {
             const content = messageInput.value.trim();
             if (!content || !currentChannelId || !currentUser) return;
@@ -1385,7 +1342,6 @@
             }
         });
 
-        // ===== MEMBERS =====
         async function loadMembers(serverId) {
             memberList.innerHTML = '<div class="empty-msg">Loading members…</div>';
 
@@ -1435,7 +1391,6 @@
             </div>`;
         }
 
-        // ===== SESSION RESUME =====
         (async () => {
             const { data: { session } } = await supabase.auth.getSession();
             if (session?.user) {
