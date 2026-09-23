@@ -4,884 +4,505 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FS • workspace</title>
-    <!-- Font Awesome for icons (free version) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Google Font for clean typography -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html, body {
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; width: 100%; overflow: hidden; }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: #07090c;
             color: #d8e2ef;
-            display: flex;
-            align-items: stretch;
-            justify-content: stretch;
             background-image:
                 radial-gradient(circle at 15% 20%, rgba(16, 40, 80, 0.08) 0%, transparent 40%),
                 radial-gradient(circle at 85% 80%, rgba(10, 35, 75, 0.08) 0%, transparent 45%),
                 linear-gradient(160deg, #06080b 0%, #080b11 100%);
         }
 
-        /* ===== FULL SCREEN APP ===== */
-        .app {
+        /* ===== AUTH SCREEN ===== */
+        .auth-screen {
+            position: fixed; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: radial-gradient(circle at 50% 40%, #0b1526 0%, #05070a 70%);
+            z-index: 100;
+        }
+        .auth-card {
+            width: 380px;
+            background: #0a0f17;
+            border: 1px solid rgba(30, 80, 160, 0.3);
+            border-radius: 20px;
+            padding: 40px 32px;
+            box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.9), 0 0 40px rgba(20, 70, 180, 0.15) inset;
+        }
+        .auth-card h1 {
+            font-size: 24px; font-weight: 700; color: #d6e6ff;
+            text-align: center; margin-bottom: 6px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            text-shadow: 0 0 12px rgba(40, 120, 240, 0.5);
+        }
+        .auth-card h1 i { color: #4a82c8; font-size: 22px; }
+        .auth-card p.sub {
+            text-align: center; color: #5a7594; font-size: 13px;
+            margin-bottom: 28px; letter-spacing: 0.3px;
+        }
+        .auth-field {
+            margin-bottom: 14px;
+        }
+        .auth-field label {
+            display: block; font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            color: #5a7594; margin-bottom: 6px;
+        }
+        .auth-field input {
             width: 100%;
-            height: 100%;
-            display: flex;
+            background: #090f18;
+            border: 1px solid #173452;
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: #c0d4ec;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: 0.15s;
+        }
+        .auth-field input:focus {
+            border-color: #2a6fd0;
+            box-shadow: 0 0 0 3px rgba(30, 100, 220, 0.15);
+        }
+        .auth-btn {
+            width: 100%;
+            background: linear-gradient(145deg, #0f2645, #09182e);
+            border: 1px solid #1e55a0;
+            border-radius: 12px;
+            padding: 13px;
+            color: #c8dcf5;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: 0.15s;
+            font-family: inherit;
+            letter-spacing: 0.3px;
+        }
+        .auth-btn:hover {
+            background: linear-gradient(145deg, #16386b, #0c2448);
+            border-color: #3a80e0;
+            color: #fff;
+            box-shadow: 0 0 22px rgba(30, 100, 220, 0.5);
+        }
+        .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .auth-toggle {
+            text-align: center; margin-top: 18px;
+            font-size: 12.5px; color: #5a7594;
+        }
+        .auth-toggle a {
+            color: #6aa8f0; cursor: pointer; font-weight: 600;
+            text-decoration: none;
+        }
+        .auth-toggle a:hover { text-decoration: underline; }
+        .auth-msg {
+            text-align: center; font-size: 12.5px;
+            margin-top: 14px; min-height: 16px;
+            color: #7aa8e8;
+        }
+        .auth-msg.error { color: #e07070; }
+
+        /* ===== APP ===== */
+        .app {
+            width: 100%; height: 100%;
+            display: none;
             background: #090c12;
             overflow: hidden;
             position: relative;
-            box-shadow: none;
-            border-radius: 0;
         }
-
-        /* very subtle blue edge glow */
+        .app.visible { display: flex; }
         .app::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            padding: 1px;
+            content: ''; position: absolute; inset: 0; padding: 1px;
             background: linear-gradient(135deg, rgba(25, 70, 150, 0.25), rgba(10, 25, 50, 0.1), rgba(25, 70, 150, 0.15));
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
-            z-index: 10;
-            opacity: 0.6;
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            pointer-events: none; z-index: 10; opacity: 0.6;
         }
 
-        /* ========== SERVER RAIL (leftmost) ========== */
+        /* SERVER RAIL */
         .server-rail {
-            width: 72px;
-            background: #06080c;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px 0 16px 0;
-            gap: 6px;
+            width: 72px; background: #06080c;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px 0 16px 0; gap: 6px;
             border-right: 1px solid rgba(25, 70, 140, 0.15);
             box-shadow: 4px 0 18px -6px rgba(0, 0, 0, 0.8);
-            position: relative;
-            z-index: 5;
+            position: relative; z-index: 5;
+            overflow-y: auto;
         }
-
         .server-rail .home-icon {
-            width: 46px;
-            height: 46px;
+            width: 46px; height: 46px;
             background: linear-gradient(145deg, #0b1626, #070e18);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            color: #7aa8e8;
+            border-radius: 14px; display: flex; align-items: center; justify-content: center;
+            font-size: 22px; color: #7aa8e8;
             border: 1px solid rgba(50, 120, 220, 0.3);
             box-shadow: 0 0 10px rgba(25, 80, 190, 0.2), 0 2px 4px rgba(0, 0, 0, 0.7);
-            transition: 0.15s;
             margin-bottom: 8px;
         }
-
-        .server-rail .home-icon i {
-            filter: drop-shadow(0 0 5px #2a5fb0);
-        }
-
         .server-rail .server-sep {
-            width: 28px;
-            height: 1px;
-            background: rgba(35, 80, 150, 0.25);
-            border-radius: 1px;
+            width: 28px; height: 1px; background: rgba(35, 80, 150, 0.25);
             margin: 6px 0 8px 0;
         }
-
         .server-item {
-            width: 46px;
-            height: 46px;
-            border-radius: 14px;
-            background: #0a111a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 17px;
-            color: #9cbce0;
+            width: 46px; height: 46px; border-radius: 14px;
+            background: #0a111a; display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 17px; color: #9cbce0;
             border: 1px solid rgba(35, 85, 160, 0.25);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.7);
-            transition: 0.15s;
-            cursor: default;
-            position: relative;
-            overflow: hidden;
+            cursor: pointer; transition: 0.15s;
+            position: relative; overflow: hidden;
+            flex-shrink: 0;
         }
-
-        .server-item::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at 30% 20%, rgba(50, 110, 210, 0.12), transparent 70%);
-            opacity: 0.6;
-        }
-
         .server-item:hover {
             border-color: rgba(60, 130, 230, 0.6);
             box-shadow: 0 0 12px rgba(25, 90, 200, 0.35), 0 2px 6px black;
             color: #c0d8ff;
         }
-
         .server-item.active {
             background: linear-gradient(145deg, #0c1b2e, #07111f);
             border: 1px solid #2860b0;
             box-shadow: 0 0 14px #18407e, 0 0 3px #1e55a0 inset;
             color: #b8d0ff;
         }
-
-        .server-item i {
-            font-size: 19px;
-        }
-
         .server-item.active::before {
-            content: '';
-            position: absolute;
-            left: -2px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 4px;
-            height: 22px;
-            background: #3a7fe0;
-            border-radius: 0 4px 4px 0;
+            content: ''; position: absolute; left: -2px; top: 50%;
+            transform: translateY(-50%); width: 4px; height: 22px;
+            background: #3a7fe0; border-radius: 0 4px 4px 0;
             box-shadow: 0 0 8px #1e55a0;
         }
 
-        /* ========== CHANNEL SIDEBAR ========== */
+        /* CHANNEL SIDEBAR */
         .channel-sidebar {
-            width: 264px;
-            background: #070a10;
-            display: flex;
-            flex-direction: column;
+            width: 264px; background: #070a10;
+            display: flex; flex-direction: column;
             border-right: 1px solid rgba(25, 70, 140, 0.2);
             box-shadow: 6px 0 18px -10px black;
-            position: relative;
-            z-index: 4;
+            position: relative; z-index: 4;
         }
-
         .server-header {
             padding: 20px 18px 16px 18px;
             border-bottom: 1px solid rgba(25, 70, 140, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between;
         }
-
         .server-header h2 {
-            font-size: 16px;
-            font-weight: 700;
-            letter-spacing: 0.6px;
-            color: #d6e4f5;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 16px; font-weight: 700; letter-spacing: 0.6px;
+            color: #d6e4f5; display: flex; align-items: center; gap: 8px;
             text-shadow: 0 0 6px rgba(30, 90, 190, 0.3);
         }
-
-        .server-header h2 i {
-            font-size: 17px;
-            color: #4a82c8;
-        }
-
+        .server-header h2 i { font-size: 17px; color: #4a82c8; }
         .server-header .server-badge {
-            background: #0a1626;
-            border: 1px solid #1a3d6e;
-            border-radius: 30px;
-            font-size: 10px;
-            font-weight: 600;
-            padding: 4px 10px;
-            color: #7ea8d8;
-            letter-spacing: 0.4px;
-            box-shadow: 0 0 8px rgba(25, 80, 180, 0.2);
+            background: #0a1626; border: 1px solid #1a3d6e;
+            border-radius: 30px; font-size: 10px; font-weight: 600;
+            padding: 4px 10px; color: #7ea8d8; letter-spacing: 0.4px;
         }
-
         .channel-list {
-            flex: 1;
-            padding: 18px 12px 12px 12px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            flex: 1; padding: 18px 12px 12px 12px;
+            overflow-y: auto; display: flex; flex-direction: column; gap: 20px;
         }
-
-        .channel-category {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
+        .channel-list::-webkit-scrollbar { width: 6px; }
+        .channel-list::-webkit-scrollbar-thumb { background: #1a3a5e; border-radius: 6px; }
+        .channel-category { display: flex; flex-direction: column; gap: 3px; }
         .category-title {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 8px 6px 8px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.9px;
-            color: #5a7594;
+            padding: 0 8px 6px 8px; font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.9px; color: #5a7594;
         }
-
-        .category-title i {
-            font-size: 11px;
-            color: #355a82;
-        }
-
         .channel-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 7px 12px;
-            border-radius: 10px;
-            font-size: 13.5px;
-            font-weight: 500;
-            color: #9cb2cc;
-            transition: 0.12s;
-            cursor: default;
-            border: 1px solid transparent;
+            display: flex; align-items: center; gap: 10px;
+            padding: 7px 12px; border-radius: 10px;
+            font-size: 13.5px; font-weight: 500; color: #9cb2cc;
+            cursor: pointer; transition: 0.12s; border: 1px solid transparent;
         }
-
-        .channel-item i {
-            font-size: 13px;
-            color: #3f6388;
-            width: 18px;
-            text-align: center;
-        }
-
+        .channel-item i { font-size: 13px; color: #3f6388; width: 18px; text-align: center; }
         .channel-item.active {
             background: linear-gradient(90deg, #0b192b, #091220);
-            border: 1px solid #1a3f6a;
-            color: #c8dcf5;
-            box-shadow: 0 0 12px rgba(20, 70, 160, 0.2), 0 0 0 1px rgba(40, 100, 200, 0.1) inset;
+            border: 1px solid #1a3f6a; color: #c8dcf5;
+            box-shadow: 0 0 12px rgba(20, 70, 160, 0.2);
         }
+        .channel-item.active i { color: #5f95e0; }
+        .channel-item:not(.active):hover { background: #0a121e; color: #b8cee8; }
 
-        .channel-item.active i {
-            color: #5f95e0;
-        }
-
-        .channel-item:not(.active):hover {
-            background: #0a121e;
-            color: #b8cee8;
-            border-color: rgba(35, 85, 160, 0.2);
-        }
-
-        /* voice panel bottom */
-        .voice-panel {
-            margin: 8px 12px 14px 12px;
-            padding: 10px 14px;
-            background: #080e16;
-            border-radius: 14px;
-            border: 1px solid #152c48;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 8px rgba(15, 55, 120, 0.15) inset;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            color: #a0c0e0;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .voice-panel i {
-            color: #3a7acc;
-            font-size: 14px;
-        }
-
-        /* ========== MAIN CHAT AREA ========== */
+        /* CHAT AREA */
         .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+            flex: 1; display: flex; flex-direction: column;
             background: #0a0f17;
             background-image:
                 radial-gradient(circle at 70% 10%, rgba(15, 55, 120, 0.06) 0%, transparent 50%),
                 linear-gradient(180deg, #0b1019 0%, #070b12 100%);
-            position: relative;
+            position: relative; min-width: 0;
         }
-
         .chat-header {
             padding: 16px 30px;
             background: rgba(5, 8, 13, 0.7);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(25, 70, 140, 0.25);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
             z-index: 3;
         }
-
-        .chat-header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
+        .chat-header-left { display: flex; align-items: center; gap: 12px; }
         .chat-header-left i {
-            font-size: 20px;
-            color: #3872c0;
+            font-size: 20px; color: #3872c0;
             filter: drop-shadow(0 0 6px #1a4a90);
         }
-
         .chat-header-left h3 {
-            font-size: 17px;
-            font-weight: 600;
-            color: #cedcf0;
-            letter-spacing: 0.2px;
+            font-size: 17px; font-weight: 600; color: #cedcf0;
         }
-
         .chat-header-left .channel-tag {
-            background: #0a1728;
-            border-radius: 30px;
-            padding: 4px 12px;
-            font-size: 11px;
-            font-weight: 600;
-            color: #80a8d8;
-            border: 1px solid #1e4a80;
-            margin-left: 8px;
-            box-shadow: 0 0 10px rgba(25, 80, 180, 0.2);
+            background: #0a1728; border-radius: 30px;
+            padding: 4px 12px; font-size: 11px; font-weight: 600;
+            color: #80a8d8; border: 1px solid #1e4a80; margin-left: 8px;
         }
-
         .chat-header-right {
-            display: flex;
-            gap: 20px;
-            color: #5a7a9e;
-            font-size: 17px;
+            display: flex; gap: 20px; color: #5a7a9e; font-size: 17px;
         }
+        .chat-header-right i { cursor: pointer; transition: 0.12s; }
+        .chat-header-right i:hover { color: #7aa8e8; filter: drop-shadow(0 0 8px #1e55a0); }
 
-        .chat-header-right i {
-            transition: 0.12s;
-            cursor: default;
-        }
-
-        .chat-header-right i:hover {
-            color: #7aa8e8;
-            filter: drop-shadow(0 0 8px #1e55a0);
-        }
-
-        /* messages container */
         .messages-container {
-            flex: 1;
-            overflow-y: auto;
+            flex: 1; overflow-y: auto;
             padding: 26px 30px 16px 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            scrollbar-width: thin;
-            scrollbar-color: #1a3a5e #080d14;
+            display: flex; flex-direction: column; gap: 20px;
+            scrollbar-width: thin; scrollbar-color: #1a3a5e #080d14;
         }
-
-        .messages-container::-webkit-scrollbar {
-            width: 7px;
-        }
-
-        .messages-container::-webkit-scrollbar-track {
-            background: #080d14;
-        }
-
+        .messages-container::-webkit-scrollbar { width: 7px; }
+        .messages-container::-webkit-scrollbar-track { background: #080d14; }
         .messages-container::-webkit-scrollbar-thumb {
-            background: #1a3a5e;
-            border-radius: 8px;
-            border: 1px solid #0c1a2a;
+            background: #1a3a5e; border-radius: 8px; border: 1px solid #0c1a2a;
         }
 
-        .message {
-            display: flex;
-            gap: 16px;
-            align-items: flex-start;
-            position: relative;
-        }
-
+        .message { display: flex; gap: 16px; align-items: flex-start; }
         .avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
+            width: 42px; height: 42px; border-radius: 12px;
             background: linear-gradient(145deg, #112236, #09131f);
             border: 1px solid #2a4c74;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 17px;
-            color: #a8c8f0;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 17px; color: #a8c8f0;
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6), 0 0 8px rgba(25, 70, 160, 0.2);
-            flex-shrink: 0;
+            flex-shrink: 0; overflow: hidden;
         }
-
-        .message-content {
-            flex: 1;
-        }
-
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .message-content { flex: 1; min-width: 0; }
         .message-header {
-            display: flex;
-            align-items: baseline;
-            gap: 10px;
-            margin-bottom: 4px;
+            display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px;
         }
-
         .message-author {
-            font-weight: 600;
-            font-size: 14.5px;
-            color: #b8d0ee;
-            letter-spacing: 0.2px;
+            font-weight: 600; font-size: 14.5px; color: #b8d0ee;
         }
-
+        .message-author .tag {
+            color: #5a7594; font-weight: 500; font-size: 11.5px;
+            margin-left: 2px;
+        }
         .message-time {
-            font-size: 11px;
-            font-weight: 500;
-            color: #526d88;
-            letter-spacing: 0.2px;
+            font-size: 11px; font-weight: 500; color: #526d88;
         }
-
         .message-text {
-            font-size: 14px;
-            line-height: 1.5;
-            color: #b0c4dc;
+            font-size: 14px; line-height: 1.5; color: #b0c4dc;
             background: rgba(10, 18, 28, 0.45);
             padding: 10px 16px;
             border-radius: 4px 16px 16px 16px;
             border-left: 3px solid #1a4a8a;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(25, 70, 150, 0.08) inset;
-            backdrop-filter: blur(3px);
-            word-break: break-word;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+            word-break: break-word; white-space: pre-wrap;
         }
-
         .message-text .mention {
-            color: #6aa8f0;
-            background: rgba(25, 70, 170, 0.18);
-            padding: 1px 6px;
-            border-radius: 5px;
-            font-weight: 600;
+            color: #6aa8f0; background: rgba(25, 70, 170, 0.18);
+            padding: 1px 6px; border-radius: 5px; font-weight: 600;
             border: 1px solid #1e4a80;
         }
 
-        /* embed / attachment style */
-        .embed {
-            margin-top: 8px;
-            background: #08111c;
-            border-left: 4px solid #1a4f96;
-            border-radius: 6px;
-            padding: 12px 16px;
-            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(30, 80, 170, 0.12) inset;
-        }
-
-        .embed-title {
-            font-weight: 600;
-            color: #98bce0;
-            font-size: 13px;
-            letter-spacing: 0.2px;
-            margin-bottom: 5px;
-        }
-
-        .embed-description {
-            font-size: 12.5px;
-            color: #8aa4c0;
-            line-height: 1.5;
-        }
-
-        /* message input area */
         .message-input-area {
             padding: 16px 30px 22px 30px;
             background: rgba(5, 8, 13, 0.7);
             backdrop-filter: blur(10px);
             border-top: 1px solid rgba(25, 70, 140, 0.25);
             box-shadow: 0 -5px 16px rgba(0, 0, 0, 0.4);
-            display: flex;
-            gap: 14px;
-            align-items: center;
-            z-index: 2;
+            display: flex; gap: 14px; align-items: center; z-index: 2;
         }
-
         .input-wrapper {
-            flex: 1;
-            background: #090f18;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
+            flex: 1; background: #090f18; border-radius: 20px;
+            display: flex; align-items: center;
             padding: 5px 8px 5px 22px;
             border: 1px solid #173452;
             box-shadow: 0 0 0 1px rgba(20, 60, 130, 0.12) inset, 0 4px 12px rgba(0, 0, 0, 0.5);
         }
-
         .input-wrapper i {
-            color: #355a82;
-            font-size: 17px;
-            margin-right: 14px;
-            transition: 0.12s;
+            color: #355a82; font-size: 17px; margin-right: 14px;
         }
-
         .input-wrapper input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
-            color: #c0d4ec;
-            font-size: 14px;
-            font-weight: 400;
-            padding: 12px 0;
-            font-family: 'Inter', sans-serif;
+            flex: 1; background: transparent; border: none; outline: none;
+            color: #c0d4ec; font-size: 14px; padding: 12px 0;
+            font-family: inherit;
         }
-
-        .input-wrapper input::placeholder {
-            color: #45627e;
-            font-weight: 400;
-            letter-spacing: 0.2px;
-        }
-
-        .input-actions {
-            display: flex;
-            gap: 16px;
-            padding-right: 12px;
-        }
-
-        .input-actions i {
-            color: #3f6086;
-            font-size: 17px;
-            transition: 0.12s;
-            cursor: default;
-        }
-
-        .input-actions i:hover {
-            color: #6a9ae0;
-            filter: drop-shadow(0 0 6px #1e55a0);
-        }
-
+        .input-wrapper input::placeholder { color: #45627e; }
+        .input-actions { display: flex; gap: 16px; padding-right: 12px; }
+        .input-actions i { color: #3f6086; font-size: 17px; cursor: pointer; }
+        .input-actions i:hover { color: #6a9ae0; }
         .send-button {
             background: linear-gradient(145deg, #0f2645, #09182e);
-            border: 1px solid #1e55a0;
-            border-radius: 20px;
-            width: 46px;
-            height: 46px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #9cc0f0;
-            font-size: 19px;
+            border: 1px solid #1e55a0; border-radius: 20px;
+            width: 46px; height: 46px;
+            display: flex; align-items: center; justify-content: center;
+            color: #9cc0f0; font-size: 19px;
             box-shadow: 0 0 14px rgba(20, 70, 170, 0.25), 0 3px 8px black;
-            transition: 0.12s;
-            cursor: default;
+            cursor: pointer; transition: 0.12s;
         }
-
         .send-button:hover {
             background: linear-gradient(145deg, #16386b, #0c2448);
-            border-color: #3a80e0;
-            color: white;
+            border-color: #3a80e0; color: white;
             box-shadow: 0 0 20px #1a4a9a, 0 3px 10px black;
         }
+        .send-button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        /* ========== MEMBER LIST (right) ========== */
+        /* MEMBER SIDEBAR */
         .member-sidebar {
-            width: 248px;
-            background: #070a10;
+            width: 248px; background: #070a10;
             border-left: 1px solid rgba(25, 70, 140, 0.2);
-            display: flex;
-            flex-direction: column;
+            display: flex; flex-direction: column;
             box-shadow: -6px 0 18px -10px black;
-            position: relative;
-            z-index: 4;
+            position: relative; z-index: 4;
         }
-
         .member-header {
             padding: 22px 18px 14px 18px;
             border-bottom: 1px solid rgba(25, 70, 140, 0.2);
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #5a7594;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-size: 12px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px; color: #5a7594;
+            display: flex; align-items: center; gap: 10px;
         }
-
-        .member-header i {
-            color: #3872c0;
-            font-size: 13px;
-        }
-
+        .member-header i { color: #3872c0; font-size: 13px; }
         .member-list {
-            flex: 1;
-            padding: 16px 12px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
+            flex: 1; padding: 16px 12px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 6px;
         }
-
+        .member-list::-webkit-scrollbar { width: 6px; }
+        .member-list::-webkit-scrollbar-thumb { background: #1a3a5e; border-radius: 6px; }
         .member-category {
-            font-size: 10.5px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.9px;
-            color: #3f6082;
-            padding: 8px 12px 6px 12px;
-            margin-top: 6px;
+            font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.9px; color: #3f6082;
+            padding: 8px 12px 6px 12px; margin-top: 6px;
         }
-
         .member-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 7px 12px;
-            border-radius: 10px;
-            transition: 0.12s;
-            cursor: default;
+            display: flex; align-items: center; gap: 12px;
+            padding: 7px 12px; border-radius: 10px;
             border: 1px solid transparent;
         }
-
-        .member-item:hover {
-            background: #0a121e;
-            border-color: rgba(35, 85, 160, 0.2);
-        }
-
         .member-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 9px;
-            background: #0c1928;
-            border: 1px solid #274a72;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: 600;
-            color: #8ab0e0;
-            box-shadow: 0 2px 5px black;
+            width: 32px; height: 32px; border-radius: 9px;
+            background: #0c1928; border: 1px solid #274a72;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 600; color: #8ab0e0;
+            box-shadow: 0 2px 5px black; overflow: hidden; flex-shrink: 0;
         }
-
-        .member-info {
-            display: flex;
-            flex-direction: column;
-        }
-
+        .member-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .member-info { display: flex; flex-direction: column; min-width: 0; }
         .member-name {
-            font-size: 13.5px;
-            font-weight: 500;
-            color: #b8cee8;
+            font-size: 13.5px; font-weight: 500; color: #b8cee8;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-
         .member-status {
-            font-size: 10.5px;
-            color: #4f6d8a;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            font-size: 10.5px; color: #4f6d8a;
+            display: flex; align-items: center; gap: 5px;
         }
-
         .status-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #2a7a44;
-            box-shadow: 0 0 6px #1e8a4a;
+            width: 7px; height: 7px; border-radius: 50%;
+            background: #2a7a44; box-shadow: 0 0 6px #1e8a4a;
         }
+        .status-dot.idle { background: #a07828; box-shadow: 0 0 6px #a07828; }
+        .status-dot.dnd { background: #a03a3a; box-shadow: 0 0 6px #b04040; }
+        .status-dot.offline { background: #3f4c5a; box-shadow: none; }
 
-        .status-dot.idle {
-            background: #a07828;
-            box-shadow: 0 0 6px #a07828;
-        }
-
-        .status-dot.dnd {
-            background: #a03a3a;
-            box-shadow: 0 0 6px #b04040;
-        }
-
-        .status-dot.offline {
-            background: #3f4c5a;
-            box-shadow: none;
-        }
-
-        /* bottom user panel */
         .user-panel {
-            padding: 14px 16px;
-            background: #06090e;
+            padding: 14px 16px; background: #06090e;
             border-top: 1px solid rgba(25, 70, 140, 0.25);
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            display: flex; align-items: center; gap: 12px;
             box-shadow: 0 -5px 12px rgba(0, 0, 0, 0.5);
         }
-
         .user-panel .avatar-small {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            background: #0e1e30;
-            border: 1px solid #264a72;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            color: #a8c8f0;
-            box-shadow: 0 0 8px rgba(20, 70, 160, 0.25);
+            width: 36px; height: 36px; border-radius: 10px;
+            background: #0e1e30; border: 1px solid #264a72;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; color: #a8c8f0; overflow: hidden; flex-shrink: 0;
         }
-
-        .user-panel .user-details {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
+        .avatar-small img { width: 100%; height: 100%; object-fit: cover; }
+        .user-panel .user-details { flex: 1; min-width: 0; }
         .user-panel .user-name {
-            font-size: 13.5px;
-            font-weight: 600;
-            color: #b8d0ee;
+            font-size: 13.5px; font-weight: 600; color: #b8d0ee;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-
-        .user-panel .user-tag {
-            font-size: 10.5px;
-            color: #4f6d8a;
-            letter-spacing: 0.3px;
-        }
-
+        .user-panel .user-tag { font-size: 10.5px; color: #4f6d8a; }
         .user-panel .panel-icons {
-            display: flex;
-            gap: 14px;
-            color: #3f6086;
-            font-size: 15px;
+            display: flex; gap: 14px; color: #3f6086; font-size: 15px;
         }
+        .user-panel .panel-icons i { cursor: pointer; }
+        .user-panel .panel-icons i:hover { color: #6a9ae0; }
 
-        .user-panel .panel-icons i:hover {
-            color: #6a9ae0;
-            filter: drop-shadow(0 0 6px #1e55a0);
+        .empty-msg {
+            text-align: center; color: #3f6082; font-size: 13px;
+            padding: 40px 20px;
         }
     </style>
 </head>
 <body>
-    <div class="app">
-        <!-- ========== SERVER RAIL ========== -->
-        <nav class="server-rail">
-            <div class="home-icon">
-                <i class="fas fa-home"></i>
-            </div>
-            <div class="server-sep"></div>
 
-            <div class="server-item active">
-                <i class="fas fa-dragon"></i>
+    <!-- ===== AUTH SCREEN ===== -->
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-card">
+            <h1><i class="fas fa-cube"></i> FS</h1>
+            <p class="sub">Sign in to your workspace</p>
+
+            <div class="auth-field">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
             </div>
-            <div class="server-item">
-                <i class="fas fa-code"></i>
+            <div class="auth-field">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
             </div>
-            <div class="server-item">
-                <i class="fas fa-crown"></i>
+
+            <button class="auth-btn" id="authSubmit">Sign In</button>
+
+            <div class="auth-toggle">
+                <span id="toggleText">No account?</span>
+                <a id="toggleMode">Create one</a>
             </div>
-            <div class="server-item">
-                <i class="fas fa-gamepad"></i>
-            </div>
-            <div class="server-item">
-                <i class="fas fa-music"></i>
-            </div>
-            <div class="server-item">
-                <i class="fas fa-book"></i>
-            </div>
+            <div class="auth-msg" id="authMsg"></div>
+        </div>
+    </div>
+
+    <!-- ===== APP ===== -->
+    <div class="app" id="app">
+        <!-- Server Rail -->
+        <nav class="server-rail" id="serverRail">
+            <div class="home-icon"><i class="fas fa-home"></i></div>
             <div class="server-sep"></div>
-            <div class="server-item">
-                <i class="fas fa-plus"></i>
-            </div>
+            <!-- servers injected here -->
         </nav>
 
-        <!-- ========== CHANNEL SIDEBAR ========== -->
+        <!-- Channel Sidebar -->
         <aside class="channel-sidebar">
             <div class="server-header">
-                <h2><i class="fas fa-cube"></i> FS</h2>
+                <h2><i class="fas fa-cube"></i> <span id="serverName">FS</span></h2>
                 <span class="server-badge">workspace</span>
             </div>
-
-            <div class="channel-list">
-                <div class="channel-category">
-                    <div class="category-title">
-                        <span>information</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="channel-item">
-                        <i class="fas fa-hashtag"></i> welcome
-                    </div>
-                    <div class="channel-item">
-                        <i class="fas fa-hashtag"></i> announcements
-                    </div>
-                    <div class="channel-item">
-                        <i class="fas fa-hashtag"></i> guidelines
-                    </div>
-                </div>
-
-                <div class="channel-category">
-                    <div class="category-title">
-                        <span>general</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="channel-item active">
-                        <i class="fas fa-hashtag"></i> general-chat
-                    </div>
-                    <div class="channel-item">
-                        <i class="fas fa-hashtag"></i> introductions
-                    </div>
-                    <div class="channel-item">
-                        <i class="fas fa-hashtag"></i> off-topic
-                    </div>
-                    <div class="channel-item">
-                        <i class="fas fa-hashtag"></i> media
-                    </div>
-                </div>
-
-                <div class="channel-category">
-                    <div class="category-title">
-                        <span>voice</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="channel-item">
-                        <i class="fas fa-volume-up"></i> General VC
-                    </div>
-                    <div class="channel-item">
-                        <i class="fas fa-volume-up"></i> Gaming
-                    </div>
-                    <div class="channel-item">
-                        <i class="fas fa-volume-up"></i> Music
-                    </div>
-                </div>
-
-                <div class="channel-category">
-                    <div class="category-title">
-                        <span>development</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="channel-item">
-                        <i class="fas fa-hashtag"></i> fs-core
-                    </div>
-                    <div class="channel-item">
-                        <i class="fas fa-hashtag"></i> ui-ux
-                    </div>
-                    <div class="channel-item">
-                        <i class="fas fa-hashtag"></i> api
-                    </div>
-                </div>
+            <div class="channel-list" id="channelList">
+                <div class="empty-msg">Loading channels…</div>
             </div>
-
-            <div class="voice-panel">
-                <span><i class="fas fa-headset"></i> &nbsp;Voice connected</span>
-                <i class="fas fa-signal"></i>
+            <div class="voice-panel" style="margin: 8px 12px 14px 12px; padding: 10px 14px; background: #080e16; border-radius: 14px; border: 1px solid #152c48; display: flex; align-items: center; justify-content: space-between; color: #a0c0e0; font-size: 12px; font-weight: 500;">
+                <span><i class="fas fa-headset" style="color: #3a7acc;"></i> &nbsp;Voice</span>
+                <i class="fas fa-signal" style="color: #3a7acc;"></i>
             </div>
         </aside>
 
-        <!-- ========== MAIN CHAT ========== -->
+        <!-- Chat Area -->
         <main class="chat-area">
             <header class="chat-header">
                 <div class="chat-header-left">
                     <i class="fas fa-hashtag"></i>
-                    <h3>general-chat</h3>
+                    <h3 id="channelName">general-chat</h3>
                     <span class="channel-tag">FS workspace</span>
                 </div>
                 <div class="chat-header-right">
@@ -893,216 +514,586 @@
                 </div>
             </header>
 
-            <div class="messages-container">
-                <div class="message">
-                    <div class="avatar">N</div>
-                    <div class="message-content">
-                        <div class="message-header">
-                            <span class="message-author">Nyx</span>
-                            <span class="message-time">today at 21:14</span>
-                        </div>
-                        <div class="message-text">
-                            The new <span class="mention">@FS</span> workspace is exceptionally clean. The obsidian palette with deep blue accents is a strong direction.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="message">
-                    <div class="avatar">V</div>
-                    <div class="message-content">
-                        <div class="message-header">
-                            <span class="message-author">Vael</span>
-                            <span class="message-time">today at 21:16</span>
-                        </div>
-                        <div class="message-text">
-                            Agreed. The formal tone of the interface feels more professional while remaining easy on the eyes.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="message">
-                    <div class="avatar">A</div>
-                    <div class="message-content">
-                        <div class="message-header">
-                            <span class="message-author">Astra</span>
-                            <span class="message-time">today at 21:18</span>
-                        </div>
-                        <div class="message-text">
-                            I have attached the updated component reference for the workspace layout.
-                        </div>
-                        <div class="embed">
-                            <div class="embed-title">FS Workspace — Component Reference</div>
-                            <div class="embed-description">
-                                Obsidian black base, deep blue borders, and a consistent 1px stroke system.<br>
-                                <span style="color: #6a9ee0;">→ workspace-reference.pdf</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="message">
-                    <div class="avatar">R</div>
-                    <div class="message-content">
-                        <div class="message-header">
-                            <span class="message-author">Rook</span>
-                            <span class="message-time">today at 21:21</span>
-                        </div>
-                        <div class="message-text">
-                            The member list is well structured. Status indicators are clear and the spacing is appropriate.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="message">
-                    <div class="avatar">K</div>
-                    <div class="message-content">
-                        <div class="message-header">
-                            <span class="message-author">Kael</span>
-                            <span class="message-time">today at 21:25</span>
-                        </div>
-                        <div class="message-text">
-                            I would recommend this design for the web client as well. It maintains clarity at full screen.
-                        </div>
-                    </div>
-                </div>
+            <div class="messages-container" id="messagesContainer">
+                <div class="empty-msg">Loading messages…</div>
             </div>
 
             <div class="message-input-area">
                 <div class="input-wrapper">
                     <i class="fas fa-plus-circle"></i>
-                    <input type="text" placeholder="Message #general-chat" value="The workspace looks excellent.">
+                    <input type="text" id="messageInput" placeholder="Message #general-chat" autocomplete="off">
                     <div class="input-actions">
                         <i class="fas fa-smile"></i>
                         <i class="fas fa-paperclip"></i>
                         <i class="fas fa-microphone"></i>
                     </div>
                 </div>
-                <div class="send-button">
+                <div class="send-button" id="sendButton">
                     <i class="fas fa-paper-plane"></i>
                 </div>
             </div>
         </main>
 
-        <!-- ========== MEMBER SIDEBAR ========== -->
+        <!-- Member Sidebar -->
         <aside class="member-sidebar">
             <div class="member-header">
-                <i class="fas fa-users"></i> members — 12
+                <i class="fas fa-users"></i> members — <span id="memberCount">0</span>
             </div>
-            <div class="member-list">
-                <div class="member-category">online — 8</div>
-
-                <div class="member-item">
-                    <div class="member-avatar">N</div>
-                    <div class="member-info">
-                        <span class="member-name">Nyx</span>
-                        <span class="member-status"><span class="status-dot"></span> online</span>
-                    </div>
-                </div>
-
-                <div class="member-item">
-                    <div class="member-avatar">V</div>
-                    <div class="member-info">
-                        <span class="member-name">Vael</span>
-                        <span class="member-status"><span class="status-dot"></span> online</span>
-                    </div>
-                </div>
-
-                <div class="member-item">
-                    <div class="member-avatar">A</div>
-                    <div class="member-info">
-                        <span class="member-name">Astra</span>
-                        <span class="member-status"><span class="status-dot"></span> online</span>
-                    </div>
-                </div>
-
-                <div class="member-item">
-                    <div class="member-avatar">R</div>
-                    <div class="member-info">
-                        <span class="member-name">Rook</span>
-                        <span class="member-status"><span class="status-dot idle"></span> idle</span>
-                    </div>
-                </div>
-
-                <div class="member-item">
-                    <div class="member-avatar">K</div>
-                    <div class="member-info">
-                        <span class="member-name">Kael</span>
-                        <span class="member-status"><span class="status-dot"></span> online</span>
-                    </div>
-                </div>
-
-                <div class="member-item">
-                    <div class="member-avatar">S</div>
-                    <div class="member-info">
-                        <span class="member-name">Sora</span>
-                        <span class="member-status"><span class="status-dot"></span> online</span>
-                    </div>
-                </div>
-
-                <div class="member-item">
-                    <div class="member-avatar">L</div>
-                    <div class="member-info">
-                        <span class="member-name">Lira</span>
-                        <span class="member-status"><span class="status-dot dnd"></span> dnd</span>
-                    </div>
-                </div>
-
-                <div class="member-item">
-                    <div class="member-avatar">M</div>
-                    <div class="member-info">
-                        <span class="member-name">Miro</span>
-                        <span class="member-status"><span class="status-dot"></span> online</span>
-                    </div>
-                </div>
-
-                <div class="member-category" style="margin-top: 12px;">offline — 4</div>
-
-                <div class="member-item">
-                    <div class="member-avatar" style="opacity: 0.55;">E</div>
-                    <div class="member-info">
-                        <span class="member-name" style="color: #6b8098;">Echo</span>
-                        <span class="member-status"><span class="status-dot offline"></span> offline</span>
-                    </div>
-                </div>
-
-                <div class="member-item">
-                    <div class="member-avatar" style="opacity: 0.55;">Z</div>
-                    <div class="member-info">
-                        <span class="member-name" style="color: #6b8098;">Zephyr</span>
-                        <span class="member-status"><span class="status-dot offline"></span> offline</span>
-                    </div>
-                </div>
-
-                <div class="member-item">
-                    <div class="member-avatar" style="opacity: 0.55;">I</div>
-                    <div class="member-info">
-                        <span class="member-name" style="color: #6b8098;">Iris</span>
-                        <span class="member-status"><span class="status-dot offline"></span> offline</span>
-                    </div>
-                </div>
-
-                <div class="member-item">
-                    <div class="member-avatar" style="opacity: 0.55;">O</div>
-                    <div class="member-info">
-                        <span class="member-name" style="color: #6b8098;">Orin</span>
-                        <span class="member-status"><span class="status-dot offline"></span> offline</span>
-                    </div>
-                </div>
+            <div class="member-list" id="memberList">
+                <div class="empty-msg">Loading members…</div>
             </div>
 
             <div class="user-panel">
-                <div class="avatar-small">U</div>
+                <div class="avatar-small" id="myAvatar">U</div>
                 <div class="user-details">
-                    <span class="user-name">You</span>
-                    <span class="user-tag">#0001</span>
+                    <span class="user-name" id="myName">You</span>
+                    <span class="user-tag" id="myTag">#0001</span>
                 </div>
                 <div class="panel-icons">
                     <i class="fas fa-microphone"></i>
                     <i class="fas fa-headphones"></i>
                     <i class="fas fa-cog"></i>
+                    <i class="fas fa-sign-out-alt" id="logoutBtn" title="Sign out"></i>
                 </div>
             </div>
         </aside>
     </div>
+
+    <!-- ===== SUPABASE ===== -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        // =========================================================
+        // CONFIG — your project
+        // =========================================================
+        const SUPABASE_URL = 'https://rziozrqkinxmjpqwpdi.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_m9kwzBXxhweDmUtREyPhYQ_INo8q_';
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // =========================================================
+        // STATE
+        // =========================================================
+        let currentUser = null;
+        let currentProfile = null;
+        let currentServerId = null;
+        let currentChannelId = null;
+        let realtimeChannel = null;
+        let isSignupMode = false;
+
+        // =========================================================
+        // DOM refs
+        // =========================================================
+        const authScreen   = document.getElementById('authScreen');
+        const app          = document.getElementById('app');
+        const emailInput   = document.getElementById('email');
+        const passwordInput= document.getElementById('password');
+        const authSubmit   = document.getElementById('authSubmit');
+        const authMsg      = document.getElementById('authMsg');
+        const toggleText   = document.getElementById('toggleText');
+        const toggleMode   = document.getElementById('toggleMode');
+
+        const serverRail   = document.getElementById('serverRail');
+        const serverName   = document.getElementById('serverName');
+        const channelList  = document.getElementById('channelList');
+        const channelName  = document.getElementById('channelName');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton   = document.getElementById('sendButton');
+        const memberList   = document.getElementById('memberList');
+        const memberCount  = document.getElementById('memberCount');
+        const myAvatar     = document.getElementById('myAvatar');
+        const myName       = document.getElementById('myName');
+        const myTag        = document.getElementById('myTag');
+        const logoutBtn    = document.getElementById('logoutBtn');
+
+        // =========================================================
+        // HELPERS
+        // =========================================================
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function initial(name) {
+            if (!name) return '?';
+            return name.trim().charAt(0).toUpperCase();
+        }
+
+        function timeAgo(iso) {
+            const d = new Date(iso);
+            const now = new Date();
+            const diff = (now - d) / 1000;
+            if (diff < 60) return 'just now';
+            if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+            if (diff < 86400) return `today at ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+            return d.toLocaleDateString();
+        }
+
+        function statusClass(status) {
+            return status || 'offline';
+        }
+
+        // =========================================================
+        // AUTH
+        // =========================================================
+        toggleMode.addEventListener('click', () => {
+            isSignupMode = !isSignupMode;
+            authSubmit.textContent = isSignupMode ? 'Create Account' : 'Sign In';
+            toggleText.textContent = isSignupMode ? 'Already have an account?' : 'No account?';
+            toggleMode.textContent = isSignupMode ? 'Sign in' : 'Create one';
+            authMsg.textContent = '';
+            authMsg.className = 'auth-msg';
+        });
+
+        authSubmit.addEventListener('click', handleAuth);
+        passwordInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleAuth(); });
+        emailInput.addEventListener('keydown',   e => { if (e.key === 'Enter') passwordInput.focus(); });
+
+        async function handleAuth() {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!email || !password) {
+                authMsg.textContent = 'Please fill in all fields.';
+                authMsg.className = 'auth-msg error';
+                return;
+            }
+            if (password.length < 6) {
+                authMsg.textContent = 'Password must be at least 6 characters.';
+                authMsg.className = 'auth-msg error';
+                return;
+            }
+
+            authSubmit.disabled = true;
+            authMsg.textContent = isSignupMode ? 'Creating account…' : 'Signing in…';
+            authMsg.className = 'auth-msg';
+
+            try {
+                if (isSignupMode) {
+                    const { data, error } = await supabase.auth.signUp({
+                        email,
+                        password,
+                        options: {
+                            data: {
+                                username: email.split('@')[0],
+                                display_name: email.split('@')[0]
+                            }
+                        }
+                    });
+                    if (error) throw error;
+
+                    if (data.session) {
+                        // Auto-confirmed — proceed
+                        authMsg.textContent = 'Welcome to FS.';
+                        await bootAfterLogin(data.user);
+                    } else {
+                        authMsg.textContent = 'Check your email to confirm your account.';
+                        authMsg.className = 'auth-msg';
+                    }
+                } else {
+                    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    await bootAfterLogin(data.user);
+                }
+            } catch (err) {
+                console.error(err);
+                authMsg.textContent = err.message || 'Authentication failed.';
+                authMsg.className = 'auth-msg error';
+            } finally {
+                authSubmit.disabled = false;
+            }
+        }
+
+        logoutBtn.addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            location.reload();
+        });
+
+        // =========================================================
+        // BOOT
+        // =========================================================
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_OUT') {
+                currentUser = null;
+                currentProfile = null;
+                app.classList.remove('visible');
+                authScreen.style.display = 'flex';
+            }
+        });
+
+        async function bootAfterLogin(user) {
+            currentUser = user;
+
+            // Ensure a profile exists (fallback if trigger didn't fire)
+            let { data: profile } = await supabase
+                .from('profiles').select('*').eq('id', user.id).maybeSingle();
+
+            if (!profile) {
+                const username = (user.user_metadata?.username || user.email.split('@')[0]).slice(0, 30);
+                const display  = user.user_metadata?.display_name || username;
+                const tag = String(Math.floor(Math.random()*9999)).padStart(4,'0');
+                const { data: created } = await supabase
+                    .from('profiles')
+                    .insert({ id: user.id, username, display_name: display, tag, status: 'online' })
+                    .select().single();
+                profile = created;
+            }
+
+            currentProfile = profile;
+
+            // Mark online
+            await supabase.from('profiles').update({ status: 'online' }).eq('id', user.id);
+
+            // Show app
+            authScreen.style.display = 'none';
+            app.classList.add('visible');
+
+            // Populate self in user panel
+            renderSelf();
+
+            // Load servers
+            await loadServers();
+        }
+
+        // =========================================================
+        // RENDER SELF
+        // =========================================================
+        function renderSelf() {
+            const name = currentProfile?.display_name || currentProfile?.username || 'You';
+            myName.textContent = name;
+            myTag.textContent = '#' + (currentProfile?.tag || '0001');
+            if (currentProfile?.avatar_url) {
+                myAvatar.innerHTML = `<img src="${escapeHtml(currentProfile.avatar_url)}" alt="">`;
+            } else {
+                myAvatar.textContent = initial(name);
+            }
+        }
+
+        // =========================================================
+        // SERVERS
+        // =========================================================
+        async function loadServers() {
+            const { data: servers, error } = await supabase
+                .from('servers')
+                .select('id, name, slug, icon_emoji, icon_url')
+                .order('created_at', { ascending: true });
+
+            if (error || !servers || servers.length === 0) {
+                serverRail.innerHTML = `
+                    <div class="home-icon"><i class="fas fa-home"></i></div>
+                    <div class="server-sep"></div>
+                    <div class="empty-msg" style="color:#4a6e92;font-size:11px;padding:10px;">No servers yet</div>
+                `;
+                channelList.innerHTML = '<div class="empty-msg">Create a server to begin.</div>';
+                return;
+            }
+
+            // Build rail
+            serverRail.innerHTML = `
+                <div class="home-icon"><i class="fas fa-home"></i></div>
+                <div class="server-sep"></div>
+                ${servers.map((s, i) => `
+                    <div class="server-item ${i===0?'active':''}" data-server-id="${s.id}" title="${escapeHtml(s.name)}">
+                        ${s.icon_url
+                            ? `<img src="${escapeHtml(s.icon_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;" alt="">`
+                            : (s.icon_emoji || initial(s.name))}
+                    </div>
+                `).join('')}
+                <div class="server-sep"></div>
+                <div class="server-item"><i class="fas fa-plus"></i></div>
+            `;
+
+            serverRail.querySelectorAll('.server-item[data-server-id]').forEach(el => {
+                el.addEventListener('click', () => {
+                    serverRail.querySelectorAll('.server-item').forEach(x => x.classList.remove('active'));
+                    el.classList.add('active');
+                    selectServer(el.dataset.serverId);
+                });
+            });
+
+            // Select first
+            await selectServer(servers[0].id, servers[0].name);
+        }
+
+        async function selectServer(serverId, nameHint) {
+            currentServerId = serverId;
+            currentChannelId = null;
+
+            // Name
+            if (nameHint) {
+                serverName.textContent = nameHint;
+            } else {
+                const { data: s } = await supabase.from('servers').select('name').eq('id', serverId).maybeSingle();
+                if (s) serverName.textContent = s.name;
+            }
+
+            await loadChannels(serverId);
+            await loadMembers(serverId);
+        }
+
+        // =========================================================
+        // CHANNELS
+        // =========================================================
+        async function loadChannels(serverId) {
+            channelList.innerHTML = '<div class="empty-msg">Loading channels…</div>';
+
+            const { data: cats } = await supabase
+                .from('channel_categories')
+                .select('id, name, position')
+                .eq('server_id', serverId)
+                .order('position', { ascending: true });
+
+            const { data: chans } = await supabase
+                .from('channels')
+                .select('id, name, type, category_id, position')
+                .eq('server_id', serverId)
+                .order('position', { ascending: true });
+
+            if (!chans || chans.length === 0) {
+                channelList.innerHTML = '<div class="empty-msg">No channels.</div>';
+                return;
+            }
+
+            const catMap = {};
+            (cats || []).forEach(c => catMap[c.id] = c);
+
+            // Group
+            const grouped = {};
+            chans.forEach(ch => {
+                const key = ch.category_id || '__none__';
+                if (!grouped[key]) grouped[key] = [];
+                grouped[key].push(ch);
+            });
+
+            let html = '';
+            const orderedKeys = (cats || []).map(c => c.id).filter(k => grouped[k]);
+            if (grouped['__none__']) orderedKeys.push('__none__');
+
+            orderedKeys.forEach(key => {
+                const catName = key === '__none__' ? 'channels' : catMap[key]?.name || 'channels';
+                html += `<div class="channel-category">
+                    <div class="category-title">${escapeHtml(catName)}</div>`;
+                grouped[key].forEach(ch => {
+                    const icon = ch.type === 'voice' ? 'fa-volume-up' : 'fa-hashtag';
+                    html += `<div class="channel-item" data-channel-id="${ch.id}" data-channel-name="${escapeHtml(ch.name)}" data-channel-type="${ch.type}">
+                        <i class="fas ${icon}"></i> ${escapeHtml(ch.name)}
+                    </div>`;
+                });
+                html += `</div>`;
+            });
+
+            channelList.innerHTML = html;
+
+            // Click handlers
+            channelList.querySelectorAll('.channel-item').forEach(el => {
+                el.addEventListener('click', () => {
+                    if (el.dataset.channelType === 'voice') return;
+                    channelList.querySelectorAll('.channel-item').forEach(x => x.classList.remove('active'));
+                    el.classList.add('active');
+                    openChannel(el.dataset.channelId, el.dataset.channelName);
+                });
+            });
+
+            // Auto-select first text channel
+            const firstText = chans.find(c => c.type === 'text');
+            if (firstText) {
+                const el = channelList.querySelector(`.channel-item[data-channel-id="${firstText.id}"]`);
+                if (el) el.classList.add('active');
+                await openChannel(firstText.id, firstText.name);
+            }
+        }
+
+        // =========================================================
+        // MESSAGES
+        // =========================================================
+        async function openChannel(channelId, channelNameStr) {
+            currentChannelId = channelId;
+            channelName.textContent = channelNameStr;
+            messageInput.placeholder = `Message #${channelNameStr}`;
+
+            messagesContainer.innerHTML = '<div class="empty-msg">Loading messages…</div>';
+
+            // Unsubscribe from previous realtime
+            if (realtimeChannel) {
+                supabase.removeChannel(realtimeChannel);
+                realtimeChannel = null;
+            }
+
+            // Initial fetch
+            const { data: msgs, error } = await supabase
+                .from('channel_messages')
+                .select('*')
+                .eq('channel_id', channelId)
+                .order('created_at', { ascending: true })
+                .limit(200);
+
+            if (error) {
+                messagesContainer.innerHTML = `<div class="empty-msg">Failed to load messages.</div>`;
+                console.error(error);
+                return;
+            }
+
+            if (!msgs || msgs.length === 0) {
+                messagesContainer.innerHTML = '<div class="empty-msg">No messages yet — say hi 👋</div>';
+            } else {
+                messagesContainer.innerHTML = msgs.map(renderMessage).join('');
+                scrollToBottom();
+            }
+
+            // Realtime subscribe
+            realtimeChannel = supabase
+                .channel(`ch:${channelId}`)
+                .on('postgres_changes', {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'messages',
+                    filter: `channel_id=eq.${channelId}`
+                }, async (payload) => {
+                    // Need author info — fetch the profile
+                    const { data: prof } = await supabase
+                        .from('profiles')
+                        .select('username, display_name, avatar_url, tag')
+                        .eq('id', payload.new.author_id)
+                        .maybeSingle();
+
+                    const msg = { ...payload.new, ...(prof || {}) };
+
+                    // Remove empty placeholder if first message
+                    const empty = messagesContainer.querySelector('.empty-msg');
+                    if (empty) empty.remove();
+
+                    messagesContainer.insertAdjacentHTML('beforeend', renderMessage(msg));
+                    scrollToBottom();
+                })
+                .subscribe();
+        }
+
+        function renderMessage(m) {
+            const name = m.display_name || m.username || 'Unknown';
+            const tag  = m.tag ? `<span class="tag">#${escapeHtml(m.tag)}</span>` : '';
+            const text = escapeHtml(m.content)
+                .replace(/@(\w+)/g, '<span class="mention">@$1</span>');
+            const avatarInner = m.avatar_url
+                ? `<img src="${escapeHtml(m.avatar_url)}" alt="">`
+                : initial(name);
+
+            return `<div class="message">
+                <div class="avatar">${avatarInner}</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-author">${escapeHtml(name)}${tag}</span>
+                        <span class="message-time">${timeAgo(m.created_at)}</span>
+                    </div>
+                    <div class="message-text">${text}</div>
+                </div>
+            </div>`;
+        }
+
+        function scrollToBottom() {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // =========================================================
+        // SEND MESSAGE
+        // =========================================================
+        async function sendMessage() {
+            const content = messageInput.value.trim();
+            if (!content || !currentChannelId || !currentUser) return;
+
+            messageInput.value = '';
+            sendButton.disabled = true;
+
+            const { error } = await supabase.from('messages').insert({
+                channel_id: currentChannelId,
+                author_id: currentUser.id,
+                content
+            });
+
+            sendButton.disabled = false;
+
+            if (error) {
+                console.error(error);
+                messageInput.value = content;
+                alert('Failed to send: ' + error.message);
+                return;
+            }
+            // Realtime will append it.
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // =========================================================
+        // MEMBERS
+        // =========================================================
+        async function loadMembers(serverId) {
+            memberList.innerHTML = '<div class="empty-msg">Loading members…</div>';
+
+            const { data: rows, error } = await supabase
+                .from('server_member_list')
+                .select('*')
+                .eq('server_id', serverId);
+
+            if (error || !rows) {
+                memberList.innerHTML = '<div class="empty-msg">No members.</div>';
+                return;
+            }
+
+            memberCount.textContent = rows.length;
+
+            const order = { online: 0, idle: 1, dnd: 2, offline: 3 };
+            const sorted = [...rows].sort((a,b) => (order[a.status] ?? 9) - (order[b.status] ?? 9));
+
+            const onlineCount = rows.filter(r => r.status === 'online').length;
+            const offlineCount = rows.filter(r => r.status === 'offline').length;
+
+            let html = '';
+            if (onlineCount > 0) {
+                html += `<div class="member-category">online — ${onlineCount}</div>`;
+                html += sorted.filter(r => r.status !== 'offline').map(renderMember).join('');
+            }
+            if (offlineCount > 0) {
+                html += `<div class="member-category" style="margin-top:12px;">offline — ${offlineCount}</div>`;
+                html += sorted.filter(r => r.status === 'offline').map(renderMember).join('');
+            }
+
+            memberList.innerHTML = html;
+        }
+
+        function renderMember(m) {
+            const name = m.display_name || m.username;
+            const avatar = m.avatar_url
+                ? `<img src="${escapeHtml(m.avatar_url)}" alt="">`
+                : initial(name);
+            const opacity = m.status === 'offline' ? 'opacity:0.55;' : '';
+            return `<div class="member-item" style="${opacity}">
+                <div class="member-avatar">${avatar}</div>
+                <div class="member-info">
+                    <span class="member-name">${escapeHtml(name)}</span>
+                    <span class="member-status">
+                        <span class="status-dot ${statusClass(m.status)}"></span>
+                        ${escapeHtml(m.status)}
+                    </span>
+                </div>
+            </div>`;
+        }
+
+        // =========================================================
+        // SESSION RESUME
+        // =========================================================
+        (async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) {
+                await bootAfterLogin(session.user);
+            }
+        })();
+    </script>
 </body>
 </html>
