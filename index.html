@@ -1,1402 +1,180 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FS • workspace</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <title>FS diagnostics</title>
     <style>
-        :root {
-            --abyss:        #030710;
-            --deep-sea:     #060d1c;
-            --ocean-floor:  #0a1526;
-            --tide:         #0e2038;
-            --shallow:      #14304f;
-            --sky:          #4a9eff;
-            --foam:         #7fc4ff;
-            --cyan:         #2ee5d5;
-            --neon-cyan:    #00ffd9;
-            --sand:         #f5c9a8;
-            --peach:        #ffb38a;
-            --coral:        #ff9478;
-            --text-bright:  #eaf4ff;
-            --text:         #b8cfe6;
-            --text-dim:     #6d8aa8;
-            --text-mute:    #4a6685;
-            --glass-bg:     rgba(10, 25, 45, 0.45);
-            --glass-border: rgba(120, 180, 255, 0.12);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { height: 100%; width: 100%; overflow: hidden; }
-
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--abyss);
-            color: var(--text);
-            position: relative;
-        }
-
-        .ocean-bg {
-            position: fixed; inset: 0;
-            z-index: 0;
-            background:
-                radial-gradient(ellipse 80% 60% at 15% 20%, rgba(30, 90, 180, 0.35) 0%, transparent 55%),
-                radial-gradient(ellipse 70% 50% at 85% 80%, rgba(20, 130, 200, 0.28) 0%, transparent 55%),
-                radial-gradient(ellipse 60% 40% at 50% 50%, rgba(46, 229, 213, 0.08) 0%, transparent 70%),
-                linear-gradient(160deg, #030812 0%, #06101f 50%, #030710 100%);
-            background-size: 200% 200%;
-            animation: oceanDrift 30s ease-in-out infinite;
-        }
-        @keyframes oceanDrift {
-            0%, 100% { background-position: 0% 0%, 100% 100%, 50% 50%, 0% 0%; }
-            50%      { background-position: 30% 20%, 70% 80%, 40% 60%, 0% 0%; }
-        }
-
-        .bubbles {
-            position: fixed; inset: 0;
-            z-index: 0; pointer-events: none;
-            overflow: hidden;
-        }
-        .bubble {
-            position: absolute;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, rgba(127, 196, 255, 0.35), rgba(46, 229, 213, 0.08) 40%, transparent 70%);
-            filter: blur(1px);
-            animation: floatUp linear infinite;
-            opacity: 0.5;
-        }
-        @keyframes floatUp {
-            0%   { transform: translateY(100vh) scale(0.8); opacity: 0; }
-            10%  { opacity: 0.5; }
-            90%  { opacity: 0.4; }
-            100% { transform: translateY(-10vh) scale(1.1); opacity: 0; }
-        }
-
-        .auth-screen {
-            position: fixed; inset: 0;
-            display: flex; align-items: center; justify-content: center;
-            z-index: 100;
-            animation: fadeIn 0.6s ease-out;
-        }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .auth-card {
-            width: 400px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(28px) saturate(160%);
-            -webkit-backdrop-filter: blur(28px) saturate(160%);
-            border: 1px solid var(--glass-border);
-            border-radius: 26px;
-            padding: 46px 36px 36px;
-            box-shadow:
-                0 30px 70px -10px rgba(0, 0, 0, 0.7),
-                0 0 60px rgba(46, 130, 220, 0.15),
-                inset 0 1px 0 rgba(255, 255, 255, 0.08);
-            position: relative;
-            overflow: hidden;
-            animation: cardIn 0.7s cubic-bezier(0.2, 0.9, 0.3, 1);
-        }
-        @keyframes cardIn {
-            from { opacity: 0; transform: translateY(20px) scale(0.96); }
-            to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .auth-card::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--cyan), var(--foam), var(--peach), transparent);
-            opacity: 0.8;
-        }
-        .auth-card::after {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle at 30% 20%, rgba(46, 229, 213, 0.08), transparent 40%);
-            pointer-events: none;
-        }
-
-        .auth-card h1 {
-            font-size: 28px; font-weight: 700; color: var(--text-bright);
-            text-align: center; margin-bottom: 6px;
-            display: flex; align-items: center; justify-content: center; gap: 12px;
-            letter-spacing: -0.3px;
-            position: relative; z-index: 1;
-        }
-        .auth-card h1 i {
-            color: var(--cyan);
-            filter: drop-shadow(0 0 14px rgba(46, 229, 213, 0.7));
-            animation: pulse 3s ease-in-out infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { filter: drop-shadow(0 0 14px rgba(46, 229, 213, 0.7)); }
-            50%      { filter: drop-shadow(0 0 22px rgba(46, 229, 213, 1)); }
-        }
-        .auth-card p.sub {
-            text-align: center; color: var(--text-dim); font-size: 13px;
-            margin-bottom: 30px; letter-spacing: 0.4px; font-weight: 500;
-            position: relative; z-index: 1;
-        }
-
-        .auth-field { margin-bottom: 16px; position: relative; z-index: 1; }
-        .auth-field label {
-            display: block; font-size: 11px; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 1px;
-            color: var(--text-mute); margin-bottom: 8px;
-        }
-        .auth-field input {
-            width: 100%;
-            background: rgba(6, 15, 30, 0.6);
-            border: 1px solid rgba(90, 150, 220, 0.15);
-            border-radius: 14px;
-            padding: 14px 18px;
-            color: var(--text-bright);
+            font-family: monospace;
+            background: #0a1526;
+            color: #d0e2ff;
+            padding: 30px;
+            line-height: 1.8;
             font-size: 14px;
-            font-family: inherit;
-            outline: none;
-            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
-            backdrop-filter: blur(8px);
         }
-        .auth-field input:focus {
-            border-color: rgba(46, 229, 213, 0.5);
-            background: rgba(6, 15, 30, 0.85);
-            box-shadow: 0 0 0 4px rgba(46, 229, 213, 0.1), 0 0 24px rgba(46, 229, 213, 0.2);
-        }
-        .auth-field input::placeholder { color: var(--text-mute); }
-
-        .auth-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #1a4d8f 0%, #2a6fb8 50%, #1a4d8f 100%);
-            background-size: 200% 200%;
-            border: 1px solid rgba(120, 200, 255, 0.35);
-            border-radius: 14px;
-            padding: 15px;
-            color: #ffffff;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: all 0.35s cubic-bezier(0.2, 0.9, 0.3, 1);
-            font-family: inherit;
-            letter-spacing: 0.4px;
-            position: relative; z-index: 1;
-            box-shadow: 0 8px 24px rgba(20, 80, 180, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-        }
-        .auth-btn:hover {
-            background-position: 100% 50%;
-            transform: translateY(-1px);
-            box-shadow: 0 12px 32px rgba(40, 130, 220, 0.5), 0 0 30px rgba(46, 229, 213, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            border-color: rgba(46, 229, 213, 0.6);
-        }
-        .auth-btn:active { transform: translateY(0); }
-        .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-        .auth-toggle {
-            text-align: center; margin-top: 22px;
-            font-size: 13px; color: var(--text-dim);
-            position: relative; z-index: 1;
-        }
-        .auth-toggle a {
-            color: var(--cyan); cursor: pointer; font-weight: 600;
-            text-decoration: none; transition: all 0.2s;
-            border-bottom: 1px solid transparent;
-        }
-        .auth-toggle a:hover {
-            color: var(--foam);
-            border-bottom-color: var(--foam);
-        }
-        .auth-msg {
-            text-align: center; font-size: 12.5px;
-            margin-top: 16px; min-height: 18px;
-            color: var(--cyan);
-            position: relative; z-index: 1;
-            font-weight: 500;
-        }
-        .auth-msg.error { color: var(--coral); }
-
-        .app {
-            width: 100%; height: 100%;
-            display: none;
-            position: relative; z-index: 1;
-            overflow: hidden;
-        }
-        .app.visible { display: flex; animation: appFade 0.7s ease-out; }
-        @keyframes appFade {
-            from { opacity: 0; transform: scale(0.99); }
-            to   { opacity: 1; transform: scale(1); }
-        }
-
-        .app::before {
-            content: ''; position: absolute;
-            top: -20%; left: 30%; width: 40%; height: 60%;
-            background: radial-gradient(circle, rgba(46, 229, 213, 0.08), transparent 60%);
-            pointer-events: none; z-index: 0;
-            animation: bloomShift 20s ease-in-out infinite;
-        }
-        @keyframes bloomShift {
-            0%, 100% { transform: translate(0, 0); }
-            50%      { transform: translate(-20%, 10%); }
-        }
-
-        .server-rail {
-            width: 76px;
-            background: rgba(4, 10, 22, 0.55);
-            backdrop-filter: blur(20px) saturate(140%);
-            -webkit-backdrop-filter: blur(20px) saturate(140%);
-            display: flex; flex-direction: column; align-items: center;
-            padding: 20px 0 16px 0; gap: 8px;
-            border-right: 1px solid rgba(90, 150, 220, 0.1);
-            box-shadow: 4px 0 24px -6px rgba(0, 0, 0, 0.6);
-            position: relative; z-index: 5;
-            overflow-y: auto; overflow-x: hidden;
-        }
-        .server-rail::-webkit-scrollbar { width: 0; }
-
-        .server-rail .home-icon {
-            width: 48px; height: 48px;
-            background: linear-gradient(145deg, rgba(20, 50, 90, 0.6), rgba(8, 20, 40, 0.8));
-            border-radius: 15px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 22px; color: var(--foam);
-            border: 1px solid rgba(120, 200, 255, 0.25);
-            box-shadow: 0 0 18px rgba(46, 130, 220, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-            margin-bottom: 8px;
-            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
-        }
-        .server-rail .home-icon:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 26px rgba(46, 229, 213, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-            border-color: rgba(46, 229, 213, 0.5);
-        }
-        .server-rail .home-icon i { filter: drop-shadow(0 0 8px var(--cyan)); }
-
-        .server-rail .server-sep {
-            width: 30px; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(120, 180, 255, 0.3), transparent);
-            margin: 6px 0 8px 0;
-        }
-
-        .server-item {
-            width: 48px; height: 48px;
-            border-radius: 15px;
-            background: rgba(10, 25, 48, 0.7);
-            backdrop-filter: blur(10px);
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 600; font-size: 18px;
-            color: var(--text);
-            border: 1px solid rgba(90, 150, 220, 0.15);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
-            position: relative;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-        .server-item::after {
-            content: ''; position: absolute; inset: 0;
-            background: radial-gradient(circle at 30% 20%, rgba(120, 200, 255, 0.15), transparent 70%);
-            opacity: 0; transition: opacity 0.3s;
-        }
-        .server-item:hover {
-            transform: translateY(-2px);
-            border-color: rgba(120, 200, 255, 0.5);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6), 0 0 20px rgba(46, 130, 220, 0.4);
-            color: var(--text-bright);
-        }
-        .server-item:hover::after { opacity: 1; }
-
-        .server-item.active {
-            background: linear-gradient(145deg, rgba(30, 80, 140, 0.9), rgba(15, 40, 80, 0.9));
-            border: 1px solid rgba(46, 229, 213, 0.6);
-            box-shadow:
-                0 0 24px rgba(46, 229, 213, 0.4),
-                inset 0 0 12px rgba(46, 229, 213, 0.15),
-                0 4px 12px rgba(0, 0, 0, 0.6);
-            color: #ffffff;
-        }
-        .server-item.active::before {
-            content: ''; position: absolute;
-            left: -2px; top: 50%; transform: translateY(-50%);
-            width: 4px; height: 26px;
-            background: linear-gradient(180deg, var(--cyan), var(--foam));
-            border-radius: 0 4px 4px 0;
-            box-shadow: 0 0 12px var(--cyan);
-        }
-
-        .channel-sidebar {
-            width: 264px;
-            background: rgba(5, 12, 26, 0.55);
-            backdrop-filter: blur(20px) saturate(140%);
-            -webkit-backdrop-filter: blur(20px) saturate(140%);
-            display: flex; flex-direction: column;
-            border-right: 1px solid rgba(90, 150, 220, 0.1);
-            box-shadow: 6px 0 24px -10px rgba(0, 0, 0, 0.6);
-            position: relative; z-index: 4;
-        }
-
-        .server-header {
-            padding: 20px 18px 16px;
-            border-bottom: 1px solid rgba(90, 150, 220, 0.1);
-            display: flex; align-items: center; justify-content: space-between;
-        }
-        .server-header h2 {
-            font-size: 16px; font-weight: 700; letter-spacing: 0.4px;
-            color: var(--text-bright);
-            display: flex; align-items: center; gap: 10px;
-            text-shadow: 0 0 18px rgba(74, 158, 255, 0.5);
-        }
-        .server-header h2 i {
-            color: var(--cyan);
-            font-size: 17px;
-            filter: drop-shadow(0 0 8px rgba(46, 229, 213, 0.6));
-        }
-        .server-header .server-badge {
-            background: rgba(46, 229, 213, 0.08);
-            border: 1px solid rgba(46, 229, 213, 0.3);
-            border-radius: 30px;
-            font-size: 10px; font-weight: 600;
-            padding: 4px 11px;
-            color: var(--cyan);
-            letter-spacing: 0.6px;
-            text-transform: uppercase;
-        }
-
-        .channel-list {
-            flex: 1; padding: 18px 12px 12px;
-            overflow-y: auto;
-            display: flex; flex-direction: column; gap: 20px;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(90, 150, 220, 0.3) transparent;
-        }
-        .channel-list::-webkit-scrollbar { width: 6px; }
-        .channel-list::-webkit-scrollbar-thumb {
-            background: rgba(90, 150, 220, 0.3);
-            border-radius: 6px;
-        }
-
-        .channel-category { display: flex; flex-direction: column; gap: 3px; }
-        .category-title {
-            padding: 0 8px 8px;
-            font-size: 11px; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 1.1px;
-            color: var(--text-mute);
-        }
-
-        .channel-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: 8px 12px;
+        h1 { color: #4a9eff; margin-bottom: 20px; }
+        .box {
+            background: #060d1c;
+            padding: 16px 20px;
             border-radius: 10px;
-            font-size: 13.5px; font-weight: 500;
-            color: var(--text);
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.3, 1);
-            border: 1px solid transparent;
-            position: relative;
+            margin: 14px 0;
+            border-left: 4px solid #2ee5d5;
         }
-        .channel-item i {
-            font-size: 13px; color: var(--text-mute);
-            width: 18px; text-align: center;
-            transition: color 0.2s;
-        }
-        .channel-item:hover {
-            background: rgba(30, 70, 130, 0.25);
-            border-color: rgba(90, 150, 220, 0.15);
-            color: var(--text-bright);
-            transform: translateX(2px);
-        }
-        .channel-item:hover i { color: var(--foam); }
-
-        .channel-item.active {
-            background: linear-gradient(90deg, rgba(30, 80, 150, 0.5), rgba(15, 40, 80, 0.3));
-            border: 1px solid rgba(46, 229, 213, 0.35);
-            color: var(--text-bright);
-            box-shadow: 0 0 20px rgba(46, 229, 213, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-        }
-        .channel-item.active i {
-            color: var(--cyan);
-            filter: drop-shadow(0 0 6px rgba(46, 229, 213, 0.7));
-        }
-        .channel-item.active::before {
-            content: ''; position: absolute;
-            left: 0; top: 50%; transform: translateY(-50%);
-            width: 3px; height: 20px;
-            background: linear-gradient(180deg, var(--cyan), var(--foam));
-            border-radius: 0 3px 3px 0;
-            box-shadow: 0 0 10px var(--cyan);
-        }
-
-        .voice-panel {
-            margin: 8px 12px 14px;
-            padding: 12px 14px;
-            background: rgba(8, 20, 40, 0.7);
-            backdrop-filter: blur(12px);
-            border-radius: 14px;
-            border: 1px solid rgba(90, 150, 220, 0.18);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-            display: flex; align-items: center; justify-content: space-between;
-            color: var(--text); font-size: 12px; font-weight: 500;
-            transition: all 0.2s;
-        }
-        .voice-panel:hover {
-            border-color: rgba(46, 229, 213, 0.35);
-            box-shadow: 0 4px 20px rgba(46, 229, 213, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-        }
-        .voice-panel i { color: var(--cyan); font-size: 14px; }
-
-        .chat-area {
-            flex: 1;
-            display: flex; flex-direction: column;
-            position: relative;
-            min-width: 0;
-            background: rgba(6, 14, 28, 0.35);
-            backdrop-filter: blur(8px);
-        }
-
-        .chat-header {
-            padding: 16px 30px;
-            background: rgba(5, 12, 26, 0.55);
-            backdrop-filter: blur(24px) saturate(140%);
-            -webkit-backdrop-filter: blur(24px) saturate(140%);
-            border-bottom: 1px solid rgba(90, 150, 220, 0.12);
-            display: flex; align-items: center; justify-content: space-between;
-            z-index: 3;
-        }
-        .chat-header-left { display: flex; align-items: center; gap: 12px; }
-        .chat-header-left i {
-            font-size: 20px; color: var(--cyan);
-            filter: drop-shadow(0 0 8px rgba(46, 229, 213, 0.6));
-        }
-        .chat-header-left h3 {
-            font-size: 17px; font-weight: 600;
-            color: var(--text-bright);
-            letter-spacing: 0.1px;
-        }
-        .chat-header-left .channel-tag {
-            background: rgba(74, 158, 255, 0.1);
-            border-radius: 30px;
-            padding: 4px 12px;
-            font-size: 11px; font-weight: 600;
-            color: var(--foam);
-            border: 1px solid rgba(74, 158, 255, 0.3);
-            margin-left: 8px;
-            letter-spacing: 0.3px;
-        }
-        .chat-header-right {
-            display: flex; gap: 22px;
-            color: var(--text-mute); font-size: 17px;
-        }
-        .chat-header-right i {
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .chat-header-right i:hover {
-            color: var(--cyan);
-            filter: drop-shadow(0 0 10px rgba(46, 229, 213, 0.7));
-            transform: translateY(-1px);
-        }
-
-        .messages-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 28px 30px 16px;
-            display: flex; flex-direction: column; gap: 22px;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(90, 150, 220, 0.3) transparent;
-        }
-        .messages-container::-webkit-scrollbar { width: 8px; }
-        .messages-container::-webkit-scrollbar-thumb {
-            background: rgba(90, 150, 220, 0.3);
-            border-radius: 8px;
-        }
-
-        .message {
-            display: flex; gap: 16px;
-            align-items: flex-start;
-            animation: messageIn 0.4s cubic-bezier(0.2, 0.9, 0.3, 1);
-        }
-        @keyframes messageIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .avatar {
-            width: 44px; height: 44px;
-            border-radius: 14px;
-            background: linear-gradient(145deg, rgba(30, 70, 130, 0.9), rgba(10, 25, 50, 0.9));
-            border: 1px solid rgba(120, 180, 255, 0.25);
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 600; font-size: 17px;
-            color: var(--text-bright);
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), 0 0 14px rgba(46, 130, 220, 0.15);
-            flex-shrink: 0;
-            overflow: hidden;
-            position: relative;
-        }
-        .avatar::after {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(135deg, rgba(46, 229, 213, 0.15), transparent 50%);
-            pointer-events: none;
-        }
-        .avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-        .message-content { flex: 1; min-width: 0; }
-        .message-header {
-            display: flex; align-items: baseline; gap: 10px;
-            margin-bottom: 5px;
-        }
-        .message-author {
-            font-weight: 600; font-size: 14.5px;
-            color: var(--text-bright);
-            letter-spacing: 0.1px;
-        }
-        .message-author .tag {
-            color: var(--text-mute); font-weight: 500; font-size: 11.5px;
-            margin-left: 2px;
-        }
-        .message-time {
-            font-size: 11px; font-weight: 500;
-            color: var(--text-mute);
-        }
-
-        .message-text {
-            font-size: 14px; line-height: 1.55;
-            color: var(--text);
-            background: rgba(10, 25, 48, 0.5);
-            backdrop-filter: blur(12px);
-            padding: 11px 17px;
-            border-radius: 6px 18px 18px 18px;
-            border-left: 2px solid var(--cyan);
-            box-shadow:
-                0 4px 16px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.04),
-                0 0 24px rgba(46, 229, 213, 0.06);
-            word-break: break-word;
-            white-space: pre-wrap;
-        }
-        .message-text .mention {
-            color: var(--sand);
-            background: rgba(245, 201, 168, 0.12);
-            padding: 2px 7px;
-            border-radius: 6px;
-            font-weight: 600;
-            border: 1px solid rgba(245, 201, 168, 0.25);
-        }
-
-        .empty-msg {
-            text-align: center; color: var(--text-mute);
-            font-size: 13px; padding: 60px 20px;
-            font-weight: 500;
-        }
-
-        .message-input-area {
-            padding: 18px 30px 24px;
-            background: rgba(5, 12, 26, 0.6);
-            backdrop-filter: blur(24px) saturate(140%);
-            -webkit-backdrop-filter: blur(24px) saturate(140%);
-            border-top: 1px solid rgba(90, 150, 220, 0.12);
-            display: flex; gap: 14px; align-items: center;
-            z-index: 2;
-        }
-
-        .input-wrapper {
-            flex: 1;
-            background: rgba(6, 15, 30, 0.7);
-            border-radius: 22px;
-            display: flex; align-items: center;
-            padding: 6px 10px 6px 22px;
-            border: 1px solid rgba(90, 150, 220, 0.2);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
-            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
-        }
-        .input-wrapper:focus-within {
-            border-color: rgba(46, 229, 213, 0.5);
-            box-shadow:
-                0 0 0 4px rgba(46, 229, 213, 0.08),
-                0 0 26px rgba(46, 229, 213, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05);
-            background: rgba(6, 15, 30, 0.9);
-        }
-        .input-wrapper > i {
-            color: var(--text-mute);
-            font-size: 17px; margin-right: 14px;
-            transition: color 0.2s;
-        }
-        .input-wrapper:focus-within > i { color: var(--cyan); }
-
-        .input-wrapper input {
-            flex: 1;
-            background: transparent;
-            border: none; outline: none;
-            color: var(--text-bright);
-            font-size: 14px;
-            padding: 12px 0;
-            font-family: inherit;
-        }
-        .input-wrapper input::placeholder { color: var(--text-mute); }
-
-        .input-actions {
-            display: flex; gap: 16px; padding-right: 12px;
-        }
-        .input-actions i {
-            color: var(--text-mute);
-            font-size: 17px; cursor: pointer;
-            transition: all 0.2s;
-        }
-        .input-actions i:hover {
-            color: var(--cyan);
-            transform: scale(1.1);
-            filter: drop-shadow(0 0 6px rgba(46, 229, 213, 0.6));
-        }
-
-        .send-button {
-            background: linear-gradient(135deg, #2a6fb8 0%, #1e5a9e 100%);
-            border: 1px solid rgba(120, 200, 255, 0.4);
-            border-radius: 22px;
-            width: 48px; height: 48px;
-            display: flex; align-items: center; justify-content: center;
-            color: #ffffff;
-            font-size: 19px;
-            cursor: pointer;
-            box-shadow: 0 6px 20px rgba(30, 100, 200, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
-        }
-        .send-button:hover {
-            transform: translateY(-2px) scale(1.05);
-            background: linear-gradient(135deg, #3a80d0 0%, #2a6fb8 100%);
-            box-shadow:
-                0 10px 28px rgba(40, 130, 220, 0.6),
-                0 0 30px rgba(46, 229, 213, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            border-color: var(--cyan);
-        }
-        .send-button:active { transform: translateY(0) scale(1); }
-        .send-button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
-        .member-sidebar {
-            width: 248px;
-            background: rgba(5, 12, 26, 0.55);
-            backdrop-filter: blur(20px) saturate(140%);
-            -webkit-backdrop-filter: blur(20px) saturate(140%);
-            border-left: 1px solid rgba(90, 150, 220, 0.1);
-            display: flex; flex-direction: column;
-            box-shadow: -6px 0 24px -10px rgba(0, 0, 0, 0.6);
-            position: relative; z-index: 4;
-        }
-
-        .member-header {
-            padding: 22px 18px 16px;
-            border-bottom: 1px solid rgba(90, 150, 220, 0.1);
-            font-size: 12px; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 1.2px;
-            color: var(--text-mute);
-            display: flex; align-items: center; gap: 10px;
-        }
-        .member-header i {
-            color: var(--cyan); font-size: 13px;
-            filter: drop-shadow(0 0 6px rgba(46, 229, 213, 0.5));
-        }
-
-        .member-list {
-            flex: 1; padding: 16px 12px;
-            overflow-y: auto;
-            display: flex; flex-direction: column; gap: 6px;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(90, 150, 220, 0.3) transparent;
-        }
-        .member-list::-webkit-scrollbar { width: 6px; }
-        .member-list::-webkit-scrollbar-thumb {
-            background: rgba(90, 150, 220, 0.3);
-            border-radius: 6px;
-        }
-
-        .member-category {
-            font-size: 10.5px; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 1px;
-            color: var(--text-mute);
-            padding: 10px 12px 6px;
-            margin-top: 6px;
-        }
-
-        .member-item {
-            display: flex; align-items: center; gap: 12px;
-            padding: 8px 12px;
-            border-radius: 12px;
-            border: 1px solid transparent;
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.3, 1);
-            cursor: pointer;
-        }
-        .member-item:hover {
-            background: rgba(30, 70, 130, 0.25);
-            border-color: rgba(90, 150, 220, 0.2);
-            transform: translateX(2px);
-        }
-
-        .member-avatar {
-            width: 34px; height: 34px;
-            border-radius: 11px;
-            background: linear-gradient(145deg, rgba(30, 70, 130, 0.8), rgba(10, 25, 50, 0.8));
-            border: 1px solid rgba(120, 180, 255, 0.2);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 13px; font-weight: 600;
-            color: var(--text-bright);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-            overflow: hidden; flex-shrink: 0;
-            position: relative;
-        }
-        .member-avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-        .member-info { display: flex; flex-direction: column; min-width: 0; }
-        .member-name {
-            font-size: 13.5px; font-weight: 500;
-            color: var(--text);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .member-status {
-            font-size: 10.5px; color: var(--text-mute);
-            display: flex; align-items: center; gap: 6px;
-            margin-top: 1px;
-        }
-
-        .status-dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            background: #2ee56b;
-            box-shadow: 0 0 8px rgba(46, 229, 107, 0.8);
-            position: relative;
-        }
-        .status-dot.online::after {
-            content: '';
-            position: absolute; inset: -2px;
-            border-radius: 50%;
-            background: #2ee56b;
-            opacity: 0.4;
-            animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
-        }
-        @keyframes ping {
-            0%   { transform: scale(1); opacity: 0.6; }
-            75%, 100% { transform: scale(2.2); opacity: 0; }
-        }
-        .status-dot.idle {
-            background: var(--sand);
-            box-shadow: 0 0 8px rgba(245, 201, 168, 0.8);
-        }
-        .status-dot.dnd {
-            background: var(--coral);
-            box-shadow: 0 0 8px rgba(255, 148, 120, 0.8);
-        }
-        .status-dot.offline {
-            background: #3a506b;
-            box-shadow: none;
-        }
-
-        .user-panel {
-            padding: 14px 16px;
-            background: rgba(4, 10, 22, 0.7);
-            backdrop-filter: blur(16px);
-            border-top: 1px solid rgba(90, 150, 220, 0.12);
-            display: flex; align-items: center; gap: 12px;
-        }
-        .user-panel .avatar-small {
-            width: 38px; height: 38px;
-            border-radius: 11px;
-            background: linear-gradient(145deg, rgba(40, 90, 160, 0.9), rgba(15, 35, 70, 0.9));
-            border: 1px solid rgba(120, 200, 255, 0.35);
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 600; color: var(--text-bright);
-            overflow: hidden; flex-shrink: 0;
-            box-shadow: 0 0 14px rgba(46, 130, 220, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-        }
-        .avatar-small img { width: 100%; height: 100%; object-fit: cover; }
-
-        .user-panel .user-details { flex: 1; min-width: 0; }
-        .user-panel .user-name {
-            font-size: 13.5px; font-weight: 600;
-            color: var(--text-bright);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .user-panel .user-tag {
-            font-size: 10.5px; color: var(--text-mute);
-            letter-spacing: 0.3px;
-        }
-        .user-panel .panel-icons {
-            display: flex; gap: 14px;
-            color: var(--text-mute); font-size: 15px;
-        }
-        .user-panel .panel-icons i {
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .user-panel .panel-icons i:hover {
-            color: var(--cyan);
-            transform: scale(1.1);
-            filter: drop-shadow(0 0 6px rgba(46, 229, 213, 0.6));
-        }
+        .box.fail { border-left-color: #ff7a7a; }
+        .box.ok   { border-left-color: #2ee5a5; }
+        .label { color: #6d8aa8; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        pre { white-space: pre-wrap; word-break: break-all; margin: 8px 0 0 0; }
+        .big { font-size: 18px; color: #2ee5d5; }
+        table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+        td { padding: 3px 10px; border-bottom: 1px solid #14304f; }
+        td:first-child { color: #6d8aa8; width: 140px; }
+        .diff { color: #ff7a7a; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="ocean-bg"></div>
-    <div class="bubbles" id="bubbles"></div>
+<h1>FS — Supabase diagnostics</h1>
 
-    <div class="auth-screen" id="authScreen">
-        <div class="auth-card">
-            <h1><i class="fas fa-cube"></i> FS</h1>
-            <p class="sub">Sign in to your workspace</p>
+<div class="box">
+    <div class="label">The URL I am using</div>
+    <pre id="urlRaw" class="big"></pre>
+    <table>
+        <tr><td>Length</td><td id="urlLen"></td></tr>
+        <tr><td>Expected</td><td>39</td></tr>
+        <tr><td>Chars (hex)</td><td id="urlHex" style="font-size:11px;"></td></tr>
+    </table>
+</div>
 
-            <div class="auth-field">
-                <label>Email</label>
-                <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
-            </div>
-            <div class="auth-field">
-                <label>Password</label>
-                <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
-            </div>
+<div class="box">
+    <div class="label">The KEY I am using</div>
+    <pre id="keyRaw"></pre>
+    <table>
+        <tr><td>Length</td><td id="keyLen"></td></tr>
+        <tr><td>First 20</td><td id="keyHead"></td></tr>
+    </table>
+</div>
 
-            <button class="auth-btn" id="authSubmit">Sign In</button>
+<div class="box" id="t1">
+    <div class="label">Test 1 — fetch health endpoint</div>
+    <pre id="t1out">running…</pre>
+</div>
 
-            <div class="auth-toggle">
-                <span id="toggleText">No account?</span>
-                <a id="toggleMode">Create one</a>
-            </div>
-            <div class="auth-msg" id="authMsg"></div>
-        </div>
-    </div>
+<div class="box" id="t2">
+    <div class="label">Test 2 — load supabase-js</div>
+    <pre id="t2out">running…</pre>
+</div>
 
-    <div class="app" id="app">
-        <nav class="server-rail" id="serverRail">
-            <div class="home-icon"><i class="fas fa-home"></i></div>
-            <div class="server-sep"></div>
-        </nav>
+<div class="box" id="t3">
+    <div class="label">Test 3 — call supabase.auth.signUp</div>
+    <pre id="t3out">waiting for test 2</pre>
+</div>
 
-        <aside class="channel-sidebar">
-            <div class="server-header">
-                <h2><i class="fas fa-cube"></i> <span id="serverName">FS</span></h2>
-                <span class="server-badge">workspace</span>
-            </div>
-            <div class="channel-list" id="channelList">
-                <div class="empty-msg">Loading channels…</div>
-            </div>
-            <div class="voice-panel">
-                <span><i class="fas fa-headset"></i> &nbsp;Voice</span>
-                <i class="fas fa-signal"></i>
-            </div>
-        </aside>
+<script>
+    // ===== THESE ARE THE EXACT STRINGS FROM YOUR index.html =====
+    // Replace these two with the exact values you have in index.html
+    // so we test the same thing the app uses.
+    const URL = 'https://rziozrqkinxmjpqwpdi.supabase.co';
+    const KEY = 'sb_publishable_m9kwzBXxhweDmUtREyPhYQ_INo8q_';
 
-        <main class="chat-area">
-            <header class="chat-header">
-                <div class="chat-header-left">
-                    <i class="fas fa-hashtag"></i>
-                    <h3 id="channelName">general-chat</h3>
-                    <span class="channel-tag">FS workspace</span>
-                </div>
-                <div class="chat-header-right">
-                    <i class="fas fa-phone-alt"></i>
-                    <i class="fas fa-video"></i>
-                    <i class="fas fa-user-plus"></i>
-                    <i class="fas fa-search"></i>
-                    <i class="fas fa-ellipsis-h"></i>
-                </div>
-            </header>
+    // ===== SHOW URL =====
+    document.getElementById('urlRaw').textContent = '[' + URL + ']';
+    document.getElementById('urlLen').textContent = URL.length;
 
-            <div class="messages-container" id="messagesContainer">
-                <div class="empty-msg">Loading messages…</div>
-            </div>
+    // Hex dump: shows every character as a hex code so invisible chars are visible
+    let hex = '';
+    for (let i = 0; i < URL.length; i++) {
+        const c = URL.charCodeAt(i);
+        const code = c.toString(16).padStart(2, '0');
+        const isSus = c < 32 || c > 126 ? ' ⚠ ' : ' ';
+        hex += code + isSus;
+    }
+    document.getElementById('urlHex').textContent = hex;
 
-            <div class="message-input-area">
-                <div class="input-wrapper">
-                    <i class="fas fa-plus-circle"></i>
-                    <input type="text" id="messageInput" placeholder="Message #general-chat" autocomplete="off">
-                    <div class="input-actions">
-                        <i class="fas fa-smile"></i>
-                        <i class="fas fa-paperclip"></i>
-                        <i class="fas fa-microphone"></i>
-                    </div>
-                </div>
-                <div class="send-button" id="sendButton">
-                    <i class="fas fa-paper-plane"></i>
-                </div>
-            </div>
-        </main>
+    // ===== SHOW KEY =====
+    document.getElementById('keyRaw').textContent = KEY;
+    document.getElementById('keyLen').textContent = KEY.length;
+    document.getElementById('keyHead').textContent = KEY.slice(0, 20);
 
-        <aside class="member-sidebar">
-            <div class="member-header">
-                <i class="fas fa-users"></i> members — <span id="memberCount">0</span>
-            </div>
-            <div class="member-list" id="memberList">
-                <div class="empty-msg">Loading members…</div>
-            </div>
+    // ===== HIGHLIGHT SUSPICIOUS CHARS IN URL/KEY BOXES =====
+    const expectedUrlLen = 39;
+    if (URL.length !== expectedUrlLen) {
+        const box = document.querySelector('#urlRaw').parentElement;
+        box.classList.add('fail');
+        const p = document.createElement('p');
+        p.className = 'diff';
+        p.textContent = '⚠ URL length is ' + URL.length + ', expected ' + expectedUrlLen;
+        box.appendChild(p);
+    }
 
-            <div class="user-panel">
-                <div class="avatar-small" id="myAvatar">U</div>
-                <div class="user-details">
-                    <span class="user-name" id="myName">You</span>
-                    <span class="user-tag" id="myTag">#0001</span>
-                </div>
-                <div class="panel-icons">
-                    <i class="fas fa-microphone"></i>
-                    <i class="fas fa-headphones"></i>
-                    <i class="fas fa-cog"></i>
-                    <i class="fas fa-sign-out-alt" id="logoutBtn" title="Sign out"></i>
-                </div>
-            </div>
-        </aside>
-    </div>
+    // ===== TEST 1: raw fetch =====
+    (async () => {
+        const out = document.getElementById('t1out');
+        const box = document.getElementById('t1');
+        try {
+            out.textContent = 'fetching ' + URL + '/auth/v1/health …';
+            const res = await fetch(URL + '/auth/v1/health');
+            const text = await res.text();
+            out.textContent = 'HTTP ' + res.status + '\n' + text;
+            box.classList.add(res.ok ? 'ok' : 'fail');
+        } catch (e) {
+            out.textContent =
+                'ERROR: ' + e.name + '\n' +
+                'message: ' + e.message + '\n\n' +
+                'This means the browser cannot reach the Supabase server.\n' +
+                'Common causes:\n' +
+                '  • An extension (uBlock, Brave shields, privacy badger) blocking *.supabase.co\n' +
+                '  • Corporate/school network blocking the domain\n' +
+                '  • DNS resolution failure\n' +
+                '  • Project paused\n\n' +
+                'Try opening this same URL in a new tab:\n' +
+                URL + '/auth/v1/health';
+            box.classList.add('fail');
+        }
+    })();
 
-    <script>
-        (function spawnBubbles() {
-            const container = document.getElementById('bubbles');
-            const count = 14;
-            for (let i = 0; i < count; i++) {
-                const b = document.createElement('div');
-                b.className = 'bubble';
-                const size = 8 + Math.random() * 60;
-                b.style.width = size + 'px';
-                b.style.height = size + 'px';
-                b.style.left = Math.random() * 100 + '%';
-                b.style.animationDuration = (25 + Math.random() * 35) + 's';
-                b.style.animationDelay = (-Math.random() * 40) + 's';
-                container.appendChild(b);
-            }
-        })();
-    </script>
-
-    <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-
-        // ============================================================
-        // SUPABASE CONFIG
-        // URL and key typed fresh — no paste artifacts.
-        // Project ref: rziozrqkinxmjpqwpdi
-        // ============================================================
-        const SUPABASE_URL = 'https://rziozrqkinxmjpqwpdi.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_m9kwzBXxhweDmUtREyPhYQ_INo8q_';
-
-        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        let currentUser = null;
-        let currentProfile = null;
-        let currentServerId = null;
-        let currentChannelId = null;
-        let realtimeChannel = null;
-        let isSignupMode = false;
-
-        const authScreen   = document.getElementById('authScreen');
-        const app          = document.getElementById('app');
-        const emailInput   = document.getElementById('email');
-        const passwordInput= document.getElementById('password');
-        const authSubmit   = document.getElementById('authSubmit');
-        const authMsg      = document.getElementById('authMsg');
-        const toggleText   = document.getElementById('toggleText');
-        const toggleMode   = document.getElementById('toggleMode');
-
-        const serverRail   = document.getElementById('serverRail');
-        const serverName   = document.getElementById('serverName');
-        const channelList  = document.getElementById('channelList');
-        const channelName  = document.getElementById('channelName');
-        const messagesContainer = document.getElementById('messagesContainer');
-        const messageInput = document.getElementById('messageInput');
-        const sendButton   = document.getElementById('sendButton');
-        const memberList   = document.getElementById('memberList');
-        const memberCount  = document.getElementById('memberCount');
-        const myAvatar     = document.getElementById('myAvatar');
-        const myName       = document.getElementById('myName');
-        const myTag        = document.getElementById('myTag');
-        const logoutBtn    = document.getElementById('logoutBtn');
-
-        const escapeHtml = (s) => String(s)
-            .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-            .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-
-        const initial = (n) => n ? n.trim().charAt(0).toUpperCase() : '?';
-
-        const timeAgo = (iso) => {
-            const d = new Date(iso), now = new Date();
-            const diff = (now - d) / 1000;
-            if (diff < 60) return 'just now';
-            if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
-            if (diff < 86400) return `today at ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
-            return d.toLocaleDateString();
-        };
-
-        const statusClass = (s) => s || 'offline';
-
-        toggleMode.addEventListener('click', () => {
-            isSignupMode = !isSignupMode;
-            authSubmit.textContent = isSignupMode ? 'Create Account' : 'Sign In';
-            toggleText.textContent = isSignupMode ? 'Already have an account?' : 'No account?';
-            toggleMode.textContent = isSignupMode ? 'Sign in' : 'Create one';
-            authMsg.textContent = ''; authMsg.className = 'auth-msg';
-        });
-
-        authSubmit.addEventListener('click', handleAuth);
-        passwordInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleAuth(); });
-        emailInput.addEventListener('keydown',   e => { if (e.key === 'Enter') passwordInput.focus(); });
-
-        async function handleAuth() {
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
-            if (!email || !password) {
-                authMsg.textContent = 'Please fill in all fields.';
-                authMsg.className = 'auth-msg error'; return;
-            }
-            if (password.length < 6) {
-                authMsg.textContent = 'Password must be at least 6 characters.';
-                authMsg.className = 'auth-msg error'; return;
-            }
-
-            authSubmit.disabled = true;
-            authMsg.textContent = isSignupMode ? 'Creating account…' : 'Signing in…';
-            authMsg.className = 'auth-msg';
+    // ===== TEST 2 + 3 =====
+    (async () => {
+        const t2out = document.getElementById('t2out');
+        const t2box = document.getElementById('t2');
+        const t3out = document.getElementById('t3out');
+        const t3box = document.getElementById('t3');
+        try {
+            const mod = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+            t2out.textContent = 'supabase-js loaded\ncreateClient: ' + typeof mod.createClient;
+            t2box.classList.add('ok');
 
             try {
-                if (isSignupMode) {
-                    const { data, error } = await supabase.auth.signUp({
-                        email, password,
-                        options: { data: {
-                            username: email.split('@')[0],
-                            display_name: email.split('@')[0]
-                        }}
-                    });
-                    if (error) throw error;
-                    if (data.session) {
-                        authMsg.textContent = 'Welcome to FS.';
-                        await bootAfterLogin(data.user);
-                    } else {
-                        authMsg.textContent = 'Check your email to confirm your account.';
-                    }
+                const client = mod.createClient(URL, KEY);
+                t3out.textContent = 'calling signUp…';
+                const email = 'diag' + Date.now() + '@example.com';
+                const { data, error } = await client.auth.signUp({
+                    email,
+                    password: 'diagtest1234'
+                });
+                if (error) {
+                    t3out.textContent =
+                        'signUp returned an error:\n' +
+                        '  message: ' + error.message + '\n' +
+                        '  status:  ' + (error.status || 'n/a') + '\n' +
+                        '  code:    ' + (error.code || 'n/a');
+                    t3box.classList.add('fail');
                 } else {
-                    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-                    if (error) throw error;
-                    await bootAfterLogin(data.user);
+                    t3out.textContent =
+                        'signUp succeeded\n' +
+                        '  user id: ' + (data.user?.id || 'none') + '\n' +
+                        '  session: ' + (data.session ? 'yes' : 'no (email confirmation required)');
+                    t3box.classList.add('ok');
                 }
-            } catch (err) {
-                console.error(err);
-                authMsg.textContent = err.message || 'Authentication failed.';
-                authMsg.className = 'auth-msg error';
-            } finally {
-                authSubmit.disabled = false;
+            } catch (e) {
+                t3out.textContent = 'signUp threw:\n' + e.name + ' — ' + e.message;
+                t3box.classList.add('fail');
             }
+        } catch (e) {
+            t2out.textContent = 'FAILED to load supabase-js:\n' + e.name + ' — ' + e.message;
+            t2box.classList.add('fail');
+            t3out.textContent = 'skipped';
         }
-
-        logoutBtn.addEventListener('click', async () => {
-            await supabase.auth.signOut();
-            location.reload();
-        });
-
-        supabase.auth.onAuthStateChange((event) => {
-            if (event === 'SIGNED_OUT') {
-                currentUser = null; currentProfile = null;
-                app.classList.remove('visible');
-                authScreen.style.display = 'flex';
-            }
-        });
-
-        async function bootAfterLogin(user) {
-            currentUser = user;
-
-            let { data: profile } = await supabase
-                .from('profiles').select('*').eq('id', user.id).maybeSingle();
-
-            if (!profile) {
-                const username = (user.user_metadata?.username || user.email.split('@')[0]).slice(0, 30);
-                const display  = user.user_metadata?.display_name || username;
-                const tag = String(Math.floor(Math.random()*9999)).padStart(4,'0');
-                const { data: created } = await supabase
-                    .from('profiles')
-                    .insert({ id: user.id, username, display_name: display, tag, status: 'online' })
-                    .select().single();
-                profile = created;
-            }
-            currentProfile = profile;
-            await supabase.from('profiles').update({ status: 'online' }).eq('id', user.id);
-
-            authScreen.style.display = 'none';
-            app.classList.add('visible');
-            renderSelf();
-            await loadServers();
-        }
-
-        function renderSelf() {
-            const name = currentProfile?.display_name || currentProfile?.username || 'You';
-            myName.textContent = name;
-            myTag.textContent = '#' + (currentProfile?.tag || '0001');
-            if (currentProfile?.avatar_url) {
-                myAvatar.innerHTML = `<img src="${escapeHtml(currentProfile.avatar_url)}" alt="">`;
-            } else {
-                myAvatar.textContent = initial(name);
-            }
-        }
-
-        async function loadServers() {
-            const { data: servers, error } = await supabase
-                .from('servers').select('id, name, slug, icon_emoji, icon_url')
-                .order('created_at', { ascending: true });
-
-            if (error || !servers || servers.length === 0) {
-                serverRail.innerHTML = `
-                    <div class="home-icon"><i class="fas fa-home"></i></div>
-                    <div class="server-sep"></div>
-                    <div class="empty-msg" style="font-size:11px;padding:10px;">No servers yet</div>
-                `;
-                channelList.innerHTML = '<div class="empty-msg">Create a server to begin.</div>';
-                return;
-            }
-
-            serverRail.innerHTML = `
-                <div class="home-icon"><i class="fas fa-home"></i></div>
-                <div class="server-sep"></div>
-                ${servers.map((s, i) => `
-                    <div class="server-item ${i===0?'active':''}" data-server-id="${s.id}" title="${escapeHtml(s.name)}">
-                        ${s.icon_url
-                            ? `<img src="${escapeHtml(s.icon_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:15px;" alt="">`
-                            : (s.icon_emoji || initial(s.name))}
-                    </div>
-                `).join('')}
-                <div class="server-sep"></div>
-                <div class="server-item"><i class="fas fa-plus"></i></div>
-            `;
-
-            serverRail.querySelectorAll('.server-item[data-server-id]').forEach(el => {
-                el.addEventListener('click', () => {
-                    serverRail.querySelectorAll('.server-item').forEach(x => x.classList.remove('active'));
-                    el.classList.add('active');
-                    selectServer(el.dataset.serverId);
-                });
-            });
-
-            await selectServer(servers[0].id, servers[0].name);
-        }
-
-        async function selectServer(serverId, nameHint) {
-            currentServerId = serverId;
-            currentChannelId = null;
-            if (nameHint) serverName.textContent = nameHint;
-            else {
-                const { data: s } = await supabase.from('servers').select('name').eq('id', serverId).maybeSingle();
-                if (s) serverName.textContent = s.name;
-            }
-            await loadChannels(serverId);
-            await loadMembers(serverId);
-        }
-
-        async function loadChannels(serverId) {
-            channelList.innerHTML = '<div class="empty-msg">Loading channels…</div>';
-
-            const { data: cats } = await supabase
-                .from('channel_categories').select('id, name, position')
-                .eq('server_id', serverId).order('position', { ascending: true });
-
-            const { data: chans } = await supabase
-                .from('channels').select('id, name, type, category_id, position')
-                .eq('server_id', serverId).order('position', { ascending: true });
-
-            if (!chans || chans.length === 0) {
-                channelList.innerHTML = '<div class="empty-msg">No channels.</div>';
-                return;
-            }
-
-            const catMap = {};
-            (cats || []).forEach(c => catMap[c.id] = c);
-
-            const grouped = {};
-            chans.forEach(ch => {
-                const key = ch.category_id || '__none__';
-                if (!grouped[key]) grouped[key] = [];
-                grouped[key].push(ch);
-            });
-
-            let html = '';
-            const orderedKeys = (cats || []).map(c => c.id).filter(k => grouped[k]);
-            if (grouped['__none__']) orderedKeys.push('__none__');
-
-            orderedKeys.forEach(key => {
-                const catName = key === '__none__' ? 'channels' : catMap[key]?.name || 'channels';
-                html += `<div class="channel-category">
-                    <div class="category-title">${escapeHtml(catName)}</div>`;
-                grouped[key].forEach(ch => {
-                    const icon = ch.type === 'voice' ? 'fa-volume-up' : 'fa-hashtag';
-                    html += `<div class="channel-item" data-channel-id="${ch.id}" data-channel-name="${escapeHtml(ch.name)}" data-channel-type="${ch.type}">
-                        <i class="fas ${icon}"></i> ${escapeHtml(ch.name)}
-                    </div>`;
-                });
-                html += `</div>`;
-            });
-
-            channelList.innerHTML = html;
-
-            channelList.querySelectorAll('.channel-item').forEach(el => {
-                el.addEventListener('click', () => {
-                    if (el.dataset.channelType === 'voice') return;
-                    channelList.querySelectorAll('.channel-item').forEach(x => x.classList.remove('active'));
-                    el.classList.add('active');
-                    openChannel(el.dataset.channelId, el.dataset.channelName);
-                });
-            });
-
-            const firstText = chans.find(c => c.type === 'text');
-            if (firstText) {
-                const el = channelList.querySelector(`.channel-item[data-channel-id="${firstText.id}"]`);
-                if (el) el.classList.add('active');
-                await openChannel(firstText.id, firstText.name);
-            }
-        }
-
-        async function openChannel(channelId, channelNameStr) {
-            currentChannelId = channelId;
-            channelName.textContent = channelNameStr;
-            messageInput.placeholder = `Message #${channelNameStr}`;
-            messagesContainer.innerHTML = '<div class="empty-msg">Loading messages…</div>';
-
-            if (realtimeChannel) {
-                supabase.removeChannel(realtimeChannel);
-                realtimeChannel = null;
-            }
-
-            const { data: msgs, error } = await supabase
-                .from('channel_messages').select('*')
-                .eq('channel_id', channelId)
-                .order('created_at', { ascending: true }).limit(200);
-
-            if (error) {
-                messagesContainer.innerHTML = '<div class="empty-msg">Failed to load messages.</div>';
-                console.error(error);
-                return;
-            }
-
-            if (!msgs || msgs.length === 0) {
-                messagesContainer.innerHTML = '<div class="empty-msg">No messages yet — say hi 👋</div>';
-            } else {
-                messagesContainer.innerHTML = msgs.map(renderMessage).join('');
-                scrollToBottom();
-            }
-
-            realtimeChannel = supabase
-                .channel(`ch:${channelId}`)
-                .on('postgres_changes', {
-                    event: 'INSERT', schema: 'public',
-                    table: 'messages', filter: `channel_id=eq.${channelId}`
-                }, async (payload) => {
-                    const { data: prof } = await supabase
-                        .from('profiles')
-                        .select('username, display_name, avatar_url, tag')
-                        .eq('id', payload.new.author_id).maybeSingle();
-
-                    const msg = { ...payload.new, ...(prof || {}) };
-                    const empty = messagesContainer.querySelector('.empty-msg');
-                    if (empty) empty.remove();
-                    messagesContainer.insertAdjacentHTML('beforeend', renderMessage(msg));
-                    scrollToBottom();
-                })
-                .subscribe();
-        }
-
-        function renderMessage(m) {
-            const name = m.display_name || m.username || 'Unknown';
-            const tag  = m.tag ? `<span class="tag">#${escapeHtml(m.tag)}</span>` : '';
-            const text = escapeHtml(m.content)
-                .replace(/@(\w+)/g, '<span class="mention">@$1</span>');
-            const avatarInner = m.avatar_url
-                ? `<img src="${escapeHtml(m.avatar_url)}" alt="">`
-                : initial(name);
-
-            return `<div class="message">
-                <div class="avatar">${avatarInner}</div>
-                <div class="message-content">
-                    <div class="message-header">
-                        <span class="message-author">${escapeHtml(name)}${tag}</span>
-                        <span class="message-time">${timeAgo(m.created_at)}</span>
-                    </div>
-                    <div class="message-text">${text}</div>
-                </div>
-            </div>`;
-        }
-
-        function scrollToBottom() {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        async function sendMessage() {
-            const content = messageInput.value.trim();
-            if (!content || !currentChannelId || !currentUser) return;
-
-            messageInput.value = '';
-            sendButton.disabled = true;
-
-            const { error } = await supabase.from('messages').insert({
-                channel_id: currentChannelId,
-                author_id: currentUser.id,
-                content
-            });
-
-            sendButton.disabled = false;
-
-            if (error) {
-                console.error(error);
-                messageInput.value = content;
-                alert('Failed to send: ' + error.message);
-            }
-        }
-
-        sendButton.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keydown', e => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-
-        async function loadMembers(serverId) {
-            memberList.innerHTML = '<div class="empty-msg">Loading members…</div>';
-
-            const { data: rows, error } = await supabase
-                .from('server_member_list').select('*').eq('server_id', serverId);
-
-            if (error || !rows) {
-                memberList.innerHTML = '<div class="empty-msg">No members.</div>';
-                return;
-            }
-
-            memberCount.textContent = rows.length;
-
-            const order = { online: 0, idle: 1, dnd: 2, offline: 3 };
-            const sorted = [...rows].sort((a,b) => (order[a.status] ?? 9) - (order[b.status] ?? 9));
-            const onlineCount = rows.filter(r => r.status === 'online').length;
-            const offlineCount = rows.filter(r => r.status === 'offline').length;
-
-            let html = '';
-            if (onlineCount > 0) {
-                html += `<div class="member-category">online — ${onlineCount}</div>`;
-                html += sorted.filter(r => r.status !== 'offline').map(renderMember).join('');
-            }
-            if (offlineCount > 0) {
-                html += `<div class="member-category" style="margin-top:12px;">offline — ${offlineCount}</div>`;
-                html += sorted.filter(r => r.status === 'offline').map(renderMember).join('');
-            }
-
-            memberList.innerHTML = html;
-        }
-
-        function renderMember(m) {
-            const name = m.display_name || m.username;
-            const avatar = m.avatar_url
-                ? `<img src="${escapeHtml(m.avatar_url)}" alt="">`
-                : initial(name);
-            const opacity = m.status === 'offline' ? 'opacity:0.55;' : '';
-            return `<div class="member-item" style="${opacity}">
-                <div class="member-avatar">${avatar}</div>
-                <div class="member-info">
-                    <span class="member-name">${escapeHtml(name)}</span>
-                    <span class="member-status">
-                        <span class="status-dot ${statusClass(m.status)}"></span>
-                        ${escapeHtml(m.status)}
-                    </span>
-                </div>
-            </div>`;
-        }
-
-        (async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.user) {
-                await bootAfterLogin(session.user);
-            }
-        })();
-    </script>
+    })();
+</script>
 </body>
 </html>
