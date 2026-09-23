@@ -1,1338 +1,1146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SPHYNX · chat</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root {
-      --bg-deep: #0b0b0d;
-      --bg-dark: #121216;
-      --bg-mid: #1a1a20;
-      --bg-light: #22222a;
-      --bg-lighter: #2a2a34;
-      --border-dim: #2e2e3a;
-      --border-med: #3a3a48;
-      --text-primary: #f0f0f5;
-      --text-secondary: #a8a8b8;
-      --text-muted: #6b6b7a;
-      --accent: #f5c542;
-      --accent-dim: #d4a830;
-      --accent-glow: rgba(245, 197, 66, 0.15);
-      --danger: #e74c4c;
-      --success: #2ecc71;
-      --radius-sm: 6px;
-      --radius-md: 10px;
-      --radius-lg: 16px;
-      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
-      --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.8);
-      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
-    }
-
-    body {
-      background-color: var(--bg-deep);
-      font-family: var(--font-sans);
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      color: var(--text-primary);
-      -webkit-font-smoothing: antialiased;
-    }
-
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border-med); border-radius: 8px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
-
-    /* AUTH MODAL */
-    .auth-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(12px);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 1000; padding: 20px;
-    }
-
-    .auth-card {
-      background: var(--bg-dark);
-      border: 1px solid var(--border-dim);
-      border-radius: var(--radius-lg);
-      padding: 48px 40px;
-      width: 100%; max-width: 420px;
-      box-shadow: var(--shadow-lg);
-      position: relative; overflow: hidden;
-    }
-
-    .auth-card::before {
-      content: ''; position: absolute;
-      top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, var(--accent), var(--accent-dim), transparent);
-    }
-
-    .auth-logo {
-      font-size: 32px; font-weight: 700;
-      letter-spacing: 3px; color: var(--text-primary);
-      text-align: center; margin-bottom: 8px;
-    }
-
-    .auth-logo span { color: var(--accent); }
-
-    .auth-sub {
-      text-align: center; color: var(--text-muted);
-      font-size: 13px; margin-bottom: 32px;
-      font-family: var(--font-mono);
-    }
-
-    .auth-tabs {
-      display: flex; gap: 4px;
-      background: var(--bg-mid);
-      border-radius: var(--radius-sm);
-      padding: 4px; margin-bottom: 28px;
-    }
-
-    .auth-tab {
-      flex: 1; padding: 10px; text-align: center;
-      border-radius: var(--radius-sm); cursor: pointer;
-      font-size: 14px; font-weight: 600;
-      color: var(--text-muted); transition: all 0.2s;
-      border: none; background: transparent;
-      font-family: var(--font-sans);
-    }
-
-    .auth-tab.active { background: var(--bg-lighter); color: var(--accent); }
-    .auth-tab:hover:not(.active) { color: var(--text-secondary); }
-
-    .auth-field { margin-bottom: 18px; }
-
-    .auth-field label {
-      display: block; font-size: 12px; font-weight: 600;
-      color: var(--text-secondary); margin-bottom: 6px;
-      text-transform: uppercase; letter-spacing: 0.5px;
-    }
-
-    .auth-field input {
-      width: 100%; background: var(--bg-mid);
-      border: 1px solid var(--border-dim);
-      border-radius: var(--radius-sm);
-      padding: 12px 14px; color: var(--text-primary);
-      font-size: 15px; font-family: var(--font-sans);
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .auth-field input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-glow);
-    }
-
-    .auth-field input::placeholder { color: var(--text-muted); }
-
-    .auth-btn {
-      width: 100%; padding: 14px;
-      background: var(--accent); color: #0b0b0d;
-      border: none; border-radius: var(--radius-sm);
-      font-size: 15px; font-weight: 700;
-      cursor: pointer; transition: all 0.2s;
-      font-family: var(--font-sans);
-      margin-top: 8px; letter-spacing: 0.3px;
-    }
-
-    .auth-btn:hover { background: var(--accent-dim); transform: translateY(-1px); }
-    .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-    .auth-error {
-      background: rgba(231, 76, 76, 0.1);
-      border: 1px solid rgba(231, 76, 76, 0.3);
-      border-radius: var(--radius-sm);
-      padding: 10px 14px; color: var(--danger);
-      font-size: 13px; margin-bottom: 16px; display: none;
-    }
-
-    .auth-message {
-      background: rgba(46, 204, 113, 0.1);
-      border: 1px solid rgba(46, 204, 113, 0.3);
-      border-radius: var(--radius-sm);
-      padding: 10px 14px; color: var(--success);
-      font-size: 13px; margin-bottom: 16px; display: none;
-    }
-
-    /* MAIN APP */
-    .sphynx-app {
-      display: flex; width: 1400px;
-      max-width: 98vw; height: 92vh;
-      max-height: 900px; background-color: var(--bg-dark);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-lg);
-      overflow: hidden; border: 1px solid var(--border-dim);
-      display: none;
-    }
-
-    .sphynx-app.visible { display: flex; }
-
-    /* SERVER SIDEBAR */
-    .server-sidebar {
-      width: 72px; background-color: var(--bg-deep);
-      display: flex; flex-direction: column;
-      align-items: center; padding: 12px 0; gap: 8px;
-      border-right: 1px solid var(--border-dim);
-      flex-shrink: 0;
-    }
-
-    .server-icon {
-      width: 48px; height: 48px; border-radius: 50%;
-      background-color: var(--bg-light);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--text-secondary);
-      font-weight: 700; font-size: 18px;
-      cursor: pointer; transition: all 0.2s ease;
-      position: relative; border: 2px solid transparent;
-    }
-
-    .server-icon.active {
-      border-radius: 16px; background-color: var(--accent);
-      color: #0b0b0d; border-color: var(--accent);
-      box-shadow: 0 0 20px rgba(245, 197, 66, 0.25);
-    }
-
-    .server-icon:not(.active):hover {
-      border-radius: 16px; background-color: var(--accent);
-      color: #0b0b0d;
-    }
-
-    .server-icon.spacer {
-      background-color: var(--bg-mid);
-      color: var(--text-muted); font-size: 22px;
-      font-weight: 400; cursor: default;
-      border: 1px dashed var(--border-med);
-    }
-
-    .server-icon.spacer:hover {
-      border-radius: 50%; background-color: var(--bg-mid);
-      color: var(--text-muted);
-    }
-
-    /* CHANNEL SIDEBAR */
-    .channel-sidebar {
-      width: 250px; background-color: var(--bg-mid);
-      display: flex; flex-direction: column;
-      border-right: 1px solid var(--border-dim);
-      flex-shrink: 0;
-    }
-
-    .server-header {
-      padding: 16px; border-bottom: 1px solid var(--border-dim);
-      display: flex; align-items: center; justify-content: space-between;
-      color: var(--text-primary); font-weight: 700; font-size: 16px;
-      letter-spacing: 0.5px; background: var(--bg-mid);
-    }
-
-    .server-header .name { display: flex; align-items: center; gap: 6px; }
-    .server-header .name i { font-size: 12px; color: var(--text-muted); }
-
-    .server-header .sphynx-badge {
-      color: var(--accent); font-size: 11px; font-weight: 600;
-      background: rgba(245, 197, 66, 0.1);
-      padding: 2px 8px; border-radius: 20px;
-      font-family: var(--font-mono); letter-spacing: 0.5px;
-    }
-
-    .channel-list {
-      flex: 1; overflow-y: auto;
-      padding: 12px 8px;
-      display: flex; flex-direction: column; gap: 2px;
-    }
-
-    .channel-category {
-      color: var(--text-muted); font-size: 11px;
-      font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 10px 8px 4px 8px; margin-top: 6px;
-    }
-
-    .channel {
-      display: flex; align-items: center; gap: 8px;
-      padding: 8px 10px; border-radius: var(--radius-sm);
-      color: var(--text-secondary); font-size: 14px;
-      font-weight: 500; cursor: pointer;
-      transition: background 0.15s, color 0.15s;
-    }
-
-    .channel i {
-      width: 18px; font-size: 15px;
-      color: var(--text-muted); text-align: center;
-    }
-
-    .channel:hover { background-color: var(--bg-lighter); color: var(--text-primary); }
-
-    .channel.active {
-      background-color: var(--bg-lighter);
-      color: var(--accent); font-weight: 600;
-    }
-
-    .channel.active i { color: var(--accent); }
-
-    /* USER PANEL */
-    .user-area {
-      background-color: var(--bg-deep);
-      padding: 10px 12px;
-      display: flex; align-items: center; gap: 10px;
-      border-top: 1px solid var(--border-dim);
-    }
-
-    .user-avatar {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent-dim));
-      display: flex; align-items: center; justify-content: center;
-      color: #0b0b0d; font-weight: 700; font-size: 15px;
-      flex-shrink: 0; overflow: hidden;
-      border: 2px solid var(--border-med);
-      cursor: pointer; transition: border-color 0.2s;
-    }
-
-    .user-avatar:hover { border-color: var(--accent); }
-    .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-    .user-info { flex: 1; min-width: 0; }
-
-    .user-name {
-      color: var(--text-primary); font-size: 13px;
-      font-weight: 600; line-height: 1.3;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-
-    .user-tag {
-      color: var(--text-muted); font-size: 11px;
-      font-family: var(--font-mono);
-    }
-
-    .user-actions { display: flex; gap: 2px; }
-
-    .user-actions button {
-      background: transparent; border: none;
-      color: var(--text-muted); font-size: 14px;
-      cursor: pointer; padding: 6px;
-      border-radius: var(--radius-sm); transition: all 0.2s;
-    }
-
-    .user-actions button:hover {
-      background-color: var(--bg-light); color: var(--accent);
-    }
-
-    /* CHAT AREA */
-    .chat-area {
-      flex: 1; display: flex; flex-direction: column;
-      background-color: var(--bg-dark); min-width: 0;
-    }
-
-    .chat-header {
-      padding: 14px 20px;
-      border-bottom: 1px solid var(--border-dim);
-      display: flex; align-items: center; gap: 8px;
-      color: var(--text-primary); font-weight: 600; font-size: 15px;
-      background: var(--bg-dark); flex-shrink: 0;
-    }
-
-    .chat-header i { color: var(--text-muted); font-size: 18px; }
-
-    .chat-header .topic {
-      color: var(--text-muted); font-size: 13px;
-      font-weight: 400; margin-left: 8px;
-      border-left: 1px solid var(--border-med);
-      padding-left: 12px; font-family: var(--font-mono);
-    }
-
-    .chat-header .header-actions { margin-left: auto; display: flex; gap: 4px; }
-
-    .chat-header .header-actions button {
-      background: transparent; border: none;
-      color: var(--text-muted); font-size: 16px;
-      cursor: pointer; padding: 6px 8px;
-      border-radius: var(--radius-sm); transition: all 0.2s;
-    }
-
-    .chat-header .header-actions button:hover {
-      background: var(--bg-light); color: var(--accent);
-    }
-
-    .messages-container {
-      flex: 1; overflow-y: auto;
-      padding: 20px 20px 8px 20px;
-      display: flex; flex-direction: column; gap: 18px;
-    }
-
-    .message {
-      display: flex; gap: 14px; align-items: flex-start;
-      padding: 4px 8px; border-radius: var(--radius-sm);
-      transition: background 0.15s;
-    }
-
-    .message:hover { background: rgba(255, 255, 255, 0.015); }
-
-    .msg-avatar {
-      width: 40px; height: 40px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent-dim));
-      display: flex; align-items: center; justify-content: center;
-      color: #0b0b0d; font-weight: 700; font-size: 16px;
-      flex-shrink: 0; overflow: hidden;
-      text-transform: uppercase; border: 2px solid var(--border-dim);
-    }
-
-    .msg-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .msg-content { flex: 1; min-width: 0; }
-
-    .msg-header {
-      display: flex; align-items: baseline;
-      gap: 8px; margin-bottom: 3px;
-    }
-
-    .msg-author {
-      color: var(--text-primary); font-weight: 600;
-      font-size: 15px; cursor: pointer;
-    }
-
-    .msg-author:hover { color: var(--accent); text-decoration: underline; }
-
-    .msg-time {
-      color: var(--text-muted); font-size: 11px;
-      font-weight: 400; font-family: var(--font-mono);
-    }
-
-    .msg-text {
-      color: var(--text-secondary); font-size: 14.5px;
-      line-height: 1.55; word-wrap: break-word; white-space: pre-wrap;
-    }
-
-    .no-messages {
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      height: 100%; color: var(--text-muted);
-      gap: 12px; text-align: center; padding: 40px;
-    }
-
-    .no-messages i { font-size: 48px; color: var(--border-med); }
-    .no-messages h3 { font-size: 18px; color: var(--text-secondary); font-weight: 600; }
-    .no-messages p { font-size: 14px; max-width: 300px; }
-
-    /* MESSAGE INPUT */
-    .message-input-wrapper { padding: 0 20px 20px 20px; flex-shrink: 0; }
-
-    .message-input-box {
-      background-color: var(--bg-mid);
-      border-radius: var(--radius-md);
-      display: flex; align-items: center;
-      padding: 0 16px; gap: 10px;
-      border: 1px solid var(--border-dim);
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .message-input-box:focus-within {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-glow);
-    }
-
-    .message-input-box i {
-      color: var(--text-muted); font-size: 18px;
-      cursor: pointer; transition: color 0.2s; padding: 4px;
-    }
-
-    .message-input-box i:hover { color: var(--accent); }
-
-    .message-input-box input {
-      flex: 1; background: transparent;
-      border: none; outline: none;
-      color: var(--text-primary); font-size: 15px;
-      padding: 16px 0; font-family: var(--font-sans);
-    }
-
-    .message-input-box input::placeholder { color: var(--text-muted); }
-
-    .message-input-box .send-btn {
-      background: var(--accent); border: none;
-      color: #0b0b0d; width: 34px; height: 34px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: all 0.2s; font-size: 14px;
-    }
-
-    .message-input-box .send-btn:hover {
-      background: var(--accent-dim); transform: scale(1.05);
-    }
-
-    .message-input-box .send-btn:disabled {
-      opacity: 0.3; cursor: not-allowed; transform: none;
-    }
-
-    /* PROFILE MODAL */
-    .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(10px);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 2000; padding: 20px;
-    }
-
-    .modal-card {
-      background: var(--bg-dark);
-      border: 1px solid var(--border-dim);
-      border-radius: var(--radius-lg);
-      padding: 36px; width: 100%; max-width: 480px;
-      box-shadow: var(--shadow-lg);
-      position: relative; max-height: 90vh; overflow-y: auto;
-    }
-
-    .modal-card::before {
-      content: ''; position: absolute;
-      top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, var(--accent), var(--accent-dim), transparent);
-      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    }
-
-    .modal-title {
-      font-size: 20px; font-weight: 700;
-      color: var(--text-primary); margin-bottom: 24px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-
-    .modal-title button {
-      background: transparent; border: none;
-      color: var(--text-muted); font-size: 20px;
-      cursor: pointer; padding: 4px;
-      border-radius: var(--radius-sm); transition: all 0.2s;
-    }
-
-    .modal-title button:hover { background: var(--bg-light); color: var(--accent); }
-
-    .profile-preview {
-      display: flex; flex-direction: column;
-      align-items: center; gap: 16px; margin-bottom: 28px;
-    }
-
-    .profile-avatar-large {
-      width: 96px; height: 96px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent-dim));
-      display: flex; align-items: center; justify-content: center;
-      color: #0b0b0d; font-weight: 700; font-size: 36px;
-      overflow: hidden; border: 3px solid var(--border-med);
-      text-transform: uppercase;
-    }
-
-    .profile-avatar-large img { width: 100%; height: 100%; object-fit: cover; }
-
-    .avatar-options {
-      display: flex; gap: 8px;
-      flex-wrap: wrap; justify-content: center;
-    }
-
-    .avatar-color-option {
-      width: 32px; height: 32px; border-radius: 50%;
-      cursor: pointer; border: 2px solid transparent;
-      transition: all 0.2s;
-    }
-
-    .avatar-color-option:hover { transform: scale(1.15); }
-
-    .avatar-color-option.selected {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-glow);
-    }
-
-    .modal-field { margin-bottom: 18px; }
-
-    .modal-field label {
-      display: block; font-size: 12px; font-weight: 600;
-      color: var(--text-secondary); margin-bottom: 6px;
-      text-transform: uppercase; letter-spacing: 0.5px;
-    }
-
-    .modal-field input {
-      width: 100%; background: var(--bg-mid);
-      border: 1px solid var(--border-dim);
-      border-radius: var(--radius-sm);
-      padding: 12px 14px; color: var(--text-primary);
-      font-size: 15px; font-family: var(--font-sans);
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .modal-field input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-glow);
-    }
-
-    .modal-actions { display: flex; gap: 10px; margin-top: 28px; }
-
-    .modal-actions button {
-      flex: 1; padding: 13px;
-      border-radius: var(--radius-sm);
-      font-size: 14px; font-weight: 700;
-      cursor: pointer; font-family: var(--font-sans);
-      transition: all 0.2s; border: none;
-    }
-
-    .btn-primary { background: var(--accent); color: #0b0b0d; }
-    .btn-primary:hover { background: var(--accent-dim); }
-
-    .btn-secondary {
-      background: var(--bg-light); color: var(--text-secondary);
-      border: 1px solid var(--border-dim);
-    }
-
-    .btn-secondary:hover { background: var(--bg-lighter); color: var(--text-primary); }
-
-    /* TOAST */
-    .toast {
-      position: fixed; bottom: 24px; right: 24px;
-      background: var(--bg-light);
-      border: 1px solid var(--border-med);
-      border-left: 3px solid var(--accent);
-      border-radius: var(--radius-sm);
-      padding: 14px 20px; color: var(--text-primary);
-      font-size: 14px; box-shadow: var(--shadow-md);
-      z-index: 3000; display: flex; align-items: center; gap: 10px;
-      animation: slideIn 0.3s ease; max-width: 360px;
-    }
-
-    .toast.success { border-left-color: var(--success); }
-    .toast.error { border-left-color: var(--danger); }
-
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-
-    .loading-spinner {
-      display: inline-block; width: 16px; height: 16px;
-      border: 2px solid rgba(11, 11, 13, 0.3);
-      border-radius: 50%; border-top-color: #0b0b0d;
-      animation: spin 0.6s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    @media (max-width: 900px) {
-      .sphynx-app { height: 100vh; max-height: 100vh; border-radius: 0; max-width: 100vw; }
-      .server-sidebar { width: 60px; }
-      .server-icon { width: 40px; height: 40px; font-size: 15px; }
-      .channel-sidebar { width: 200px; }
-      .chat-header .topic { display: none; }
-    }
-
-    @media (max-width: 640px) {
-      .channel-sidebar { display: none; }
-      .server-sidebar { width: 54px; }
-      .server-icon { width: 36px; height: 36px; font-size: 13px; }
-      .auth-card { padding: 32px 24px; }
-      .modal-card { padding: 28px 20px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FS • dark obsidian</title>
+    <!-- Font Awesome for icons (free version) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Font for clean typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #0a0c0f;
+            color: #e6edf5;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            /* subtle dark noise texture via gradient */
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(20, 40, 80, 0.15) 0%, transparent 30%),
+                radial-gradient(circle at 90% 70%, rgba(10, 40, 90, 0.2) 0%, transparent 40%),
+                linear-gradient(145deg, #07090c 0%, #0a0e14 100%);
+        }
+
+        /* main app container — obsidian black with deep blue accents */
+        .app {
+            width: 1600px;
+            max-width: 98vw;
+            height: 900px;
+            max-height: 96vh;
+            display: flex;
+            background: #0b0e13;
+            border-radius: 28px;
+            box-shadow: 
+                0 25px 50px -8px rgba(0, 0, 0, 0.9),
+                0 0 0 1px rgba(30, 80, 160, 0.25),
+                0 0 30px rgba(0, 80, 200, 0.15) inset,
+                0 0 0 2px rgba(10, 20, 30, 0.8) inset;
+            backdrop-filter: blur(2px);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* very subtle blue edge glow */
+        .app::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 28px;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(30, 100, 210, 0.4), rgba(10, 30, 60, 0.2), rgba(30, 100, 210, 0.2));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* ========== SERVER RAIL (leftmost) ========== */
+        .server-rail {
+            width: 78px;
+            background: #07090e;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 18px 0 14px 0;
+            gap: 8px;
+            border-right: 1px solid rgba(30, 100, 200, 0.15);
+            box-shadow: 4px 0 20px -6px rgba(0, 0, 0, 0.9);
+            position: relative;
+            z-index: 5;
+        }
+
+        .server-rail .home-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(145deg, #0d1a2b, #08111e);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #8bb9ff;
+            border: 1px solid rgba(60, 140, 240, 0.4);
+            box-shadow: 0 0 12px rgba(30, 100, 220, 0.3), 0 2px 4px rgba(0, 0, 0, 0.8);
+            transition: 0.2s;
+            margin-bottom: 6px;
+        }
+
+        .server-rail .home-icon i {
+            filter: drop-shadow(0 0 6px #2f6fd0);
+        }
+
+        .server-rail .server-sep {
+            width: 32px;
+            height: 2px;
+            background: rgba(40, 100, 200, 0.25);
+            border-radius: 2px;
+            margin: 6px 0 8px 0;
+        }
+
+        .server-item {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: #0b111b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: #b0d0ff;
+            border: 1px solid rgba(40, 100, 190, 0.3);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+            transition: 0.2s;
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .server-item::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(70, 140, 255, 0.2), transparent 70%);
+            opacity: 0.7;
+        }
+
+        .server-item:hover {
+            border-color: rgba(70, 150, 255, 0.7);
+            box-shadow: 0 0 14px rgba(30, 110, 240, 0.5), 0 2px 8px black;
+            color: #d8eaff;
+        }
+
+        .server-item.active {
+            background: linear-gradient(145deg, #0e1f38, #081627);
+            border: 1px solid #2f6fd0;
+            box-shadow: 0 0 18px #1e4d9e, 0 0 4px #2a6fd0 inset;
+            color: #c6dcff;
+        }
+
+        .server-item i {
+            font-size: 20px;
+        }
+
+        /* small blue dot for active indicator */
+        .server-item.active::before {
+            content: '';
+            position: absolute;
+            left: -2px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 24px;
+            background: #3f8eff;
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 10px #2a6fd0;
+        }
+
+        /* ========== CHANNEL SIDEBAR (left) ========== */
+        .channel-sidebar {
+            width: 280px;
+            background: #080c12;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(30, 80, 160, 0.25);
+            box-shadow: 6px 0 20px -10px black;
+            position: relative;
+            z-index: 4;
+        }
+
+        .server-header {
+            padding: 20px 18px 14px 18px;
+            border-bottom: 1px solid rgba(30, 80, 160, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .server-header h2 {
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #e3efff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-shadow: 0 0 8px rgba(40, 120, 240, 0.5);
+        }
+
+        .server-header h2 i {
+            font-size: 18px;
+            color: #5f9eff;
+        }
+
+        .server-header .server-badge {
+            background: #0b1a2e;
+            border: 1px solid #1f4d8c;
+            border-radius: 40px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            color: #9bc2ff;
+            letter-spacing: 0.3px;
+            box-shadow: 0 0 10px rgba(30, 100, 220, 0.3);
+        }
+
+        .channel-list {
+            flex: 1;
+            padding: 18px 12px 12px 12px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .channel-category {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .category-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 8px 6px 8px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #6b8db0;
+            text-shadow: 0 0 6px rgba(30, 100, 200, 0.3);
+        }
+
+        .category-title i {
+            font-size: 12px;
+            color: #3e6a9e;
+        }
+
+        .channel-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #b0c8e0;
+            transition: 0.15s;
+            cursor: default;
+            border: 1px solid transparent;
+        }
+
+        .channel-item i {
+            font-size: 14px;
+            color: #4f7aa8;
+            width: 18px;
+            text-align: center;
+        }
+
+        .channel-item.active {
+            background: linear-gradient(90deg, #0d1e33, #0a1524);
+            border: 1px solid #1b4d7a;
+            color: #d4e8ff;
+            box-shadow: 0 0 16px rgba(20, 80, 180, 0.3), 0 0 0 1px rgba(60, 140, 240, 0.2) inset;
+        }
+
+        .channel-item.active i {
+            color: #7bb2ff;
+            filter: drop-shadow(0 0 6px #2f6fd0);
+        }
+
+        .channel-item:not(.active):hover {
+            background: #0b141f;
+            color: #c2d9f0;
+            border-color: rgba(40, 100, 190, 0.3);
+        }
+
+        /* voice channel mini panel */
+        .voice-panel {
+            margin: 8px 12px 14px 12px;
+            padding: 10px 14px;
+            background: #09101a;
+            border-radius: 18px;
+            border: 1px solid #1a3552;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.6), 0 0 12px rgba(20, 70, 150, 0.2) inset;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #b4d2ff;
+            font-size: 13px;
+        }
+
+        .voice-panel i {
+            color: #3e8eff;
+            font-size: 16px;
+            filter: drop-shadow(0 0 8px #1e5fbf);
+        }
+
+        /* ========== MAIN CHAT AREA ========== */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #0b1018;
+            background-image: 
+                radial-gradient(circle at 70% 10%, rgba(20, 70, 150, 0.08) 0%, transparent 50%),
+                linear-gradient(180deg, #0c111a 0%, #080d14 100%);
+            position: relative;
+        }
+
+        .chat-header {
+            padding: 16px 28px;
+            background: rgba(6, 10, 16, 0.75);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(30, 80, 160, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
+            z-index: 3;
+        }
+
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-header-left i {
+            font-size: 22px;
+            color: #3b7ed0;
+            filter: drop-shadow(0 0 8px #1e4d9e);
+        }
+
+        .chat-header-left h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #d6e6ff;
+            letter-spacing: 0.2px;
+        }
+
+        .chat-header-left .channel-tag {
+            background: #0b1c30;
+            border-radius: 30px;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #9ac2ff;
+            border: 1px solid #235a9e;
+            margin-left: 8px;
+            box-shadow: 0 0 14px rgba(30, 100, 220, 0.25);
+        }
+
+        .chat-header-right {
+            display: flex;
+            gap: 20px;
+            color: #6c8fb0;
+            font-size: 18px;
+        }
+
+        .chat-header-right i {
+            transition: 0.15s;
+            cursor: default;
+        }
+
+        .chat-header-right i:hover {
+            color: #8ab6ff;
+            filter: drop-shadow(0 0 10px #2a6fd0);
+        }
+
+        /* messages container */
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 28px 16px 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            scrollbar-width: thin;
+            scrollbar-color: #1d3d60 #0a0f16;
+        }
+
+        .messages-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .messages-container::-webkit-scrollbar-track {
+            background: #0a0f16;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb {
+            background: #1e3f60;
+            border-radius: 10px;
+            border: 1px solid #0e1e30;
+        }
+
+        .message {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: linear-gradient(145deg, #13273f, #0a1522);
+            border: 1px solid #2f5580;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: #b8d4ff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7), 0 0 10px rgba(30, 80, 180, 0.3);
+            flex-shrink: 0;
+            text-shadow: 0 0 10px #2a6fd0;
+        }
+
+        .message-content {
+            flex: 1;
+        }
+
+        .message-header {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .message-author {
+            font-weight: 700;
+            font-size: 15px;
+            color: #c6ddff;
+            letter-spacing: 0.2px;
+            text-shadow: 0 0 8px rgba(40, 120, 240, 0.5);
+        }
+
+        .message-time {
+            font-size: 12px;
+            font-weight: 500;
+            color: #5d7d9c;
+            letter-spacing: 0.2px;
+        }
+
+        .message-text {
+            font-size: 14.5px;
+            line-height: 1.5;
+            color: #c2d2e6;
+            background: rgba(12, 22, 34, 0.5);
+            padding: 10px 16px;
+            border-radius: 4px 18px 18px 18px;
+            border-left: 3px solid #1e5a9e;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(30, 80, 160, 0.1) inset;
+            backdrop-filter: blur(4px);
+            word-break: break-word;
+        }
+
+        .message-text .mention {
+            color: #73b0ff;
+            background: rgba(30, 80, 200, 0.2);
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-weight: 600;
+            border: 1px solid #2a5fa0;
+        }
+
+        /* embed / attachment style */
+        .embed {
+            margin-top: 8px;
+            background: #0a1420;
+            border-left: 5px solid #1f5faf;
+            border-radius: 8px;
+            padding: 14px 18px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(40, 100, 200, 0.15) inset;
+        }
+
+        .embed-title {
+            font-weight: 700;
+            color: #a8c8ff;
+            font-size: 14px;
+            letter-spacing: 0.2px;
+            margin-bottom: 6px;
+        }
+
+        .embed-description {
+            font-size: 13px;
+            color: #99b3d1;
+            line-height: 1.5;
+        }
+
+        /* message input area */
+        .message-input-area {
+            padding: 16px 28px 22px 28px;
+            background: rgba(6, 10, 16, 0.7);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(30, 80, 160, 0.3);
+            box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.5);
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            background: #0b111c;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            padding: 6px 8px 6px 22px;
+            border: 1px solid #1d3f62;
+            box-shadow: 0 0 0 1px rgba(20, 70, 150, 0.2) inset, 0 6px 14px rgba(0, 0, 0, 0.6);
+        }
+
+        .input-wrapper i {
+            color: #3e6a9e;
+            font-size: 18px;
+            margin-right: 14px;
+            transition: 0.15s;
+        }
+
+        .input-wrapper input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #d0e2ff;
+            font-size: 15px;
+            font-weight: 400;
+            padding: 12px 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .input-wrapper input::placeholder {
+            color: #4f6e8c;
+            font-weight: 400;
+            letter-spacing: 0.2px;
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 16px;
+            padding-right: 12px;
+        }
+
+        .input-actions i {
+            color: #4c7196;
+            font-size: 18px;
+            transition: 0.15s;
+            cursor: default;
+        }
+
+        .input-actions i:hover {
+            color: #7db2ff;
+            filter: drop-shadow(0 0 8px #2f6fd0);
+        }
+
+        .send-button {
+            background: linear-gradient(145deg, #12305a, #0a1e38);
+            border: 1px solid #2a6fd0;
+            border-radius: 24px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #b0d0ff;
+            font-size: 20px;
+            box-shadow: 0 0 18px rgba(30, 100, 240, 0.3), 0 4px 10px black;
+            transition: 0.15s;
+            cursor: default;
+        }
+
+        .send-button:hover {
+            background: linear-gradient(145deg, #1a4080, #0e2850);
+            border-color: #4f8eff;
+            color: white;
+            box-shadow: 0 0 24px #1e5fbf, 0 4px 12px black;
+        }
+
+        /* ========== MEMBER LIST (right) ========== */
+        .member-sidebar {
+            width: 260px;
+            background: #080c12;
+            border-left: 1px solid rgba(30, 80, 160, 0.25);
+            display: flex;
+            flex-direction: column;
+            box-shadow: -6px 0 20px -10px black;
+            position: relative;
+            z-index: 4;
+        }
+
+        .member-header {
+            padding: 22px 18px 14px 18px;
+            border-bottom: 1px solid rgba(30, 80, 160, 0.25);
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6b8db0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-shadow: 0 0 8px rgba(40, 120, 240, 0.3);
+        }
+
+        .member-header i {
+            color: #3f7ac0;
+            font-size: 14px;
+        }
+
+        .member-list {
+            flex: 1;
+            padding: 16px 12px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .member-category {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #4a6e92;
+            padding: 8px 12px 6px 12px;
+            margin-top: 6px;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            transition: 0.15s;
+            cursor: default;
+            border: 1px solid transparent;
+        }
+
+        .member-item:hover {
+            background: #0b141f;
+            border-color: rgba(40, 100, 190, 0.3);
+        }
+
+        .member-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: #0e1a2b;
+            border: 1px solid #2c5580;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: #9ac2ff;
+            box-shadow: 0 2px 6px black;
+        }
+
+        .member-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .member-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #c2d6f0;
+        }
+
+        .member-status {
+            font-size: 11px;
+            color: #5f80a0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #2a8c4a;
+            box-shadow: 0 0 10px #1e9e4a;
+        }
+
+        .status-dot.idle {
+            background: #b68b2a;
+            box-shadow: 0 0 10px #b68b2a;
+        }
+
+        .status-dot.dnd {
+            background: #b33a3a;
+            box-shadow: 0 0 10px #c04040;
+        }
+
+        .status-dot.offline {
+            background: #4f5c6b;
+            box-shadow: none;
+        }
+
+        /* bottom user panel */
+        .user-panel {
+            padding: 14px 16px;
+            background: #070b10;
+            border-top: 1px solid rgba(30, 80, 160, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 -6px 14px rgba(0, 0, 0, 0.6);
+        }
+
+        .user-panel .avatar-small {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: #112236;
+            border: 1px solid #2d5a8a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #b8d4ff;
+            box-shadow: 0 0 12px rgba(20, 80, 180, 0.4);
+        }
+
+        .user-panel .user-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-panel .user-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #c6ddff;
+        }
+
+        .user-panel .user-tag {
+            font-size: 11px;
+            color: #5a7c9c;
+            letter-spacing: 0.3px;
+        }
+
+        .user-panel .panel-icons {
+            display: flex;
+            gap: 14px;
+            color: #4a7196;
+            font-size: 16px;
+        }
+
+        .user-panel .panel-icons i:hover {
+            color: #7db2ff;
+            filter: drop-shadow(0 0 8px #2f6fd0);
+        }
+
+        /* small decorative glow */
+        .glow-text {
+            text-shadow: 0 0 8px rgba(40, 120, 240, 0.6);
+        }
+
+        /* some deep blue accent lines */
+        .accent-line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #1e4d8a, #2f6fd0, #1e4d8a, transparent);
+            margin: 8px 0;
+            opacity: 0.4;
+        }
+
+    </style>
 </head>
 <body>
-
-  <!-- AUTH MODAL -->
-  <div class="auth-overlay" id="authOverlay">
-    <div class="auth-card">
-      <div class="auth-logo">SPHYNX<span>.</span></div>
-      <div class="auth-sub">// encrypted chat · v1.0</div>
-
-      <div class="auth-tabs">
-        <button class="auth-tab active" id="tabSignIn" onclick="switchAuthTab('signin')">Sign In</button>
-        <button class="auth-tab" id="tabSignUp" onclick="switchAuthTab('signup')">Create Account</button>
-      </div>
-
-      <div class="auth-error" id="authError"></div>
-      <div class="auth-message" id="authMessage"></div>
-
-      <form id="signInForm" onsubmit="handleSignIn(event)">
-        <div class="auth-field">
-          <label>Email</label>
-          <input type="email" id="signInEmail" placeholder="you@example.com" required autocomplete="email">
-        </div>
-        <div class="auth-field">
-          <label>Password</label>
-          <input type="password" id="signInPassword" placeholder="••••••••" required autocomplete="current-password">
-        </div>
-        <button type="submit" class="auth-btn" id="signInBtn">Sign In</button>
-      </form>
-
-      <form id="signUpForm" style="display:none;" onsubmit="handleSignUp(event)">
-        <div class="auth-field">
-          <label>Username</label>
-          <input type="text" id="signUpUsername" placeholder="sphynx_user" required minlength="3" maxlength="20" autocomplete="username">
-        </div>
-        <div class="auth-field">
-          <label>Email</label>
-          <input type="email" id="signUpEmail" placeholder="you@example.com" required autocomplete="email">
-        </div>
-        <div class="auth-field">
-          <label>Password</label>
-          <input type="password" id="signUpPassword" placeholder="min. 6 characters" required minlength="6" autocomplete="new-password">
-        </div>
-        <button type="submit" class="auth-btn" id="signUpBtn">Create Account</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- MAIN APP -->
-  <div class="sphynx-app" id="app">
-    <div class="server-sidebar">
-      <div class="server-icon active" title="SPHYNX home">S</div>
-      <div class="server-icon" title="Server 1">🐍</div>
-      <div class="server-icon" title="Server 2">⚡</div>
-      <div class="server-icon spacer" title="Add a server">+</div>
-      <div class="server-icon spacer" title="Explore">⌖</div>
-    </div>
-
-    <div class="channel-sidebar">
-      <div class="server-header">
-        <div class="name">SPHYNX <i class="fas fa-chevron-down"></i></div>
-        <span class="sphynx-badge">v1.0</span>
-      </div>
-      <div class="channel-list">
-        <div class="channel-category">Text Channels</div>
-        <div class="channel active" data-channel="general" onclick="selectChannel('general', this)">
-          <i class="fas fa-hashtag"></i> general
-        </div>
-        <div class="channel" data-channel="introductions" onclick="selectChannel('introductions', this)">
-          <i class="fas fa-hashtag"></i> introductions
-        </div>
-        <div class="channel" data-channel="off-topic" onclick="selectChannel('off-topic', this)">
-          <i class="fas fa-hashtag"></i> off-topic
-        </div>
-        <div class="channel-category">Voice Channels</div>
-        <div class="channel" data-channel="lounge" onclick="selectChannel('lounge', this)">
-          <i class="fas fa-volume-up"></i> Lounge
-        </div>
-        <div class="channel" data-channel="gaming" onclick="selectChannel('gaming', this)">
-          <i class="fas fa-volume-up"></i> Gaming
-        </div>
-        <div class="channel-category">Info</div>
-        <div class="channel" data-channel="rules" onclick="selectChannel('rules', this)">
-          <i class="fas fa-book"></i> rules
-        </div>
-        <div class="channel" data-channel="announcements" onclick="selectChannel('announcements', this)">
-          <i class="fas fa-bullhorn"></i> announcements
-        </div>
-      </div>
-      <div class="user-area">
-        <div class="user-avatar" id="userAvatarMini" onclick="openProfileModal()">
-          <span id="userInitialMini">?</span>
-        </div>
-        <div class="user-info">
-          <div class="user-name" id="userNameMini">Loading...</div>
-          <div class="user-tag" id="userTagMini">#0000</div>
-        </div>
-        <div class="user-actions">
-          <button title="Mute" onclick="showToast('Mute feature coming soon', 'info')"><i class="fas fa-microphone"></i></button>
-          <button title="Deafen" onclick="showToast('Deafen feature coming soon', 'info')"><i class="fas fa-headphones"></i></button>
-          <button title="Settings" onclick="openProfileModal()"><i class="fas fa-cog"></i></button>
-          <button title="Sign Out" onclick="handleSignOut()"><i class="fas fa-sign-out-alt"></i></button>
-        </div>
-      </div>
-    </div>
-
-    <div class="chat-area">
-      <div class="chat-header">
-        <i class="fas fa-hashtag"></i>
-        <span id="channelName">general</span>
-        <span class="topic" id="channelTopic">Welcome to SPHYNX · be kind</span>
-        <div class="header-actions">
-          <button title="Members" onclick="showToast('Member list coming soon', 'info')"><i class="fas fa-users"></i></button>
-          <button title="Search" onclick="showToast('Search coming soon', 'info')"><i class="fas fa-search"></i></button>
-          <button title="Pin" onclick="showToast('Pinned messages coming soon', 'info')"><i class="fas fa-thumbtack"></i></button>
-        </div>
-      </div>
-      <div class="messages-container" id="messagesContainer"></div>
-      <div class="message-input-wrapper">
-        <div class="message-input-box">
-          <i class="fas fa-plus-circle" title="Attach" onclick="showToast('Attachments coming soon', 'info')"></i>
-          <input type="text" placeholder="Message #general" id="messageInput" onkeydown="handleMessageKeydown(event)">
-          <i class="fas fa-smile" title="Emoji" onclick="showToast('Emoji picker coming soon', 'info')"></i>
-          <i class="fas fa-gift" title="Gift" onclick="showToast('Gifting coming soon', 'info')"></i>
-          <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
-            <i class="fas fa-paper-plane"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PROFILE MODAL -->
-  <div class="modal-overlay" id="profileModal" style="display:none;">
-    <div class="modal-card">
-      <div class="modal-title">
-        <span>Edit Profile</span>
-        <button onclick="closeProfileModal()"><i class="fas fa-times"></i></button>
-      </div>
-
-      <div class="profile-preview">
-        <div class="profile-avatar-large" id="profileAvatarLarge">
-          <span id="profileInitialLarge">?</span>
-        </div>
-        <div class="avatar-options" id="avatarColorOptions"></div>
-      </div>
-
-      <div class="modal-field">
-        <label>Username</label>
-        <input type="text" id="profileUsername" placeholder="your_username" maxlength="20">
-      </div>
-
-      <div class="modal-field">
-        <label>Avatar Image URL (optional)</label>
-        <input type="url" id="profileAvatarUrl" placeholder="https://example.com/avatar.png">
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn-secondary" onclick="closeProfileModal()">Cancel</button>
-        <button class="btn-primary" id="saveProfileBtn" onclick="saveProfile()">Save Changes</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // ============================================================
-    // SUPABASE CONFIGURATION — YOUR CREDENTIALS
-    // ============================================================
-    const SUPABASE_URL = 'https://ogwfnuqexjyveolpgdrnt.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_vax-uQJUHoUvXQffY6gcUQ_Ziu9WyuE';
-
-    const { createClient } = supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // ============================================================
-    // GLOBAL STATE
-    // ============================================================
-    let currentUser = null;
-    let currentProfile = null;
-    let currentChannel = 'general';
-    let messagesSubscription = null;
-    let selectedAvatarColor = '#f5c542';
-
-    const avatarColors = [
-      '#f5c542', '#e74c4c', '#2ecc71', '#3498db', '#9b59b6',
-      '#e67e22', '#1abc9c', '#e84393', '#fdcb6e', '#6c5ce7'
-    ];
-
-    // ============================================================
-    // UTILITIES
-    // ============================================================
-    function showToast(message, type = 'info') {
-      const existing = document.querySelector('.toast');
-      if (existing) existing.remove();
-
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      const icons = {
-        success: 'fa-check-circle',
-        error: 'fa-exclamation-circle',
-        info: 'fa-info-circle'
-      };
-      toast.innerHTML = `<i class="fas ${icons[type] || icons.info}" style="color: var(--accent);"></i> ${message}`;
-      document.body.appendChild(toast);
-      setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transition = 'opacity 0.3s';
-        setTimeout(() => toast.remove(), 300);
-      }, 3000);
-    }
-
-    function getInitial(name) {
-      if (!name) return '?';
-      return name.charAt(0).toUpperCase();
-    }
-
-    function formatTime(timestamp) {
-      const date = new Date(timestamp);
-      const now = new Date();
-      const diff = now - date;
-      const mins = Math.floor(diff / 60000);
-      if (mins < 1) return 'Just now';
-      if (mins < 60) return `${mins}m ago`;
-      const hours = Math.floor(mins / 60);
-      if (hours < 24) return `${hours}h ago`;
-      return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-    }
-
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    function adjustColor(hex, amount) {
-      const num = parseInt(hex.replace('#', ''), 16);
-      const r = Math.max(0, Math.min(255, (num >> 16) + amount));
-      const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) + amount));
-      const b = Math.max(0, Math.min(255, (num & 0x0000FF) + amount));
-      return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
-    }
-
-    // ============================================================
-    // AUTHENTICATION
-    // ============================================================
-    function switchAuthTab(tab) {
-      const signInForm = document.getElementById('signInForm');
-      const signUpForm = document.getElementById('signUpForm');
-      const tabSignIn = document.getElementById('tabSignIn');
-      const tabSignUp = document.getElementById('tabSignUp');
-      document.getElementById('authError').style.display = 'none';
-      document.getElementById('authMessage').style.display = 'none';
-
-      if (tab === 'signin') {
-        signInForm.style.display = 'block';
-        signUpForm.style.display = 'none';
-        tabSignIn.classList.add('active');
-        tabSignUp.classList.remove('active');
-      } else {
-        signInForm.style.display = 'none';
-        signUpForm.style.display = 'block';
-        tabSignIn.classList.remove('active');
-        tabSignUp.classList.add('active');
-      }
-    }
-
-    function showAuthError(msg) {
-      const el = document.getElementById('authError');
-      el.textContent = msg;
-      el.style.display = 'block';
-      setTimeout(() => { el.style.display = 'none'; }, 5000);
-    }
-
-    function showAuthMessage(msg) {
-      const el = document.getElementById('authMessage');
-      el.textContent = msg;
-      el.style.display = 'block';
-      setTimeout(() => { el.style.display = 'none'; }, 5000);
-    }
-
-    async function handleSignUp(event) {
-      event.preventDefault();
-      const btn = document.getElementById('signUpBtn');
-      const username = document.getElementById('signUpUsername').value.trim();
-      const email = document.getElementById('signUpEmail').value.trim();
-      const password = document.getElementById('signUpPassword').value;
-
-      if (username.length < 3) {
-        showAuthError('Username must be at least 3 characters');
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerHTML = '<span class="loading-spinner"></span> Creating...';
-
-      try {
-        const { data, error } = await supabaseClient.auth.signUp({
-          email, password,
-          options: { data: { username } }
-        });
-        if (error) throw error;
-
-        if (data.user && !data.session) {
-          showAuthMessage('Check your email to confirm your account!');
-          switchAuthTab('signin');
-        } else if (data.session) {
-          showToast('Account created! Welcome to SPHYNX', 'success');
-        }
-      } catch (err) {
-        showAuthError(err.message || 'Sign up failed. Please try again.');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Create Account';
-      }
-    }
-
-    async function handleSignIn(event) {
-      event.preventDefault();
-      const btn = document.getElementById('signInBtn');
-      const email = document.getElementById('signInEmail').value.trim();
-      const password = document.getElementById('signInPassword').value;
-
-      btn.disabled = true;
-      btn.innerHTML = '<span class="loading-spinner"></span> Signing in...';
-
-      try {
-        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        showToast('Welcome back!', 'success');
-      } catch (err) {
-        showAuthError(err.message || 'Invalid credentials');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Sign In';
-      }
-    }
-
-    async function handleSignOut() {
-      if (messagesSubscription) {
-        messagesSubscription.unsubscribe();
-        messagesSubscription = null;
-      }
-      await supabaseClient.auth.signOut();
-      currentUser = null;
-      currentProfile = null;
-      document.getElementById('app').classList.remove('visible');
-      document.getElementById('authOverlay').style.display = 'flex';
-      showToast('Signed out', 'info');
-    }
-
-    // ============================================================
-    // PROFILE
-    // ============================================================
-    async function loadProfile(userId) {
-      const { data, error } = await supabaseClient
-        .from('profiles').select('*').eq('id', userId).single();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error loading profile:', error);
-        return null;
-      }
-
-      if (!data) {
-        const username = currentUser.user_metadata?.username || 'user_' + userId.slice(0, 6);
-        const { data: newProfile, error: createError } = await supabaseClient
-          .from('profiles')
-          .insert({ id: userId, username, avatar_color: '#f5c542' })
-          .select().single();
-        if (createError) {
-          console.error('Error creating profile:', createError);
-          return null;
-        }
-        return newProfile;
-      }
-      return data;
-    }
-
-    function updateUserUI() {
-      if (!currentProfile) return;
-      const initial = getInitial(currentProfile.username);
-      const name = currentProfile.username || 'User';
-      const tag = '#' + (currentUser.id.slice(0, 4).toUpperCase());
-
-      document.getElementById('userNameMini').textContent = name;
-      document.getElementById('userTagMini').textContent = tag;
-
-      const miniAvatar = document.getElementById('userAvatarMini');
-      if (currentProfile.avatar_url) {
-        miniAvatar.innerHTML = `<img src="${escapeHtml(currentProfile.avatar_url)}" alt="" onerror="this.remove(); document.getElementById('userInitialMini').style.display='';">`;
-        if (document.getElementById('userInitialMini')) document.getElementById('userInitialMini').style.display = 'none';
-      } else {
-        miniAvatar.innerHTML = `<span id="userInitialMini">${initial}</span>`;
-        miniAvatar.style.background = `linear-gradient(135deg, ${currentProfile.avatar_color || '#f5c542'}, ${adjustColor(currentProfile.avatar_color || '#f5c542', -30)})`;
-      }
-    }
-
-    function openProfileModal() {
-      if (!currentProfile) return;
-      document.getElementById('profileModal').style.display = 'flex';
-      document.getElementById('profileUsername').value = currentProfile.username || '';
-      document.getElementById('profileAvatarUrl').value = currentProfile.avatar_url || '';
-      selectedAvatarColor = currentProfile.avatar_color || '#f5c542';
-      updateProfilePreview();
-      renderAvatarColors();
-    }
-
-    function closeProfileModal() {
-      document.getElementById('profileModal').style.display = 'none';
-    }
-
-    function updateProfilePreview() {
-      const username = document.getElementById('profileUsername').value || currentProfile.username;
-      const initial = getInitial(username);
-      const url = document.getElementById('profileAvatarUrl').value.trim();
-      const largeAvatar = document.getElementById('profileAvatarLarge');
-
-      if (url) {
-        largeAvatar.innerHTML = `<img src="${escapeHtml(url)}" alt="" onerror="this.remove(); this.parentElement.innerHTML='<span id=\\'profileInitialLarge\\'>${initial}</span>';">`;
-      } else {
-        largeAvatar.innerHTML = `<span id="profileInitialLarge">${initial}</span>`;
-        largeAvatar.style.background = `linear-gradient(135deg, ${selectedAvatarColor}, ${adjustColor(selectedAvatarColor, -30)})`;
-      }
-    }
-
-    function renderAvatarColors() {
-      const container = document.getElementById('avatarColorOptions');
-      container.innerHTML = '';
-      avatarColors.forEach(color => {
-        const div = document.createElement('div');
-        div.className = 'avatar-color-option' + (color === selectedAvatarColor ? ' selected' : '');
-        div.style.background = color;
-        div.onclick = () => {
-          selectedAvatarColor = color;
-          renderAvatarColors();
-          document.getElementById('profileAvatarUrl').value = '';
-          updateProfilePreview();
-        };
-        container.appendChild(div);
-      });
-    }
-
-    async function saveProfile() {
-      const btn = document.getElementById('saveProfileBtn');
-      btn.disabled = true;
-      btn.innerHTML = '<span class="loading-spinner"></span> Saving...';
-
-      try {
-        const username = document.getElementById('profileUsername').value.trim();
-        const avatarUrl = document.getElementById('profileAvatarUrl').value.trim();
-
-        if (username.length < 3) {
-          showToast('Username must be at least 3 characters', 'error');
-          return;
-        }
-
-        const updates = {
-          username,
-          avatar_url: avatarUrl || null,
-          avatar_color: selectedAvatarColor,
-          updated_at: new Date().toISOString()
-        };
-
-        const { error } = await supabaseClient.from('profiles').update(updates).eq('id', currentUser.id);
-        if (error) throw error;
-
-        currentProfile = { ...currentProfile, ...updates };
-        updateUserUI();
-        closeProfileModal();
-        showToast('Profile updated successfully', 'success');
-      } catch (err) {
-        showToast(err.message || 'Failed to save profile', 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Save Changes';
-      }
-    }
-
-    // ============================================================
-    // CHANNELS & MESSAGES
-    // ============================================================
-    function selectChannel(channelName, el) {
-      document.querySelectorAll('.channel').forEach(c => c.classList.remove('active'));
-      if (el) el.classList.add('active');
-      currentChannel = channelName;
-      document.getElementById('channelName').textContent = channelName;
-      document.getElementById('messageInput').placeholder = `Message #${channelName}`;
-
-      const topics = {
-        general: 'Welcome to SPHYNX · be kind',
-        introductions: 'Introduce yourself to the community',
-        'off-topic': 'Anything goes here',
-        lounge: 'Voice channel · hang out',
-        gaming: 'Voice channel · game on',
-        rules: 'Please read our community guidelines',
-        announcements: 'Important updates from the team'
-      };
-      document.getElementById('channelTopic').textContent = topics[channelName] || '';
-
-      // Re-subscribe to the new channel
-      subscribeToMessages();
-      loadMessages();
-    }
-
-    async function loadMessages() {
-      const container = document.getElementById('messagesContainer');
-      container.innerHTML = '<div class="no-messages"><i class="fas fa-spinner fa-spin"></i><p>Loading messages...</p></div>';
-
-      try {
-        const { data, error } = await supabaseClient
-          .from('messages')
-          .select('id, content, created_at, user_id, profiles:user_id (username, avatar_url, avatar_color)')
-          .eq('channel', currentChannel)
-          .order('created_at', { ascending: true })
-          .limit(100);
-
-        if (error) throw error;
-
-        if (!data || data.length === 0) {
-          container.innerHTML = `
-            <div class="no-messages">
-              <i class="fas fa-comment-dots"></i>
-              <h3>No messages yet</h3>
-              <p>Be the first to say something in #${escapeHtml(currentChannel)}!</p>
+    <div class="app">
+        <!-- ========== SERVER RAIL ========== -->
+        <nav class="server-rail">
+            <div class="home-icon">
+                <i class="fas fa-home"></i>
             </div>
-          `;
-          return;
-        }
+            <div class="server-sep"></div>
+            
+            <div class="server-item active">
+                <i class="fas fa-dragon"></i>
+            </div>
+            <div class="server-item">
+                <i class="fas fa-code"></i>
+            </div>
+            <div class="server-item">
+                <i class="fas fa-crown"></i>
+            </div>
+            <div class="server-item">
+                <i class="fas fa-gamepad"></i>
+            </div>
+            <div class="server-item">
+                <i class="fas fa-music"></i>
+            </div>
+            <div class="server-item">
+                <i class="fas fa-book"></i>
+            </div>
+            <div class="server-sep"></div>
+            <div class="server-item">
+                <i class="fas fa-plus"></i>
+            </div>
+        </nav>
 
-        container.innerHTML = '';
-        data.forEach(msg => renderMessage(msg, container));
-        container.scrollTop = container.scrollHeight;
-      } catch (err) {
-        console.error('Error loading messages:', err);
-        container.innerHTML = `
-          <div class="no-messages">
-            <i class="fas fa-exclamation-triangle"></i>
-            <h3>Failed to load messages</h3>
-            <p>${escapeHtml(err.message)}</p>
-          </div>
-        `;
-      }
-    }
+        <!-- ========== CHANNEL SIDEBAR ========== -->
+        <aside class="channel-sidebar">
+            <div class="server-header">
+                <h2><i class="fas fa-cube"></i> FS</h2>
+                <span class="server-badge">obsidian</span>
+            </div>
+            
+            <div class="channel-list">
+                <div class="channel-category">
+                    <div class="category-title">
+                        <span>information</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="channel-item">
+                        <i class="fas fa-hashtag"></i> welcome
+                    </div>
+                    <div class="channel-item">
+                        <i class="fas fa-hashtag"></i> announcements
+                    </div>
+                    <div class="channel-item">
+                        <i class="fas fa-hashtag"></i> rules
+                    </div>
+                </div>
 
-    function renderMessage(msg, container) {
-      const profile = msg.profiles || {};
-      const username = profile.username || 'Unknown';
-      const initial = getInitial(username);
-      const time = formatTime(msg.created_at);
+                <div class="channel-category">
+                    <div class="category-title">
+                        <span>general</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="channel-item active">
+                        <i class="fas fa-hashtag"></i> general-chat
+                    </div>
+                    <div class="channel-item">
+                        <i class="fas fa-hashtag"></i> introductions
+                    </div>
+                    <div class="channel-item">
+                        <i class="fas fa-hashtag"></i> off-topic
+                    </div>
+                    <div class="channel-item">
+                        <i class="fas fa-hashtag"></i> media
+                    </div>
+                </div>
 
-      const messageEl = document.createElement('div');
-      messageEl.className = 'message';
-      messageEl.dataset.messageId = msg.id;
+                <div class="channel-category">
+                    <div class="category-title">
+                        <span>voice</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="channel-item">
+                        <i class="fas fa-volume-up"></i> General VC
+                    </div>
+                    <div class="channel-item">
+                        <i class="fas fa-volume-up"></i> Gaming
+                    </div>
+                    <div class="channel-item">
+                        <i class="fas fa-volume-up"></i> Music
+                    </div>
+                </div>
 
-      let avatarHtml;
-      if (profile.avatar_url) {
-        avatarHtml = `<img src="${escapeHtml(profile.avatar_url)}" alt="" onerror="this.remove(); this.parentElement.innerHTML='${initial}';">`;
-      } else {
-        avatarHtml = initial;
-      }
+                <div class="accent-line"></div>
 
-      const avatarColor = profile.avatar_color || '#f5c542';
-      const avatarStyle = profile.avatar_url ? '' : `background: linear-gradient(135deg, ${avatarColor}, ${adjustColor(avatarColor, -30)});`;
+                <div class="channel-category">
+                    <div class="category-title">
+                        <span>development</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="channel-item">
+                        <i class="fas fa-hashtag"></i> fs-core
+                    </div>
+                    <div class="channel-item">
+                        <i class="fas fa-hashtag"></i> ui-ux
+                    </div>
+                    <div class="channel-item">
+                        <i class="fas fa-hashtag"></i> api
+                    </div>
+                </div>
+            </div>
 
-      messageEl.innerHTML = `
-        <div class="msg-avatar" style="${avatarStyle}">${avatarHtml}</div>
-        <div class="msg-content">
-          <div class="msg-header">
-            <span class="msg-author">${escapeHtml(username)}</span>
-            <span class="msg-time">${time}</span>
-          </div>
-          <div class="msg-text">${escapeHtml(msg.content)}</div>
-        </div>
-      `;
-      container.appendChild(messageEl);
-    }
+            <!-- voice panel bottom -->
+            <div class="voice-panel">
+                <span><i class="fas fa-headset"></i> &nbsp;Voice connected</span>
+                <i class="fas fa-signal"></i>
+            </div>
+        </aside>
 
-    function subscribeToMessages() {
-      if (messagesSubscription) messagesSubscription.unsubscribe();
+        <!-- ========== MAIN CHAT ========== -->
+        <main class="chat-area">
+            <header class="chat-header">
+                <div class="chat-header-left">
+                    <i class="fas fa-hashtag"></i>
+                    <h3>general-chat</h3>
+                    <span class="channel-tag">FS community</span>
+                </div>
+                <div class="chat-header-right">
+                    <i class="fas fa-phone-alt"></i>
+                    <i class="fas fa-video"></i>
+                    <i class="fas fa-user-plus"></i>
+                    <i class="fas fa-search"></i>
+                    <i class="fas fa-ellipsis-h"></i>
+                </div>
+            </header>
 
-      messagesSubscription = supabaseClient
-        .channel('messages-realtime')
-        .on('postgres_changes', {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `channel=eq.${currentChannel}`
-        }, async (payload) => {
-          const { data: profile } = await supabaseClient
-            .from('profiles')
-            .select('username, avatar_url, avatar_color')
-            .eq('id', payload.new.user_id)
-            .single();
+            <div class="messages-container">
+                <!-- message 1 -->
+                <div class="message">
+                    <div class="avatar">N</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-author">Nyx</span>
+                            <span class="message-time">today at 21:14</span>
+                        </div>
+                        <div class="message-text">
+                            The new <span class="mention">@FS</span> dark theme is absolutely insane. That obsidian black + deep blue combo is 🔥
+                        </div>
+                    </div>
+                </div>
 
-          const container = document.getElementById('messagesContainer');
-          const noMessages = container.querySelector('.no-messages');
-          if (noMessages) noMessages.remove();
+                <!-- message 2 -->
+                <div class="message">
+                    <div class="avatar">V</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-author">Vael</span>
+                            <span class="message-time">today at 21:16</span>
+                        </div>
+                        <div class="message-text">
+                            Right? The subtle blue glows and that deep shadow make it feel so premium. Way better than the old gray.
+                        </div>
+                    </div>
+                </div>
 
-          renderMessage({
-            id: payload.new.id,
-            content: payload.new.content,
-            created_at: payload.new.created_at,
-            user_id: payload.new.user_id,
-            profiles: profile
-          }, container);
+                <!-- message 3 with embed -->
+                <div class="message">
+                    <div class="avatar">A</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-author">Astra</span>
+                            <span class="message-time">today at 21:18</span>
+                        </div>
+                        <div class="message-text">
+                            Check out the new UI mockup I made for the FS launcher.
+                        </div>
+                        <div class="embed">
+                            <div class="embed-title">FS Launcher — Obsidian Edition</div>
+                            <div class="embed-description">
+                                Deep blue accents, custom dark scrollbars, and a glass-morphism panel.<br>
+                                <span style="color: #6f9eff;">→ preview.png</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-          container.scrollTop = container.scrollHeight;
-        })
-        .subscribe();
-    }
+                <!-- message 4 -->
+                <div class="message">
+                    <div class="avatar">R</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-author">Rook</span>
+                            <span class="message-time">today at 21:21</span>
+                        </div>
+                        <div class="message-text">
+                            The member list on the right looks super clean too. That subtle border and the status dots — *chef's kiss*
+                        </div>
+                    </div>
+                </div>
 
-    function handleMessageKeydown(event) {
-      if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault();
-        sendMessage();
-      }
-    }
+                <!-- message 5 (extra spacing) -->
+                <div style="height: 10px;"></div>
 
-    async function sendMessage() {
-      const input = document.getElementById('messageInput');
-      const content = input.value.trim();
-      if (!content || !currentUser) return;
+                <!-- message 6 -->
+                <div class="message">
+                    <div class="avatar">K</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-author">Kael</span>
+                            <span class="message-time">today at 21:25</span>
+                        </div>
+                        <div class="message-text">
+                            Can we get this rolled out to the web client soon? The blue glow on hover is addictive.
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-      input.value = '';
-      document.getElementById('sendBtn').disabled = true;
+            <!-- message input -->
+            <div class="message-input-area">
+                <div class="input-wrapper">
+                    <i class="fas fa-plus-circle"></i>
+                    <input type="text" placeholder="Message #general-chat" value="I love this design...">
+                    <div class="input-actions">
+                        <i class="fas fa-smile"></i>
+                        <i class="fas fa-paperclip"></i>
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                </div>
+                <div class="send-button">
+                    <i class="fas fa-paper-plane"></i>
+                </div>
+            </div>
+        </main>
 
-      try {
-        const { error } = await supabaseClient
-          .from('messages')
-          .insert({ channel: currentChannel, user_id: currentUser.id, content });
-        if (error) throw error;
-      } catch (err) {
-        showToast(err.message || 'Failed to send message', 'error');
-        input.value = content;
-      }
-    }
+        <!-- ========== MEMBER SIDEBAR ========== -->
+        <aside class="member-sidebar">
+            <div class="member-header">
+                <i class="fas fa-users"></i> members — 12
+            </div>
+            <div class="member-list">
+                <div class="member-category">online — 8</div>
 
-    document.getElementById('messageInput').addEventListener('input', (e) => {
-      document.getElementById('sendBtn').disabled = e.target.value.trim().length === 0;
-    });
+                <div class="member-item">
+                    <div class="member-avatar">N</div>
+                    <div class="member-info">
+                        <span class="member-name">Nyx</span>
+                        <span class="member-status"><span class="status-dot"></span> online</span>
+                    </div>
+                </div>
 
-    // ============================================================
-    // APP INITIALIZATION
-    // ============================================================
-    async function initializeApp(session) {
-      currentUser = session.user;
-      document.getElementById('authOverlay').style.display = 'none';
-      document.getElementById('app').classList.add('visible');
+                <div class="member-item">
+                    <div class="member-avatar">V</div>
+                    <div class="member-info">
+                        <span class="member-name">Vael</span>
+                        <span class="member-status"><span class="status-dot"></span> online</span>
+                    </div>
+                </div>
 
-      currentProfile = await loadProfile(currentUser.id);
-      if (!currentProfile) {
-        currentProfile = {
-          username: currentUser.user_metadata?.username || 'user_' + currentUser.id.slice(0, 6),
-          avatar_url: null,
-          avatar_color: '#f5c542'
-        };
-      }
+                <div class="member-item">
+                    <div class="member-avatar">A</div>
+                    <div class="member-info">
+                        <span class="member-name">Astra</span>
+                        <span class="member-status"><span class="status-dot"></span> online</span>
+                    </div>
+                </div>
 
-      updateUserUI();
-      subscribeToMessages();
-      await loadMessages();
-    }
+                <div class="member-item">
+                    <div class="member-avatar">R</div>
+                    <div class="member-info">
+                        <span class="member-name">Rook</span>
+                        <span class="member-status"><span class="status-dot idle"></span> idle</span>
+                    </div>
+                </div>
 
-    // ============================================================
-    // AUTH STATE LISTENER
-    // ============================================================
-    supabaseClient.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        await initializeApp(session);
-      } else if (event === 'SIGNED_OUT') {
-        currentUser = null;
-        currentProfile = null;
-        document.getElementById('app').classList.remove('visible');
-        document.getElementById('authOverlay').style.display = 'flex';
-        if (messagesSubscription) {
-          messagesSubscription.unsubscribe();
-          messagesSubscription = null;
-        }
-      }
-    });
+                <div class="member-item">
+                    <div class="member-avatar">K</div>
+                    <div class="member-info">
+                        <span class="member-name">Kael</span>
+                        <span class="member-status"><span class="status-dot"></span> online</span>
+                    </div>
+                </div>
 
-    (async () => {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session) {
-        await initializeApp(session);
-      } else {
-        document.getElementById('authOverlay').style.display = 'flex';
-      }
-    })();
+                <div class="member-item">
+                    <div class="member-avatar">S</div>
+                    <div class="member-info">
+                        <span class="member-name">Sora</span>
+                        <span class="member-status"><span class="status-dot"></span> online</span>
+                    </div>
+                </div>
 
-    document.getElementById('profileModal').addEventListener('click', (e) => {
-      if (e.target.id === 'profileModal') closeProfileModal();
-    });
+                <div class="member-item">
+                    <div class="member-avatar">L</div>
+                    <div class="member-info">
+                        <span class="member-name">Lira</span>
+                        <span class="member-status"><span class="status-dot dnd"></span> dnd</span>
+                    </div>
+                </div>
 
-    document.getElementById('profileUsername').addEventListener('input', updateProfilePreview);
-    document.getElementById('profileAvatarUrl').addEventListener('input', updateProfilePreview);
+                <div class="member-item">
+                    <div class="member-avatar">M</div>
+                    <div class="member-info">
+                        <span class="member-name">Miro</span>
+                        <span class="member-status"><span class="status-dot"></span> online</span>
+                    </div>
+                </div>
 
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeProfileModal();
-    });
-  </script>
+                <div class="member-category" style="margin-top: 12px;">offline — 4</div>
+
+                <div class="member-item">
+                    <div class="member-avatar" style="opacity: 0.6;">E</div>
+                    <div class="member-info">
+                        <span class="member-name" style="color: #7e93a8;">Echo</span>
+                        <span class="member-status"><span class="status-dot offline"></span> offline</span>
+                    </div>
+                </div>
+
+                <div class="member-item">
+                    <div class="member-avatar" style="opacity: 0.6;">Z</div>
+                    <div class="member-info">
+                        <span class="member-name" style="color: #7e93a8;">Zephyr</span>
+                        <span class="member-status"><span class="status-dot offline"></span> offline</span>
+                    </div>
+                </div>
+
+                <div class="member-item">
+                    <div class="member-avatar" style="opacity: 0.6;">I</div>
+                    <div class="member-info">
+                        <span class="member-name" style="color: #7e93a8;">Iris</span>
+                        <span class="member-status"><span class="status-dot offline"></span> offline</span>
+                    </div>
+                </div>
+
+                <div class="member-item">
+                    <div class="member-avatar" style="opacity: 0.6;">O</div>
+                    <div class="member-info">
+                        <span class="member-name" style="color: #7e93a8;">Orin</span>
+                        <span class="member-status"><span class="status-dot offline"></span> offline</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- user panel bottom -->
+            <div class="user-panel">
+                <div class="avatar-small">U</div>
+                <div class="user-details">
+                    <span class="user-name">You</span>
+                    <span class="user-tag">#0001</span>
+                </div>
+                <div class="panel-icons">
+                    <i class="fas fa-microphone"></i>
+                    <i class="fas fa-headphones"></i>
+                    <i class="fas fa-cog"></i>
+                </div>
+            </div>
+        </aside>
+    </div>
 </body>
 </html>
