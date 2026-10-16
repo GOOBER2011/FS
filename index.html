@@ -1,180 +1,1417 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" class="h-full bg-[#111214]">
 <head>
-    <meta charset="UTF-8">
-    <title>FS diagnostics</title>
-    <style>
-        body {
-            font-family: monospace;
-            background: #0a1526;
-            color: #d0e2ff;
-            padding: 30px;
-            line-height: 1.8;
-            font-size: 14px;
-        }
-        h1 { color: #4a9eff; margin-bottom: 20px; }
-        .box {
-            background: #060d1c;
-            padding: 16px 20px;
-            border-radius: 10px;
-            margin: 14px 0;
-            border-left: 4px solid #2ee5d5;
-        }
-        .box.fail { border-left-color: #ff7a7a; }
-        .box.ok   { border-left-color: #2ee5a5; }
-        .label { color: #6d8aa8; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
-        pre { white-space: pre-wrap; word-break: break-all; margin: 8px 0 0 0; }
-        .big { font-size: 18px; color: #2ee5d5; }
-        table { width: 100%; border-collapse: collapse; margin-top: 6px; }
-        td { padding: 3px 10px; border-bottom: 1px solid #14304f; }
-        td:first-child { color: #6d8aa8; width: 140px; }
-        .diff { color: #ff7a7a; font-weight: bold; }
-    </style>
-</head>
-<body>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FS - Vibrant Purple & Dark Grey Edition</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-<h1>FS — Supabase diagnostics</h1>
-
-<div class="box">
-    <div class="label">The URL I am using</div>
-    <pre id="urlRaw" class="big"></pre>
-    <table>
-        <tr><td>Length</td><td id="urlLen"></td></tr>
-        <tr><td>Expected</td><td>39</td></tr>
-        <tr><td>Chars (hex)</td><td id="urlHex" style="font-size:11px;"></td></tr>
-    </table>
-</div>
-
-<div class="box">
-    <div class="label">The KEY I am using</div>
-    <pre id="keyRaw"></pre>
-    <table>
-        <tr><td>Length</td><td id="keyLen"></td></tr>
-        <tr><td>First 20</td><td id="keyHead"></td></tr>
-    </table>
-</div>
-
-<div class="box" id="t1">
-    <div class="label">Test 1 — fetch health endpoint</div>
-    <pre id="t1out">running…</pre>
-</div>
-
-<div class="box" id="t2">
-    <div class="label">Test 2 — load supabase-js</div>
-    <pre id="t2out">running…</pre>
-</div>
-
-<div class="box" id="t3">
-    <div class="label">Test 3 — call supabase.auth.signUp</div>
-    <pre id="t3out">waiting for test 2</pre>
-</div>
-
-<script>
-    // ===== THESE ARE THE EXACT STRINGS FROM YOUR index.html =====
-    // Replace these two with the exact values you have in index.html
-    // so we test the same thing the app uses.
-    const URL = 'https://rziozrqkinxmjpqwpdi.supabase.co';
-    const KEY = 'sb_publishable_m9kwzBXxhweDmUtREyPhYQ_INo8q_';
-
-    // ===== SHOW URL =====
-    document.getElementById('urlRaw').textContent = '[' + URL + ']';
-    document.getElementById('urlLen').textContent = URL.length;
-
-    // Hex dump: shows every character as a hex code so invisible chars are visible
-    let hex = '';
-    for (let i = 0; i < URL.length; i++) {
-        const c = URL.charCodeAt(i);
-        const code = c.toString(16).padStart(2, '0');
-        const isSus = c < 32 || c > 126 ? ' ⚠ ' : ' ';
-        hex += code + isSus;
-    }
-    document.getElementById('urlHex').textContent = hex;
-
-    // ===== SHOW KEY =====
-    document.getElementById('keyRaw').textContent = KEY;
-    document.getElementById('keyLen').textContent = KEY.length;
-    document.getElementById('keyHead').textContent = KEY.slice(0, 20);
-
-    // ===== HIGHLIGHT SUSPICIOUS CHARS IN URL/KEY BOXES =====
-    const expectedUrlLen = 39;
-    if (URL.length !== expectedUrlLen) {
-        const box = document.querySelector('#urlRaw').parentElement;
-        box.classList.add('fail');
-        const p = document.createElement('p');
-        p.className = 'diff';
-        p.textContent = '⚠ URL length is ' + URL.length + ', expected ' + expectedUrlLen;
-        box.appendChild(p);
-    }
-
-    // ===== TEST 1: raw fetch =====
-    (async () => {
-        const out = document.getElementById('t1out');
-        const box = document.getElementById('t1');
-        try {
-            out.textContent = 'fetching ' + URL + '/auth/v1/health …';
-            const res = await fetch(URL + '/auth/v1/health');
-            const text = await res.text();
-            out.textContent = 'HTTP ' + res.status + '\n' + text;
-            box.classList.add(res.ok ? 'ok' : 'fail');
-        } catch (e) {
-            out.textContent =
-                'ERROR: ' + e.name + '\n' +
-                'message: ' + e.message + '\n\n' +
-                'This means the browser cannot reach the Supabase server.\n' +
-                'Common causes:\n' +
-                '  • An extension (uBlock, Brave shields, privacy badger) blocking *.supabase.co\n' +
-                '  • Corporate/school network blocking the domain\n' +
-                '  • DNS resolution failure\n' +
-                '  • Project paused\n\n' +
-                'Try opening this same URL in a new tab:\n' +
-                URL + '/auth/v1/health';
-            box.classList.add('fail');
-        }
-    })();
-
-    // ===== TEST 2 + 3 =====
-    (async () => {
-        const t2out = document.getElementById('t2out');
-        const t2box = document.getElementById('t2');
-        const t3out = document.getElementById('t3out');
-        const t3box = document.getElementById('t3');
-        try {
-            const mod = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-            t2out.textContent = 'supabase-js loaded\ncreateClient: ' + typeof mod.createClient;
-            t2box.classList.add('ok');
-
-            try {
-                const client = mod.createClient(URL, KEY);
-                t3out.textContent = 'calling signUp…';
-                const email = 'diag' + Date.now() + '@example.com';
-                const { data, error } = await client.auth.signUp({
-                    email,
-                    password: 'diagtest1234'
-                });
-                if (error) {
-                    t3out.textContent =
-                        'signUp returned an error:\n' +
-                        '  message: ' + error.message + '\n' +
-                        '  status:  ' + (error.status || 'n/a') + '\n' +
-                        '  code:    ' + (error.code || 'n/a');
-                    t3box.classList.add('fail');
-                } else {
-                    t3out.textContent =
-                        'signUp succeeded\n' +
-                        '  user id: ' + (data.user?.id || 'none') + '\n' +
-                        '  session: ' + (data.session ? 'yes' : 'no (email confirmation required)');
-                    t3box.classList.add('ok');
-                }
-            } catch (e) {
-                t3out.textContent = 'signUp threw:\n' + e.name + ' — ' + e.message;
-                t3box.classList.add('fail');
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            fs: {
+              darkest: '#111214',
+              header: '#1e1f22',
+              sidebar: '#2b2d31',
+              chat: '#313338',
+              hover: '#383a40',
+              active: '#404249',
+              purple: '#7C3AED',       /* Rich Vibrant Purple (Violet 600) */
+              purpleDark: '#6D28D9',   /* Deep Purple (Violet 700) */
+              purpleLight: '#8B5CF6',  /* Bright Purple (Violet 500) */
+              purpleSoft: '#A78BFA',   /* Soft Purple (Violet 400) */
+              purpleBg: '#2E1065',     /* Dark Purple Tint */
+              muted: '#949ba4',
+              light: '#f2f3f5',
+              green: '#23a55a',
+              yellow: '#f0b232',
+              red: '#f23f43'
             }
-        } catch (e) {
-            t2out.textContent = 'FAILED to load supabase-js:\n' + e.name + ' — ' + e.message;
-            t2box.classList.add('fail');
-            t3out.textContent = 'skipped';
+          }
         }
-    })();
-</script>
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar - Flat & Clean */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #2b2d31;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1a1b1e;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #111214;
+    }
+
+    /* CSS Animations - Strictly NO Glow Effects */
+    .animate-fadeIn {
+      animation: fadeIn 0.15s ease-out forwards;
+    }
+    .animate-scaleUp {
+      animation: scaleUp 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .animate-slideUp {
+      animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes scaleUp {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Tooltip arrow */
+    .tooltip-arrow::after {
+      content: '';
+      position: absolute;
+      left: -4px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-width: 5px 5px 5px 0;
+      border-style: solid;
+      border-color: transparent #111214 transparent transparent;
+    }
+
+    /* Voice Bar Pulsing */
+    .voice-bar {
+      animation: voicePulse 1s infinite ease-in-out alternate;
+    }
+    .voice-bar:nth-child(2) { animation-delay: 0.2s; }
+    .voice-bar:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes voicePulse {
+      0% { height: 4px; }
+      100% { height: 16px; }
+    }
+  </style>
+</head>
+<body class="h-full bg-fs-darkest text-fs-light font-sans antialiased select-none overflow-hidden flex flex-col">
+
+  <!-- Application Shell -->
+  <div id="app" class="flex h-full w-full overflow-hidden">
+    
+    <!-- 1. Leftmost Server Rail -->
+    <nav class="w-[72px] bg-fs-darkest flex flex-col items-center py-3 space-y-2 shrink-0 z-20 border-r border-[#1a1b1e]">
+      
+      <!-- FS Main Branding Home Button -->
+      <div class="relative group flex items-center justify-center w-full">
+        <div id="pill-home" class="absolute left-0 w-[4px] bg-fs-purple rounded-r-full transition-all duration-200 h-10 opacity-100"></div>
+        <button onclick="switchServer('home')" class="w-12 h-12 rounded-[24px] hover:rounded-[16px] bg-fs-purple text-white flex items-center justify-center transition-all duration-200 group-hover:bg-fs-purpleDark relative">
+          <!-- Vibrant Purple Heart Icon for FS -->
+          <svg class="w-7 h-7 text-white fill-current transition-transform duration-200 group-hover:scale-110" viewBox="0 0 24 24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+        </button>
+        <!-- Tooltip -->
+        <div class="absolute left-[80px] px-3 py-1.5 bg-fs-darkest text-fs-light text-xs font-bold rounded-md shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-150 z-50 whitespace-nowrap tooltip-arrow border border-white/5">
+          FS - Direct Messages
+        </div>
+      </div>
+
+      <div class="w-8 h-[2px] bg-[#2d2f34] rounded my-1"></div>
+
+      <!-- Server List Container -->
+      <div id="server-list" class="flex-1 w-full space-y-2 overflow-y-auto flex flex-col items-center no-scrollbar">
+        <!-- Dynamic Server Icons Rendered Here -->
+      </div>
+
+      <!-- Add Server Button -->
+      <div class="space-y-2 w-full flex flex-col items-center pt-2 border-t border-[#232428]">
+        <div class="relative group flex items-center justify-center w-full">
+          <button onclick="openModal('add-server')" class="w-12 h-12 rounded-[24px] hover:rounded-[16px] bg-fs-sidebar hover:bg-fs-purple text-fs-green hover:text-white flex items-center justify-center transition-all duration-200">
+            <i class="fa-solid fa-plus text-lg"></i>
+          </button>
+          <div class="absolute left-[80px] px-3 py-1.5 bg-fs-darkest text-fs-light text-xs font-semibold rounded-md shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-150 z-50 whitespace-nowrap tooltip-arrow border border-white/5">
+            Add a Server
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 2. Channel & DM Navigation Sidebar -->
+    <aside class="w-60 bg-fs-sidebar flex flex-col shrink-0 z-10 border-r border-[#1f2023]">
+      
+      <!-- Server Header / DM Header -->
+      <div id="sidebar-header" class="h-12 border-b border-[#1f2023] px-4 flex items-center justify-between shadow-sm cursor-pointer hover:bg-fs-hover/40 transition-colors">
+        <!-- Dynamic Title -->
+      </div>
+
+      <!-- Channels / Friends Navigation List -->
+      <div id="channels-container" class="flex-1 overflow-y-auto p-2 space-y-4">
+        <!-- Rendered Dynamically -->
+      </div>
+
+      <!-- Voice Channel Audio Overlay Panel (Shows when connected) -->
+      <div id="voice-overlay" class="hidden bg-[#232428] border-t border-[#1f2023] p-2.5 flex flex-col space-y-2">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <div class="w-2.5 h-2.5 rounded-full bg-fs-green animate-pulse"></div>
+            <div>
+              <div class="text-xs font-bold text-fs-green leading-none">Voice Connected</div>
+              <div id="voice-channel-label" class="text-[11px] text-fs-muted truncate max-w-[120px]">🔊 Lounge</div>
+            </div>
+          </div>
+          <button onclick="disconnectVoice()" class="text-fs-muted hover:text-fs-red p-1 rounded transition-colors" title="Disconnect Voice">
+            <i class="fa-solid fa-phone-slash text-sm"></i>
+          </button>
+        </div>
+        <div class="flex items-center justify-around bg-fs-darkest/60 p-1.5 rounded-md">
+          <button onclick="toggleVoiceMute()" id="voice-mute-btn" class="text-fs-muted hover:text-fs-light text-xs flex items-center space-x-1 px-2 py-1 rounded hover:bg-fs-hover">
+            <i class="fa-solid fa-microphone"></i>
+            <span>Mute</span>
+          </button>
+          <button onclick="toggleVoiceDeafen()" id="voice-deafen-btn" class="text-fs-muted hover:text-fs-light text-xs flex items-center space-x-1 px-2 py-1 rounded hover:bg-fs-hover">
+            <i class="fa-solid fa-headphones"></i>
+            <span>Deafen</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Bottom User Bar -->
+      <div class="h-14 bg-[#232428] px-2 flex items-center justify-between shrink-0 border-t border-[#1f2023]">
+        <!-- User Profile Quick Card -->
+        <div onclick="openModal('settings')" class="flex items-center space-x-2.5 p-1 -ml-1 rounded-md hover:bg-fs-hover/60 cursor-pointer flex-1 min-w-0 transition-colors group">
+          <div class="relative shrink-0">
+            <img id="user-bar-avatar" src="" class="w-9 h-9 rounded-full object-cover border border-white/10">
+            <div id="user-bar-status" class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#232428] bg-fs-green"></div>
+          </div>
+          <div class="min-w-0 flex-1 leading-tight">
+            <div id="user-bar-name" class="text-xs font-bold text-fs-light truncate group-hover:text-fs-purpleSoft transition-colors">User</div>
+            <div id="user-bar-tag" class="text-[10px] text-fs-muted truncate">#0000</div>
+          </div>
+        </div>
+
+        <!-- Mute, Deafen & Settings Trigger -->
+        <div class="flex items-center space-x-0.5 text-fs-muted">
+          <button onclick="toggleUserMute()" id="btn-self-mute" class="p-1.5 hover:bg-fs-hover hover:text-fs-light rounded text-xs transition-colors" title="Mute Microphone">
+            <i class="fa-solid fa-microphone"></i>
+          </button>
+          <button onclick="toggleUserDeafen()" id="btn-self-deafen" class="p-1.5 hover:bg-fs-hover hover:text-fs-light rounded text-xs transition-colors" title="Deafen Audio">
+            <i class="fa-solid fa-headphones"></i>
+          </button>
+          <button onclick="openModal('settings')" class="p-1.5 hover:bg-fs-hover hover:text-fs-light rounded text-xs transition-colors" title="User Settings">
+            <i class="fa-solid fa-gear"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 3. Main Chat & Content Area -->
+    <main class="flex-1 flex flex-col bg-fs-chat min-w-0 relative">
+      
+      <!-- Top Chat Header -->
+      <header class="h-12 border-b border-[#1f2023] px-4 flex items-center justify-between bg-fs-chat z-10 shrink-0">
+        <div class="flex items-center space-x-3 min-w-0">
+          <span id="chat-header-prefix" class="text-fs-purple text-lg font-bold">#</span>
+          <h2 id="chat-header-title" class="font-bold text-fs-light text-base truncate">general</h2>
+          <div class="h-4 w-[1px] bg-[#3f4147] hidden md:block"></div>
+          <span id="chat-header-topic" class="text-xs text-fs-muted truncate hidden md:block max-w-xs lg:max-w-md">
+            Welcome to FS! Clean, vibrant purple interface with complete customization.
+          </span>
+        </div>
+
+        <!-- Header Actions -->
+        <div class="flex items-center space-x-3 text-fs-muted shrink-0">
+          <button onclick="openModal('add-friend')" id="btn-add-friend-top" class="hidden bg-fs-purple hover:bg-fs-purpleDark text-white text-xs font-semibold px-2.5 py-1 rounded transition-colors flex items-center space-x-1">
+            <i class="fa-solid fa-user-plus text-[10px]"></i>
+            <span>Add Friend</span>
+          </button>
+          <button onclick="toggleMemberList()" id="btn-member-toggle" class="hover:text-fs-light transition-colors text-fs-purple" title="Toggle Member List">
+            <i class="fa-solid fa-users text-sm"></i>
+          </button>
+
+          <!-- Search Input -->
+          <div class="relative hidden sm:block">
+            <input type="text" id="chat-search-input" onkeyup="handleSearch(this.value)" placeholder="Search messages..." class="bg-fs-header text-xs text-fs-light rounded px-2.5 py-1 pr-7 w-36 focus:w-48 transition-all duration-200 outline-none border border-transparent focus:border-fs-purple">
+            <i class="fa-solid fa-magnifying-glass absolute right-2.5 top-2 text-[10px] text-fs-muted pointer-events-none"></i>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Body + Right Member Sidebar -->
+      <div class="flex-1 flex min-h-0 relative">
+        
+        <!-- Messages & Input Box -->
+        <div class="flex-1 flex flex-col min-w-0">
+          
+          <!-- Message Feed Scroll Area -->
+          <div id="messages-stream" class="flex-1 overflow-y-auto p-4 space-y-4">
+            <!-- Messages rendered dynamically -->
+          </div>
+
+          <!-- Chat Input Container -->
+          <div class="px-4 pb-5 pt-1 bg-fs-chat relative">
+            
+            <!-- Replying Banner -->
+            <div id="reply-banner" class="hidden bg-fs-header px-3 py-1.5 rounded-t-md flex items-center justify-between text-xs text-fs-muted border-b border-[#3f4147]/40">
+              <div class="flex items-center space-x-2 truncate">
+                <i class="fa-solid fa-reply text-fs-purple text-xs"></i>
+                <span>Replying to <strong id="reply-user-name" class="text-fs-light">User</strong></span>
+              </div>
+              <button onclick="cancelReply()" class="hover:text-fs-light"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Input Box Component -->
+            <div class="bg-fs-hover rounded-lg flex items-center px-4 py-2.5 space-x-3">
+              <!-- Upload Image/Attachment Button -->
+              <input type="file" id="chat-attachment-input" accept="image/*" class="hidden" onchange="handleAttachmentUpload(event)">
+              <button onclick="document.getElementById('chat-attachment-input').click()" class="text-fs-muted hover:text-fs-light transition-colors p-1.5 rounded-full bg-[#4e5058]/40 hover:bg-fs-purple text-xs flex items-center justify-center w-6 h-6" title="Upload Image Attachment">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+
+              <!-- Text Input -->
+              <input type="text" id="message-input" onkeydown="handleInputKeydown(event)" placeholder="Message #general" class="bg-transparent flex-1 text-sm text-fs-light outline-none placeholder-fs-muted">
+
+              <!-- Input Right Controls -->
+              <div class="flex items-center space-x-2 text-fs-muted">
+                <button onclick="toggleEmojiPicker()" class="hover:text-fs-purpleLight text-lg transition-colors" title="Add Emoji">
+                  <i class="fa-regular fa-face-smile"></i>
+                </button>
+                <button onclick="sendMessage()" class="bg-fs-purple hover:bg-fs-purpleDark text-white p-1.5 rounded-md transition-colors text-xs px-3 font-semibold flex items-center space-x-1">
+                  <span>Send</span>
+                  <i class="fa-solid fa-paper-plane text-[10px]"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Emoji Popover Picker -->
+            <div id="emoji-picker" class="hidden absolute right-6 bottom-20 w-72 bg-fs-header border border-white/10 rounded-xl shadow-2xl p-3 z-30 animate-scaleUp">
+              <div class="text-xs font-bold text-fs-muted mb-2 uppercase tracking-wider flex justify-between items-center">
+                <span>Select Emoji</span>
+                <span class="text-[10px] text-fs-purpleSoft">FS Emojis 💜</span>
+              </div>
+              <div class="grid grid-cols-6 gap-2 text-xl max-h-48 overflow-y-auto p-1">
+                <button onclick="insertEmoji('💜')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">💜</button>
+                <button onclick="insertEmoji('✨')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">✨</button>
+                <button onclick="insertEmoji('🚀')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">🚀</button>
+                <button onclick="insertEmoji('🔥')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">🔥</button>
+                <button onclick="insertEmoji('💻')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">💻</button>
+                <button onclick="insertEmoji('🎨')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">🎨</button>
+                <button onclick="insertEmoji('👍')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">👍</button>
+                <button onclick="insertEmoji('❤️')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">❤️</button>
+                <button onclick="insertEmoji('😂')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">😂</button>
+                <button onclick="insertEmoji('🎉')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">🎉</button>
+                <button onclick="insertEmoji('👀')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">👀</button>
+                <button onclick="insertEmoji('☕')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">☕</button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- 4. Member List Sidebar -->
+        <aside id="member-sidebar" class="w-60 bg-fs-sidebar flex flex-col p-3 overflow-y-auto shrink-0 border-l border-[#1f2023] transition-all duration-200">
+          <div id="member-list-content" class="space-y-4">
+            <!-- Dynamic Member List -->
+          </div>
+        </aside>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Dynamic Modals Container -->
+  <div id="modal-container" class="relative z-50"></div>
+
+  <!-- JavaScript App Logic -->
+  <script>
+    // Audio Synth Engine for sound effects without external files
+    const SoundFX = {
+      ctx: null,
+      init() {
+        if (!this.ctx) {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+      },
+      playMsg() {
+        try {
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, this.ctx.currentTime); // C5
+          osc.frequency.exponentialRampToValueAtTime(783.99, this.ctx.currentTime + 0.12); // G5
+          gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.2);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.2);
+        } catch(e) {}
+      },
+      playVoiceConnect() {
+        try {
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(440, this.ctx.currentTime); // A4
+          osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.15); // A5
+          gain.gain.setValueAtTime(0.09, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.25);
+        } catch(e) {}
+      }
+    };
+
+    // Helper: Generate Avatar SVG Data URL with User Initials
+    function createInitialAvatar(name, bgColor = '#7C3AED') {
+      const initials = name ? name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'FS';
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+        <rect width="128" height="128" fill="${bgColor}" />
+        <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#FFFFFF" font-family="Inter, sans-serif" font-size="52" font-weight="bold">${initials}</text>
+      </svg>`;
+      return 'data:image/svg+xml;base64,' + btoa(svg);
+    }
+
+    // Default Storage State Key
+    const STORAGE_KEY = 'FS_DISCORD_APP_STATE_V2';
+
+    // Default Clean App State (Zero fake humans)
+    const defaultState = {
+      profile: {
+        id: 'user_me',
+        name: 'Alex Rivera',
+        tag: '1337',
+        username: 'alex_rivera',
+        avatar: createInitialAvatar('Alex Rivera', '#7C3AED'),
+        bannerColor: '#7C3AED',
+        bannerImage: '',
+        status: 'online',
+        customStatus: 'Building on FS 💜',
+        bio: 'Frontend enthusiast & developer. Customizing my profile on FS!'
+      },
+      friends: [], // User can add custom friends manually
+      activeServerId: 's_fs', // 'home' or server ID
+      activeChannelId: 'c_welcome',
+      activeDMUserId: null,
+      voice: {
+        connected: false,
+        channelId: null,
+        channelName: '',
+        muted: false,
+        deafened: false
+      },
+      userSelfMuted: false,
+      userSelfDeafened: false,
+      memberListVisible: true,
+      searchQuery: '',
+      pendingAttachment: null,
+      servers: [
+        {
+          id: 's_fs',
+          name: 'FS Community',
+          iconText: 'FS',
+          channels: [
+            { id: 'c_welcome', name: 'welcome', type: 'text', topic: 'Welcome to FS! Clean dark grey and vibrant purple chat.' },
+            { id: 'c_general', name: 'general', type: 'text', topic: 'General discussions and ideas.' },
+            { id: 'c_lounge', name: 'lounge', type: 'text', topic: 'Casual chat and chill room.' },
+            { id: 'v_lounge', name: '🔊 Lounge', type: 'voice' },
+            { id: 'v_dev', name: '🔊 Dev Sync', type: 'voice' }
+          ]
+        }
+      ],
+      messages: {
+        c_welcome: [
+          {
+            id: 'm_welcome_1',
+            userId: 'user_me',
+            timestamp: 'Today at ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            content: 'Welcome to **FS**! 💜 Your clean, vibrant purple space with zero fake automated users. Customize your avatar, profile, and status in User Settings!',
+            reactions: [{ emoji: '💜', count: 1, users: ['user_me'] }]
+          }
+        ],
+        c_general: [],
+        c_lounge: []
+      }
+    };
+
+    // Load or initialize state
+    let state = loadState();
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          // Ensure profile fallback
+          if (!parsed.profile.avatar) parsed.profile.avatar = createInitialAvatar(parsed.profile.name);
+          return parsed;
+        }
+      } catch(e) {}
+      return defaultState;
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch(e) {}
+    }
+
+    // Get User Object by ID (Me or added Friend)
+    function getUser(userId) {
+      if (userId === 'user_me') return state.profile;
+      return state.friends.find(f => f.id === userId) || {
+        id: userId,
+        name: 'User',
+        tag: '0000',
+        username: 'user',
+        avatar: createInitialAvatar('User', '#4B5563'),
+        bannerColor: '#383a40',
+        status: 'offline',
+        customStatus: '',
+        bio: 'FS User'
+      };
+    }
+
+    // Initialize App UI on load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderServerList();
+      renderSidebar();
+      renderChatHeader();
+      renderMessages();
+      renderMemberList();
+      renderUserBar();
+
+      // Escape key modal close
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+      });
+    });
+
+    // --- RENDER FUNCTIONS ---
+
+    // 1. Render Left Server Rail
+    function renderServerList() {
+      const container = document.getElementById('server-list');
+      container.innerHTML = state.servers.map(server => {
+        const isActive = state.activeServerId === server.id;
+        const pillClass = isActive ? 'h-10 opacity-100' : 'h-0 opacity-0 group-hover:h-5 group-hover:opacity-100';
+        const bgClass = isActive ? 'bg-fs-purple text-white rounded-[16px]' : 'bg-fs-sidebar hover:bg-fs-purple text-fs-light hover:rounded-[16px] rounded-[24px]';
+
+        return `
+          <div class="relative group flex items-center justify-center w-full">
+            <div class="absolute left-0 w-[4px] bg-fs-purple rounded-r-full transition-all duration-200 ${pillClass}"></div>
+            <button onclick="switchServer('${server.id}')" class="w-12 h-12 ${bgClass} font-bold text-sm flex items-center justify-center transition-all duration-200 shadow-sm">
+              ${server.iconText || server.name.substring(0, 2).toUpperCase()}
+            </button>
+            <div class="absolute left-[80px] px-3 py-1.5 bg-fs-darkest text-fs-light text-xs font-semibold rounded-md shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-150 z-50 whitespace-nowrap tooltip-arrow border border-white/5">
+              ${server.name}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Home/DM Pill Status
+      const homePill = document.getElementById('pill-home');
+      if (homePill) {
+        homePill.className = `absolute left-0 w-[4px] bg-fs-purple rounded-r-full transition-all duration-200 ${state.activeServerId === 'home' ? 'h-10 opacity-100' : 'h-0 opacity-0 group-hover:h-5 group-hover:opacity-100'}`;
+      }
+    }
+
+    // 2. Render Sidebar
+    function renderSidebar() {
+      const headerContainer = document.getElementById('sidebar-header');
+      const channelsContainer = document.getElementById('channels-container');
+      const addFriendBtn = document.getElementById('btn-add-friend-top');
+
+      if (state.activeServerId === 'home') {
+        if (addFriendBtn) addFriendBtn.classList.remove('hidden');
+
+        headerContainer.innerHTML = `
+          <div class="font-bold text-fs-light text-sm flex items-center space-x-2">
+            <span class="text-fs-purple">💜</span>
+            <span>FS Direct Messages</span>
+          </div>
+        `;
+
+        channelsContainer.innerHTML = `
+          <div class="flex items-center justify-between text-xs font-bold text-fs-muted uppercase tracking-wider px-2 mb-2">
+            <span>Direct Messages</span>
+            <button onclick="openModal('add-friend')" class="hover:text-fs-purpleSoft text-xs" title="Add Contact">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+          <div class="space-y-1">
+            ${state.friends.length === 0 ? `
+              <div class="p-3 text-center text-xs text-fs-muted bg-fs-darkest/40 rounded-lg border border-white/5 space-y-2">
+                <p>No added friends yet.</p>
+                <button onclick="openModal('add-friend')" class="text-xs text-fs-purpleSoft hover:underline font-semibold">Add a friend</button>
+              </div>
+            ` : state.friends.map(friend => `
+              <div onclick="openDM('${friend.id}')" class="flex items-center space-x-3 px-2 py-2 rounded-md hover:bg-fs-hover/60 cursor-pointer ${state.activeDMUserId === friend.id ? 'bg-fs-active text-white' : 'text-fs-muted hover:text-fs-light'} transition-colors">
+                <div class="relative shrink-0">
+                  <img src="${friend.avatar}" class="w-8 h-8 rounded-full object-cover">
+                  <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-fs-sidebar ${getStatusBg(friend.status)}"></div>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="text-sm font-semibold truncate">${friend.name}</div>
+                  <div class="text-[11px] opacity-70 truncate">${friend.customStatus || '#' + friend.tag}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } else {
+        if (addFriendBtn) addFriendBtn.classList.add('hidden');
+
+        const server = state.servers.find(s => s.id === state.activeServerId);
+        if (!server) return;
+
+        headerContainer.innerHTML = `
+          <span class="font-bold text-fs-light text-sm truncate">${server.name}</span>
+          <i class="fa-solid fa-chevron-down text-xs text-fs-muted"></i>
+        `;
+
+        const textChannels = server.channels.filter(c => c.type === 'text');
+        const voiceChannels = server.channels.filter(c => c.type === 'voice');
+
+        channelsContainer.innerHTML = `
+          <!-- Text Channels -->
+          <div>
+            <div class="flex items-center justify-between text-xs font-bold text-fs-muted uppercase tracking-wider px-2 mb-1">
+              <div class="flex items-center space-x-1">
+                <i class="fa-solid fa-chevron-down text-[9px]"></i>
+                <span>Text Channels</span>
+              </div>
+              <i class="fa-solid fa-plus text-[10px] cursor-pointer hover:text-fs-light" onclick="openModal('create-channel')"></i>
+            </div>
+            <div class="space-y-0.5">
+              ${textChannels.map(ch => {
+                const isActive = state.activeChannelId === ch.id;
+                return `
+                  <button onclick="switchChannel('${ch.id}')" class="w-full flex items-center space-x-2 px-2 py-1.5 rounded-md text-sm transition-colors ${isActive ? 'bg-fs-active text-white font-medium' : 'text-fs-muted hover:bg-fs-hover/50 hover:text-fs-light'}">
+                    <span class="text-fs-purple font-bold text-base leading-none">#</span>
+                    <span class="truncate">${ch.name}</span>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- Voice Channels -->
+          <div class="pt-3">
+            <div class="flex items-center justify-between text-xs font-bold text-fs-muted uppercase tracking-wider px-2 mb-1">
+              <div class="flex items-center space-x-1">
+                <i class="fa-solid fa-chevron-down text-[9px]"></i>
+                <span>Voice Channels</span>
+              </div>
+            </div>
+            <div class="space-y-0.5">
+              ${voiceChannels.map(vc => {
+                const isConnected = state.voice.connected && state.voice.channelId === vc.id;
+                return `
+                  <div>
+                    <button onclick="connectVoice('${vc.id}', '${vc.name}')" class="w-full flex items-center justify-between px-2 py-1.5 rounded-md text-sm transition-colors ${isConnected ? 'bg-fs-hover text-fs-green font-semibold' : 'text-fs-muted hover:bg-fs-hover/50 hover:text-fs-light'}">
+                      <div class="flex items-center space-x-2 truncate">
+                        <i class="fa-solid fa-volume-high text-xs"></i>
+                        <span class="truncate">${vc.name.replace('🔊 ', '')}</span>
+                      </div>
+                      ${isConnected ? '<span class="text-[9px] bg-fs-green/20 text-fs-green px-1.5 py-0.5 rounded font-bold uppercase">Connected</span>' : ''}
+                    </button>
+                    ${isConnected ? `
+                      <div class="ml-6 my-1 flex items-center space-x-2 p-1 rounded bg-fs-darkest/50 border border-white/5">
+                        <img src="${state.profile.avatar}" class="w-5 h-5 rounded-full object-cover ring-2 ring-fs-green">
+                        <span class="text-xs text-fs-light truncate">${state.profile.name}</span>
+                        <div class="flex space-x-0.5 ml-auto pr-1">
+                          <span class="w-1 bg-fs-green voice-bar rounded-full"></span>
+                          <span class="w-1 bg-fs-green voice-bar rounded-full"></span>
+                          <span class="w-1 bg-fs-green voice-bar rounded-full"></span>
+                        </div>
+                      </div>
+                    ` : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // 3. Render Header
+    function renderChatHeader() {
+      const prefixEl = document.getElementById('chat-header-prefix');
+      const titleEl = document.getElementById('chat-header-title');
+      const topicEl = document.getElementById('chat-header-topic');
+
+      if (state.activeServerId === 'home') {
+        const targetUser = getUser(state.activeDMUserId || 'user_me');
+        prefixEl.innerText = '@';
+        titleEl.innerText = targetUser.name;
+        topicEl.innerText = targetUser.customStatus || targetUser.bio || 'Direct Message on FS';
+      } else {
+        const server = state.servers.find(s => s.id === state.activeServerId);
+        const channel = server ? server.channels.find(c => c.id === state.activeChannelId) : null;
+        prefixEl.innerText = '#';
+        titleEl.innerText = channel ? channel.name : 'general';
+        topicEl.innerText = channel ? (channel.topic || '') : '';
+      }
+    }
+
+    // 4. Render Messages Stream
+    function renderMessages() {
+      const stream = document.getElementById('messages-stream');
+      const channelMsgs = state.messages[state.activeChannelId] || [];
+
+      const filtered = state.searchQuery ? channelMsgs.filter(m => m.content.toLowerCase().includes(state.searchQuery.toLowerCase())) : channelMsgs;
+
+      if (filtered.length === 0) {
+        stream.innerHTML = `
+          <div class="flex flex-col items-center justify-center h-full text-fs-muted space-y-3 py-16">
+            <div class="w-16 h-16 rounded-full bg-fs-purple/10 flex items-center justify-center text-3xl text-fs-purple">
+              💜
+            </div>
+            <div class="text-base font-bold text-fs-light">This is the start of the channel</div>
+            <div class="text-xs text-center max-w-sm text-fs-muted">No messages here yet. Type something below to kick off the chat!</div>
+          </div>
+        `;
+        return;
+      }
+
+      stream.innerHTML = filtered.map(msg => {
+        const user = getUser(msg.userId);
+        const isSelf = msg.userId === 'user_me';
+
+        return `
+          <div class="group relative flex space-x-3 hover:bg-fs-hover/30 p-2 -mx-2 rounded-lg transition-colors animate-slideUp">
+            <!-- Circular Avatar -->
+            <img onclick="openUserProfile('${user.id}')" src="${user.avatar}" class="w-10 h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity shrink-0 border border-white/10">
+            
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center space-x-2">
+                <span onclick="openUserProfile('${user.id}')" class="font-bold text-fs-light text-sm hover:underline cursor-pointer">${user.name}</span>
+                <span class="text-[11px] text-fs-muted">${msg.timestamp}</span>
+              </div>
+
+              <!-- Content -->
+              <div class="text-sm text-fs-light mt-0.5 leading-relaxed break-words">${escapeHTML(msg.content)}</div>
+
+              <!-- Attachment Image -->
+              ${msg.attachment ? `
+                <div class="mt-2 max-w-md rounded-lg overflow-hidden border border-white/10 shadow-sm">
+                  <img src="${msg.attachment}" class="w-full h-auto object-cover max-h-72">
+                </div>
+              ` : ''}
+
+              <!-- Emoji Reactions -->
+              ${msg.reactions && msg.reactions.length > 0 ? `
+                <div class="flex flex-wrap gap-1.5 mt-2">
+                  ${msg.reactions.map((r, rIdx) => {
+                    const reactedByMe = r.users.includes('user_me');
+                    return `
+                      <button onclick="toggleReaction('${msg.id}', ${rIdx})" class="flex items-center space-x-1 px-2 py-0.5 rounded-md text-xs border transition-all ${reactedByMe ? 'bg-fs-purple/20 border-fs-purple text-fs-purpleSoft' : 'bg-fs-sidebar border-white/5 text-fs-muted hover:border-fs-muted'}">
+                        <span>${r.emoji}</span>
+                        <span class="font-semibold">${r.count}</span>
+                      </button>
+                    `;
+                  }).join('')}
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Message Action Toolbar -->
+            <div class="absolute right-2 -top-3 hidden group-hover:flex items-center bg-fs-header border border-white/10 rounded-md shadow-lg text-fs-muted px-1 py-0.5 space-x-1 z-10">
+              <button onclick="quickReact('${msg.id}', '💜')" class="hover:text-fs-light hover:bg-fs-hover p-1 rounded transition-colors" title="React 💜">💜</button>
+              <button onclick="quickReact('${msg.id}', '👍')" class="hover:text-fs-light hover:bg-fs-hover p-1 rounded transition-colors" title="React 👍">👍</button>
+              <button onclick="replyToMessage('${msg.id}')" class="hover:text-fs-light hover:bg-fs-hover p-1 rounded text-xs transition-colors" title="Reply">
+                <i class="fa-solid fa-reply"></i>
+              </button>
+              ${isSelf ? `
+                <button onclick="deleteMessage('${msg.id}')" class="hover:text-fs-red hover:bg-fs-hover p-1 rounded text-xs transition-colors" title="Delete Message">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      stream.scrollTop = stream.scrollHeight;
+    }
+
+    // 5. Render Member Sidebar List
+    function renderMemberList() {
+      const container = document.getElementById('member-list-content');
+      if (!state.memberListVisible) return;
+
+      // Real users list: user_me + custom added friends
+      const allMembers = [state.profile, ...state.friends];
+
+      container.innerHTML = `
+        <div>
+          <div class="text-xs font-bold text-fs-muted uppercase tracking-wider px-2 mb-2">
+            MEMBERS — ${allMembers.length}
+          </div>
+          <div class="space-y-1">
+            ${allMembers.map(user => `
+              <div onclick="openUserProfile('${user.id}')" class="flex items-center space-x-3 px-2 py-1.5 rounded-md hover:bg-fs-hover/60 cursor-pointer group transition-colors">
+                <div class="relative shrink-0">
+                  <img src="${user.avatar}" class="w-8 h-8 rounded-full object-cover border border-white/5">
+                  <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-fs-sidebar ${getStatusBg(user.status)}"></div>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="text-sm font-semibold truncate ${user.id === 'user_me' ? 'text-fs-purpleSoft font-bold' : 'text-fs-light'}">
+                    ${user.name} ${user.id === 'user_me' ? ' (You)' : ''}
+                  </div>
+                  <div class="text-[11px] text-fs-muted truncate">${user.customStatus || '#' + user.tag}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // 6. Render Bottom Left User Card
+    function renderUserBar() {
+      const u = state.profile;
+      document.getElementById('user-bar-avatar').src = u.avatar;
+      document.getElementById('user-bar-name').innerText = u.name;
+      document.getElementById('user-bar-tag').innerText = '#' + u.tag;
+      document.getElementById('user-bar-status').className = `absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#232428] ${getStatusBg(u.status)}`;
+    }
+
+    // --- ACTIONS & NAVIGATION ---
+
+    function switchServer(serverId) {
+      state.activeServerId = serverId;
+      if (serverId !== 'home') {
+        const server = state.servers.find(s => s.id === serverId);
+        if (server && server.channels.length > 0) {
+          state.activeChannelId = server.channels[0].id;
+        }
+      }
+      saveState();
+      renderServerList();
+      renderSidebar();
+      renderChatHeader();
+      renderMessages();
+      renderMemberList();
+    }
+
+    function switchChannel(channelId) {
+      state.activeChannelId = channelId;
+      saveState();
+      renderSidebar();
+      renderChatHeader();
+      renderMessages();
+    }
+
+    function openDM(userId) {
+      state.activeDMUserId = userId;
+      renderSidebar();
+      renderChatHeader();
+      renderMessages();
+    }
+
+    function toggleMemberList() {
+      state.memberListVisible = !state.memberListVisible;
+      const sidebar = document.getElementById('member-sidebar');
+      const btn = document.getElementById('btn-member-toggle');
+
+      if (state.memberListVisible) {
+        sidebar.classList.remove('w-0', 'p-0', 'overflow-hidden');
+        sidebar.classList.add('w-60', 'p-3');
+        btn.classList.add('text-fs-purple');
+      } else {
+        sidebar.classList.remove('w-60', 'p-3');
+        sidebar.classList.add('w-0', 'p-0', 'overflow-hidden');
+        btn.classList.remove('text-fs-purple');
+      }
+    }
+
+    function handleSearch(val) {
+      state.searchQuery = val;
+      renderMessages();
+    }
+
+    // Voice Engine
+    function connectVoice(channelId, channelName) {
+      state.voice.connected = true;
+      state.voice.channelId = channelId;
+      state.voice.channelName = channelName;
+
+      SoundFX.playVoiceConnect();
+
+      const overlay = document.getElementById('voice-overlay');
+      document.getElementById('voice-channel-label').innerText = channelName;
+      overlay.classList.remove('hidden');
+
+      renderSidebar();
+    }
+
+    function disconnectVoice() {
+      state.voice.connected = false;
+      state.voice.channelId = null;
+      document.getElementById('voice-overlay').classList.add('hidden');
+      renderSidebar();
+    }
+
+    function toggleVoiceMute() {
+      state.voice.muted = !state.voice.muted;
+      document.getElementById('voice-mute-btn').classList.toggle('text-fs-red', state.voice.muted);
+    }
+
+    function toggleVoiceDeafen() {
+      state.voice.deafened = !state.voice.deafened;
+      document.getElementById('voice-deafen-btn').classList.toggle('text-fs-red', state.voice.deafened);
+    }
+
+    function toggleUserMute() {
+      state.userSelfMuted = !state.userSelfMuted;
+      document.getElementById('btn-self-mute').classList.toggle('text-fs-red', state.userSelfMuted);
+    }
+
+    function toggleUserDeafen() {
+      state.userSelfDeafened = !state.userSelfDeafened;
+      document.getElementById('btn-self-deafen').classList.toggle('text-fs-red', state.userSelfDeafened);
+    }
+
+    // --- MESSAGING ---
+
+    function handleInputKeydown(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    }
+
+    function handleAttachmentUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        state.pendingAttachment = evt.target.result;
+        sendMessage();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('message-input');
+      const text = input.value.trim();
+      
+      if (!text && !state.pendingAttachment) return;
+
+      const newMsg = {
+        id: 'm_' + Date.now(),
+        userId: 'user_me',
+        timestamp: 'Today at ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        content: text,
+        attachment: state.pendingAttachment || null,
+        reactions: []
+      };
+
+      if (!state.messages[state.activeChannelId]) {
+        state.messages[state.activeChannelId] = [];
+      }
+
+      state.messages[state.activeChannelId].push(newMsg);
+      
+      input.value = '';
+      state.pendingAttachment = null;
+      cancelReply();
+      saveState();
+
+      SoundFX.playMsg();
+      renderMessages();
+    }
+
+    function toggleReaction(msgId, rIdx) {
+      const msgs = state.messages[state.activeChannelId] || [];
+      const msg = msgs.find(m => m.id === msgId);
+      if (!msg) return;
+
+      const reaction = msg.reactions[rIdx];
+      const userIdx = reaction.users.indexOf('user_me');
+
+      if (userIdx > -1) {
+        reaction.users.splice(userIdx, 1);
+        reaction.count--;
+        if (reaction.count <= 0) {
+          msg.reactions.splice(rIdx, 1);
+        }
+      } else {
+        reaction.users.push('user_me');
+        reaction.count++;
+      }
+      saveState();
+      renderMessages();
+    }
+
+    function quickReact(msgId, emoji) {
+      const msgs = state.messages[state.activeChannelId] || [];
+      const msg = msgs.find(m => m.id === msgId);
+      if (!msg) return;
+
+      const existing = msg.reactions.find(r => r.emoji === emoji);
+      if (existing) {
+        if (!existing.users.includes('user_me')) {
+          existing.users.push('user_me');
+          existing.count++;
+        }
+      } else {
+        msg.reactions.push({ emoji, count: 1, users: ['user_me'] });
+      }
+      saveState();
+      renderMessages();
+    }
+
+    function replyToMessage(msgId) {
+      const msgs = state.messages[state.activeChannelId] || [];
+      const msg = msgs.find(m => m.id === msgId);
+      if (!msg) return;
+
+      const user = getUser(msg.userId);
+      document.getElementById('reply-user-name').innerText = user.name;
+      document.getElementById('reply-banner').classList.remove('hidden');
+      document.getElementById('message-input').focus();
+    }
+
+    function cancelReply() {
+      document.getElementById('reply-banner').classList.add('hidden');
+    }
+
+    function deleteMessage(msgId) {
+      if (state.messages[state.activeChannelId]) {
+        state.messages[state.activeChannelId] = state.messages[state.activeChannelId].filter(m => m.id !== msgId);
+        saveState();
+        renderMessages();
+      }
+    }
+
+    function toggleEmojiPicker() {
+      const picker = document.getElementById('emoji-picker');
+      picker.classList.toggle('hidden');
+    }
+
+    function insertEmoji(emoji) {
+      const input = document.getElementById('message-input');
+      input.value += emoji;
+      toggleEmojiPicker();
+      input.focus();
+    }
+
+    // --- PROFILE & SETTINGS MODALS ---
+
+    function openUserProfile(userId) {
+      const user = getUser(userId);
+
+      const modalContainer = document.getElementById('modal-container');
+      modalContainer.innerHTML = `
+        <div class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
+          <div class="bg-fs-darkest w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl border border-white/10 animate-scaleUp">
+            
+            <!-- Banner -->
+            <div class="h-28 relative" style="background-color: ${user.bannerColor || '#7C3AED'};">
+              ${user.bannerImage ? `<img src="${user.bannerImage}" class="w-full h-full object-cover">` : ''}
+              <button onclick="closeModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center text-xs transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <!-- Content -->
+            <div class="px-5 pb-5 relative -mt-12">
+              <div class="relative inline-block mb-3">
+                <img src="${user.avatar}" class="w-20 h-20 rounded-full border-4 border-fs-darkest object-cover">
+                <div class="absolute bottom-1 right-1 w-4 h-4 rounded-full border-2 border-fs-darkest ${getStatusBg(user.status)}"></div>
+              </div>
+
+              <div class="font-bold text-lg text-fs-light leading-tight">${user.name}</div>
+              <div class="text-xs text-fs-muted mb-3">@${user.username || 'user'} #${user.tag || '0000'}</div>
+
+              ${user.customStatus ? `
+                <div class="bg-fs-sidebar p-2.5 rounded-lg text-xs text-fs-light mb-4 flex items-center space-x-2 border border-white/5">
+                  <span>💜</span>
+                  <span>${escapeHTML(user.customStatus)}</span>
+                </div>
+              ` : ''}
+
+              <div class="h-[1px] bg-[#2f3136] my-3"></div>
+
+              <div class="text-xs font-bold text-fs-muted uppercase tracking-wider mb-1">About Me</div>
+              <div class="text-xs text-fs-light leading-relaxed mb-4">${escapeHTML(user.bio || 'No bio provided.')}</div>
+
+              ${user.id === 'user_me' ? `
+                <button onclick="closeModal(); openModal('settings')" class="w-full bg-fs-purple hover:bg-fs-purpleDark text-white text-xs font-semibold py-2 rounded-md transition-colors flex items-center justify-center space-x-2">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                  <span>Edit Profile</span>
+                </button>
+              ` : `
+                <button onclick="closeModal(); openDM('${user.id}')" class="w-full bg-fs-purple hover:bg-fs-purpleDark text-white text-xs font-semibold py-2 rounded-md transition-colors flex items-center justify-center space-x-2">
+                  <i class="fa-solid fa-comment"></i>
+                  <span>Message ${user.name}</span>
+                </button>
+              `}
+
+            </div>
+
+          </div>
+        </div>
+      `;
+    }
+
+    function openModal(type) {
+      const modalContainer = document.getElementById('modal-container');
+
+      if (type === 'settings') {
+        const p = state.profile;
+        modalContainer.innerHTML = `
+          <div class="fixed inset-0 bg-fs-chat flex z-50 animate-fadeIn">
+            <!-- Sidebar -->
+            <div class="w-60 bg-fs-sidebar p-6 flex flex-col items-end shrink-0 border-r border-[#1f2023]">
+              <div class="w-48 space-y-4">
+                <div class="text-xs font-bold text-fs-muted uppercase tracking-wider">User Settings</div>
+                <div class="space-y-1">
+                  <button class="w-full text-left px-3 py-2 rounded-md text-sm bg-fs-purple text-white font-semibold flex items-center space-x-2">
+                    <i class="fa-solid fa-user-gear text-xs"></i>
+                    <span>Profile & Avatar</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 p-8 overflow-y-auto max-w-2xl relative">
+              <button onclick="closeModal()" class="absolute top-6 right-8 flex flex-col items-center text-fs-muted hover:text-fs-light">
+                <div class="w-8 h-8 rounded-full border border-fs-muted flex items-center justify-center text-xs mb-1">
+                  <i class="fa-solid fa-xmark"></i>
+                </div>
+                <span class="text-[10px] font-bold">ESC</span>
+              </button>
+
+              <h2 class="text-2xl font-bold text-fs-light mb-6 flex items-center space-x-2">
+                <span>User Profile Customization</span>
+                <span class="text-fs-purple">💜</span>
+              </h2>
+
+              <!-- Live Preview Card -->
+              <div class="bg-fs-darkest rounded-xl overflow-hidden border border-white/10 p-4 space-y-4 mb-6">
+                <div class="text-xs font-bold text-fs-muted uppercase">Live Preview</div>
+                <div class="flex items-center space-x-4 bg-fs-sidebar p-3 rounded-lg border border-white/5">
+                  <div class="relative">
+                    <img id="preview-avatar" src="${p.avatar}" class="w-16 h-16 rounded-full object-cover border-2 border-fs-purple">
+                    <div id="preview-status" class="absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-fs-sidebar ${getStatusBg(p.status)}"></div>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <div id="preview-name" class="font-bold text-base text-fs-light">${escapeHTML(p.name)}</div>
+                    <div id="preview-tag" class="text-xs text-fs-muted">@${escapeHTML(p.username)} #${escapeHTML(p.tag)}</div>
+                    <div id="preview-custom" class="text-xs text-fs-purpleSoft mt-1">${escapeHTML(p.customStatus)}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Form -->
+              <div class="space-y-5">
+                
+                <!-- Avatar Upload Section -->
+                <div class="bg-fs-darkest p-4 rounded-xl border border-white/5 space-y-3">
+                  <label class="text-xs font-bold text-fs-muted uppercase block">Avatar Picture</label>
+                  <div class="flex items-center space-x-4">
+                    <input type="file" id="avatar-file-input" accept="image/*" class="hidden" onchange="handleAvatarFileSelect(event)">
+                    <button onclick="document.getElementById('avatar-file-input').click()" class="bg-fs-purple hover:bg-fs-purpleDark text-white text-xs font-semibold px-4 py-2 rounded-md transition-colors flex items-center space-x-2">
+                      <i class="fa-solid fa-upload"></i>
+                      <span>Upload Image File</span>
+                    </button>
+                    <button onclick="generateInitialsAvatar()" class="bg-fs-sidebar hover:bg-fs-hover text-fs-light text-xs font-semibold px-3 py-2 rounded-md transition-colors border border-white/10">
+                      Reset to Initials
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Display Name & Username -->
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Display Name</label>
+                    <input type="text" id="input-name" value="${escapeHTML(p.name)}" oninput="updateLivePreview()" class="w-full bg-fs-darkest border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none focus:border-fs-purple">
+                  </div>
+                  <div>
+                    <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Username</label>
+                    <input type="text" id="input-username" value="${escapeHTML(p.username)}" oninput="updateLivePreview()" class="w-full bg-fs-darkest border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none focus:border-fs-purple">
+                  </div>
+                </div>
+
+                <!-- Tag & Status -->
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Tag (e.g. 1337)</label>
+                    <input type="text" id="input-tag" value="${escapeHTML(p.tag)}" oninput="updateLivePreview()" class="w-full bg-fs-darkest border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none focus:border-fs-purple">
+                  </div>
+                  <div>
+                    <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Online Status</label>
+                    <select id="input-status" onchange="updateLivePreview()" class="w-full bg-fs-darkest border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none focus:border-fs-purple">
+                      <option value="online" ${p.status === 'online' ? 'selected' : ''}>Online</option>
+                      <option value="idle" ${p.status === 'idle' ? 'selected' : ''}>Idle</option>
+                      <option value="dnd" ${p.status === 'dnd' ? 'selected' : ''}>Do Not Disturb</option>
+                      <option value="offline" ${p.status === 'offline' ? 'selected' : ''}>Invisible</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Custom Status & Banner Color -->
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Custom Status Message</label>
+                    <input type="text" id="input-custom-status" value="${escapeHTML(p.customStatus)}" oninput="updateLivePreview()" class="w-full bg-fs-darkest border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none focus:border-fs-purple">
+                  </div>
+                  <div>
+                    <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Profile Banner Color</label>
+                    <div class="flex space-x-2 items-center">
+                      <input type="color" id="input-banner-color" value="${p.bannerColor || '#7C3AED'}" class="w-10 h-9 bg-transparent cursor-pointer rounded border border-white/10">
+                      <input type="text" id="input-banner-hex" value="${p.bannerColor || '#7C3AED'}" class="flex-1 bg-fs-darkest border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Bio -->
+                <div>
+                  <label class="text-xs font-bold text-fs-muted uppercase block mb-1">About Me (Bio)</label>
+                  <textarea id="input-bio" rows="3" class="w-full bg-fs-darkest border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none focus:border-fs-purple">${escapeHTML(p.bio)}</textarea>
+                </div>
+
+                <div class="pt-4 flex justify-end space-x-3">
+                  <button onclick="closeModal()" class="px-5 py-2 text-xs font-semibold text-fs-muted hover:text-fs-light transition-colors">Cancel</button>
+                  <button onclick="saveProfileSettings()" class="bg-fs-purple hover:bg-fs-purpleDark text-white text-xs font-bold px-6 py-2.5 rounded-md transition-colors shadow-sm">
+                    Save Profile Changes
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (type === 'add-friend') {
+        modalContainer.innerHTML = `
+          <div class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
+            <div class="bg-fs-chat w-full max-w-md rounded-2xl p-6 shadow-2xl border border-white/10 animate-scaleUp">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-fs-light flex items-center space-x-2">
+                  <i class="fa-solid fa-user-plus text-fs-purple"></i>
+                  <span>Add Custom Contact</span>
+                </h3>
+                <button onclick="closeModal()" class="text-fs-muted hover:text-fs-light"><i class="fa-solid fa-xmark"></i></button>
+              </div>
+
+              <div class="space-y-4">
+                <div>
+                  <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Friend's Display Name</label>
+                  <input type="text" id="friend-name" placeholder="Jordan Lee" class="w-full bg-fs-darkest border border-white/10 rounded-md p-2.5 text-sm text-fs-light outline-none focus:border-fs-purple">
+                </div>
+                <div>
+                  <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Tag (e.g. 2026)</label>
+                  <input type="text" id="friend-tag" placeholder="2026" class="w-full bg-fs-darkest border border-white/10 rounded-md p-2.5 text-sm text-fs-light outline-none focus:border-fs-purple">
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-2">
+                  <button onclick="closeModal()" class="px-4 py-2 text-xs text-fs-muted hover:text-fs-light">Cancel</button>
+                  <button onclick="addCustomFriend()" class="bg-fs-purple hover:bg-fs-purpleDark text-white text-xs font-semibold px-5 py-2 rounded-md transition-colors">Add Contact</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (type === 'add-server') {
+        modalContainer.innerHTML = `
+          <div class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
+            <div class="bg-fs-chat w-full max-w-md rounded-2xl p-6 shadow-2xl border border-white/10 text-center animate-scaleUp">
+              <h3 class="text-xl font-bold text-fs-light mb-1">Create Your Server</h3>
+              <p class="text-xs text-fs-muted mb-4">Give your server a personality with a name.</p>
+
+              <input type="text" id="new-server-name" placeholder="FS Workspace" class="w-full bg-fs-darkest border border-white/10 rounded-md p-2.5 text-sm text-fs-light outline-none mb-4 focus:border-fs-purple">
+
+              <div class="flex justify-end space-x-3">
+                <button onclick="closeModal()" class="px-4 py-2 text-xs text-fs-muted hover:text-fs-light">Cancel</button>
+                <button onclick="createNewServer()" class="bg-fs-purple hover:bg-fs-purpleDark text-white text-xs font-bold px-5 py-2 rounded-md transition-colors">Create Server</button>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (type === 'create-channel') {
+        modalContainer.innerHTML = `
+          <div class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
+            <div class="bg-fs-chat w-full max-w-md rounded-2xl p-6 shadow-2xl border border-white/10 animate-scaleUp">
+              <h3 class="text-lg font-bold text-fs-light mb-3">Create Text Channel</h3>
+              <input type="text" id="new-channel-name" placeholder="new-channel" class="w-full bg-fs-darkest border border-white/10 rounded-md p-2.5 text-sm text-fs-light outline-none mb-4 focus:border-fs-purple">
+              
+              <div class="flex justify-end space-x-3">
+                <button onclick="closeModal()" class="px-4 py-2 text-xs text-fs-muted hover:text-fs-light">Cancel</button>
+                <button onclick="createNewChannel()" class="bg-fs-purple hover:bg-fs-purpleDark text-white text-xs font-bold px-5 py-2 rounded-md transition-colors">Create Channel</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('modal-container').innerHTML = '';
+    }
+
+    // Avatar File Reader Base64 Handler
+    let tempAvatarBase64 = null;
+
+    function handleAvatarFileSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        tempAvatarBase64 = evt.target.result;
+        document.getElementById('preview-avatar').src = tempAvatarBase64;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function generateInitialsAvatar() {
+      const name = document.getElementById('input-name').value || 'FS';
+      tempAvatarBase64 = createInitialAvatar(name, '#7C3AED');
+      document.getElementById('preview-avatar').src = tempAvatarBase64;
+    }
+
+    function updateLivePreview() {
+      const name = document.getElementById('input-name').value;
+      const username = document.getElementById('input-username').value;
+      const tag = document.getElementById('input-tag').value;
+      const status = document.getElementById('input-status').value;
+      const custom = document.getElementById('input-custom-status').value;
+
+      document.getElementById('preview-name').innerText = name || 'User';
+      document.getElementById('preview-tag').innerText = `@${username || 'user'} #${tag || '0000'}`;
+      document.getElementById('preview-custom').innerText = custom;
+      document.getElementById('preview-status').className = `absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-fs-sidebar ${getStatusBg(status)}`;
+    }
+
+    function saveProfileSettings() {
+      state.profile.name = document.getElementById('input-name').value.trim() || 'Alex Rivera';
+      state.profile.username = document.getElementById('input-username').value.trim() || 'alex_rivera';
+      state.profile.tag = document.getElementById('input-tag').value.trim() || '1337';
+      state.profile.status = document.getElementById('input-status').value;
+      state.profile.customStatus = document.getElementById('input-custom-status').value.trim();
+      state.profile.bannerColor = document.getElementById('input-banner-hex').value.trim() || '#7C3AED';
+      state.profile.bio = document.getElementById('input-bio').value.trim();
+
+      if (tempAvatarBase64) {
+        state.profile.avatar = tempAvatarBase64;
+      }
+
+      saveState();
+      renderUserBar();
+      renderMemberList();
+      renderMessages();
+      closeModal();
+    }
+
+    function addCustomFriend() {
+      const name = document.getElementById('friend-name').value.trim();
+      const tag = document.getElementById('friend-tag').value.trim() || '2026';
+      if (!name) return;
+
+      const newFriend = {
+        id: 'friend_' + Date.now(),
+        name,
+        tag,
+        username: name.toLowerCase().replace(/\s+/g, '_'),
+        avatar: createInitialAvatar(name, '#8B5CF6'),
+        bannerColor: '#8B5CF6',
+        status: 'online',
+        customStatus: 'Connected on FS 💜',
+        bio: 'Custom contact added on FS.'
+      };
+
+      state.friends.push(newFriend);
+      saveState();
+      renderSidebar();
+      renderMemberList();
+      closeModal();
+    }
+
+    function createNewServer() {
+      const name = document.getElementById('new-server-name').value.trim() || 'FS Server';
+      const id = 's_' + Date.now();
+
+      state.servers.push({
+        id,
+        name,
+        iconText: name.substring(0, 2).toUpperCase(),
+        channels: [
+          { id: 'c_' + Date.now(), name: 'general', type: 'text', topic: 'Welcome to ' + name }
+        ]
+      });
+
+      saveState();
+      switchServer(id);
+      closeModal();
+    }
+
+    function createNewChannel() {
+      const name = document.getElementById('new-channel-name').value.trim().toLowerCase().replace(/\s+/g, '-') || 'channel';
+      const server = state.servers.find(s => s.id === state.activeServerId);
+      
+      if (server) {
+        const id = 'c_' + Date.now();
+        server.channels.push({ id, name, type: 'text', topic: '#' + name });
+        saveState();
+        switchChannel(id);
+      }
+      closeModal();
+    }
+
+    // Helper: HTML Escaper
+    function escapeHTML(str) {
+      if (!str) return '';
+      return str.replace(/[&<>'"]/g, 
+        tag => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          "'": '&#39;',
+          '"': '&quot;'
+        }[tag] || tag)
+      );
+    }
+
+    // Helper: Map status to background color
+    function getStatusBg(status) {
+      switch(status) {
+        case 'online': return 'bg-fs-green';
+        case 'idle': return 'bg-fs-yellow';
+        case 'dnd': return 'bg-fs-red';
+        default: return 'bg-fs-muted';
+      }
+    }
+  </script>
 </body>
 </html>
