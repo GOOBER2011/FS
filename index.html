@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FS - Vibrant Purple & Dark Grey Edition</title>
+  <title>FS - Direct Messaging & Friends Platform</title>
+  
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome Icons -->
@@ -12,6 +13,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Supabase JS Client v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
     tailwind.config = {
@@ -28,10 +31,10 @@
               chat: '#313338',
               hover: '#383a40',
               active: '#404249',
-              purple: '#7C3AED',       /* Rich Vibrant Purple (Violet 600) */
-              purpleDark: '#6D28D9',   /* Deep Purple (Violet 700) */
-              purpleLight: '#8B5CF6',  /* Bright Purple (Violet 500) */
-              purpleSoft: '#A78BFA',   /* Soft Purple (Violet 400) */
+              purple: '#7C3AED',       /* Rich Vibrant Purple */
+              purpleDark: '#6D28D9',   /* Deep Purple */
+              purpleLight: '#8B5CF6',  /* Bright Purple */
+              purpleSoft: '#A78BFA',   /* Soft Purple */
               purpleBg: '#2E1065',     /* Dark Purple Tint */
               muted: '#949ba4',
               light: '#f2f3f5',
@@ -46,7 +49,7 @@
   </script>
 
   <style>
-    /* Custom Scrollbar - Flat & Clean */
+    /* Custom Flat Scrollbar - No Glow */
     ::-webkit-scrollbar {
       width: 8px;
       height: 8px;
@@ -62,7 +65,7 @@
       background: #111214;
     }
 
-    /* CSS Animations - Strictly NO Glow Effects */
+    /* Strict NO Glow animations */
     .animate-fadeIn {
       animation: fadeIn 0.15s ease-out forwards;
     }
@@ -78,7 +81,7 @@
       to { opacity: 1; }
     }
     @keyframes scaleUp {
-      from { opacity: 0; transform: scale(0.95); }
+      from { opacity: 0; transform: scale(0.96); }
       to { opacity: 1; transform: scale(1); }
     }
     @keyframes slideUp {
@@ -86,7 +89,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Tooltip arrow */
+    /* Tooltip Arrow */
     .tooltip-arrow::after {
       content: '';
       position: absolute;
@@ -98,7 +101,7 @@
       border-color: transparent #111214 transparent transparent;
     }
 
-    /* Voice Bar Pulsing */
+    /* Voice Bar Pulse */
     .voice-bar {
       animation: voicePulse 1s infinite ease-in-out alternate;
     }
@@ -113,36 +116,36 @@
 </head>
 <body class="h-full bg-fs-darkest text-fs-light font-sans antialiased select-none overflow-hidden flex flex-col">
 
-  <!-- Application Shell -->
+  <!-- Application Main Shell -->
   <div id="app" class="flex h-full w-full overflow-hidden">
     
-    <!-- 1. Leftmost Server Rail -->
+    <!-- 1. Left Navigation Rail -->
     <nav class="w-[72px] bg-fs-darkest flex flex-col items-center py-3 space-y-2 shrink-0 z-20 border-r border-[#1a1b1e]">
       
-      <!-- FS Main Branding Home Button -->
+      <!-- Home / Direct Messages Heart Button -->
       <div class="relative group flex items-center justify-center w-full">
         <div id="pill-home" class="absolute left-0 w-[4px] bg-fs-purple rounded-r-full transition-all duration-200 h-10 opacity-100"></div>
-        <button onclick="switchServer('home')" class="w-12 h-12 rounded-[24px] hover:rounded-[16px] bg-fs-purple text-white flex items-center justify-center transition-all duration-200 group-hover:bg-fs-purpleDark relative">
-          <!-- Vibrant Purple Heart Icon for FS -->
+        <button onclick="switchView('home')" class="w-12 h-12 rounded-[24px] hover:rounded-[16px] bg-fs-purple text-white flex items-center justify-center transition-all duration-200 group-hover:bg-fs-purpleDark relative shadow-sm">
+          <!-- FS Purple Heart Logo -->
           <svg class="w-7 h-7 text-white fill-current transition-transform duration-200 group-hover:scale-110" viewBox="0 0 24 24">
             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
           </svg>
         </button>
-        <!-- Tooltip -->
         <div class="absolute left-[80px] px-3 py-1.5 bg-fs-darkest text-fs-light text-xs font-bold rounded-md shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-150 z-50 whitespace-nowrap tooltip-arrow border border-white/5">
-          FS - Direct Messages
+          FS - Friends & Direct Messages
         </div>
       </div>
 
       <div class="w-8 h-[2px] bg-[#2d2f34] rounded my-1"></div>
 
-      <!-- Server List Container -->
-      <div id="server-list" class="flex-1 w-full space-y-2 overflow-y-auto flex flex-col items-center no-scrollbar">
-        <!-- Dynamic Server Icons Rendered Here -->
+      <!-- Server Rail List -->
+      <div id="server-rail-list" class="flex-1 w-full space-y-2 overflow-y-auto flex flex-col items-center no-scrollbar">
+        <!-- Servers rendered dynamically -->
       </div>
 
-      <!-- Add Server Button -->
+      <!-- Rail Action Items -->
       <div class="space-y-2 w-full flex flex-col items-center pt-2 border-t border-[#232428]">
+        <!-- Add Server -->
         <div class="relative group flex items-center justify-center w-full">
           <button onclick="openModal('add-server')" class="w-12 h-12 rounded-[24px] hover:rounded-[16px] bg-fs-sidebar hover:bg-fs-purple text-fs-green hover:text-white flex items-center justify-center transition-all duration-200">
             <i class="fa-solid fa-plus text-lg"></i>
@@ -151,23 +154,33 @@
             Add a Server
           </div>
         </div>
+
+        <!-- Quick Switch Account (Local Dual-User Test) -->
+        <div class="relative group flex items-center justify-center w-full">
+          <button onclick="quickToggleTestUser()" class="w-10 h-10 rounded-full bg-fs-purpleBg hover:bg-fs-purple text-fs-purpleSoft hover:text-white flex items-center justify-center transition-all duration-200 border border-fs-purple/40">
+            <i class="fa-solid fa-users-between-lines text-xs"></i>
+          </button>
+          <div class="absolute left-[80px] px-3 py-1.5 bg-fs-darkest text-fs-light text-xs font-semibold rounded-md shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-150 z-50 whitespace-nowrap tooltip-arrow border border-white/5">
+            Switch Test Profile (Dual-Tab Sync)
+          </div>
+        </div>
       </div>
     </nav>
 
-    <!-- 2. Channel & DM Navigation Sidebar -->
+    <!-- 2. Sidebar Navigation -->
     <aside class="w-60 bg-fs-sidebar flex flex-col shrink-0 z-10 border-r border-[#1f2023]">
       
-      <!-- Server Header / DM Header -->
+      <!-- Sidebar Header -->
       <div id="sidebar-header" class="h-12 border-b border-[#1f2023] px-4 flex items-center justify-between shadow-sm cursor-pointer hover:bg-fs-hover/40 transition-colors">
-        <!-- Dynamic Title -->
+        <!-- Rendered dynamically -->
       </div>
 
-      <!-- Channels / Friends Navigation List -->
-      <div id="channels-container" class="flex-1 overflow-y-auto p-2 space-y-4">
-        <!-- Rendered Dynamically -->
+      <!-- Navigation Content (Friends or Server Channels) -->
+      <div id="sidebar-content" class="flex-1 overflow-y-auto p-2 space-y-4">
+        <!-- Rendered dynamically -->
       </div>
 
-      <!-- Voice Channel Audio Overlay Panel (Shows when connected) -->
+      <!-- Voice Status Overlay -->
       <div id="voice-overlay" class="hidden bg-[#232428] border-t border-[#1f2023] p-2.5 flex flex-col space-y-2">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-2">
@@ -181,21 +194,10 @@
             <i class="fa-solid fa-phone-slash text-sm"></i>
           </button>
         </div>
-        <div class="flex items-center justify-around bg-fs-darkest/60 p-1.5 rounded-md">
-          <button onclick="toggleVoiceMute()" id="voice-mute-btn" class="text-fs-muted hover:text-fs-light text-xs flex items-center space-x-1 px-2 py-1 rounded hover:bg-fs-hover">
-            <i class="fa-solid fa-microphone"></i>
-            <span>Mute</span>
-          </button>
-          <button onclick="toggleVoiceDeafen()" id="voice-deafen-btn" class="text-fs-muted hover:text-fs-light text-xs flex items-center space-x-1 px-2 py-1 rounded hover:bg-fs-hover">
-            <i class="fa-solid fa-headphones"></i>
-            <span>Deafen</span>
-          </button>
-        </div>
       </div>
 
-      <!-- Bottom User Bar -->
+      <!-- Bottom User Profile Bar -->
       <div class="h-14 bg-[#232428] px-2 flex items-center justify-between shrink-0 border-t border-[#1f2023]">
-        <!-- User Profile Quick Card -->
         <div onclick="openModal('settings')" class="flex items-center space-x-2.5 p-1 -ml-1 rounded-md hover:bg-fs-hover/60 cursor-pointer flex-1 min-w-0 transition-colors group">
           <div class="relative shrink-0">
             <img id="user-bar-avatar" src="" class="w-9 h-9 rounded-full object-cover border border-white/10">
@@ -207,7 +209,6 @@
           </div>
         </div>
 
-        <!-- Mute, Deafen & Settings Trigger -->
         <div class="flex items-center space-x-0.5 text-fs-muted">
           <button onclick="toggleUserMute()" id="btn-self-mute" class="p-1.5 hover:bg-fs-hover hover:text-fs-light rounded text-xs transition-colors" title="Mute Microphone">
             <i class="fa-solid fa-microphone"></i>
@@ -215,118 +216,98 @@
           <button onclick="toggleUserDeafen()" id="btn-self-deafen" class="p-1.5 hover:bg-fs-hover hover:text-fs-light rounded text-xs transition-colors" title="Deafen Audio">
             <i class="fa-solid fa-headphones"></i>
           </button>
-          <button onclick="openModal('settings')" class="p-1.5 hover:bg-fs-hover hover:text-fs-light rounded text-xs transition-colors" title="User Settings">
+          <button onclick="openModal('settings')" class="p-1.5 hover:bg-fs-hover hover:text-fs-light rounded text-xs transition-colors" title="User & Supabase Settings">
             <i class="fa-solid fa-gear"></i>
           </button>
         </div>
       </div>
     </aside>
 
-    <!-- 3. Main Chat & Content Area -->
+    <!-- 3. Main Workspace Area -->
     <main class="flex-1 flex flex-col bg-fs-chat min-w-0 relative">
       
-      <!-- Top Chat Header -->
-      <header class="h-12 border-b border-[#1f2023] px-4 flex items-center justify-between bg-fs-chat z-10 shrink-0">
-        <div class="flex items-center space-x-3 min-w-0">
-          <span id="chat-header-prefix" class="text-fs-purple text-lg font-bold">#</span>
-          <h2 id="chat-header-title" class="font-bold text-fs-light text-base truncate">general</h2>
-          <div class="h-4 w-[1px] bg-[#3f4147] hidden md:block"></div>
-          <span id="chat-header-topic" class="text-xs text-fs-muted truncate hidden md:block max-w-xs lg:max-w-md">
-            Welcome to FS! Clean, vibrant purple interface with complete customization.
-          </span>
-        </div>
-
-        <!-- Header Actions -->
-        <div class="flex items-center space-x-3 text-fs-muted shrink-0">
-          <button onclick="openModal('add-friend')" id="btn-add-friend-top" class="hidden bg-fs-purple hover:bg-fs-purpleDark text-white text-xs font-semibold px-2.5 py-1 rounded transition-colors flex items-center space-x-1">
-            <i class="fa-solid fa-user-plus text-[10px]"></i>
-            <span>Add Friend</span>
-          </button>
-          <button onclick="toggleMemberList()" id="btn-member-toggle" class="hover:text-fs-light transition-colors text-fs-purple" title="Toggle Member List">
-            <i class="fa-solid fa-users text-sm"></i>
-          </button>
-
-          <!-- Search Input -->
-          <div class="relative hidden sm:block">
-            <input type="text" id="chat-search-input" onkeyup="handleSearch(this.value)" placeholder="Search messages..." class="bg-fs-header text-xs text-fs-light rounded px-2.5 py-1 pr-7 w-36 focus:w-48 transition-all duration-200 outline-none border border-transparent focus:border-fs-purple">
-            <i class="fa-solid fa-magnifying-glass absolute right-2.5 top-2 text-[10px] text-fs-muted pointer-events-none"></i>
-          </div>
-        </div>
+      <!-- Top Workspace Header -->
+      <header id="main-header" class="h-12 border-b border-[#1f2023] px-4 flex items-center justify-between bg-fs-chat z-10 shrink-0">
+        <!-- Rendered dynamically -->
       </header>
 
-      <!-- Main Body + Right Member Sidebar -->
+      <!-- Main Body Container -->
       <div class="flex-1 flex min-h-0 relative">
         
-        <!-- Messages & Input Box -->
-        <div class="flex-1 flex flex-col min-w-0">
+        <!-- Center Chat / Friends View -->
+        <div class="flex-1 flex flex-col min-w-0 relative">
           
-          <!-- Message Feed Scroll Area -->
-          <div id="messages-stream" class="flex-1 overflow-y-auto p-4 space-y-4">
-            <!-- Messages rendered dynamically -->
+          <!-- Direct Message Chat View / Server Chat View -->
+          <div id="chat-container" class="flex-1 flex flex-col min-h-0">
+            <!-- Messages Stream -->
+            <div id="messages-stream" class="flex-1 overflow-y-auto p-4 space-y-4">
+              <!-- Rendered dynamically -->
+            </div>
+
+            <!-- Chat Input Container -->
+            <div id="chat-input-wrapper" class="px-4 pb-5 pt-1 bg-fs-chat relative">
+              <!-- Replying Banner -->
+              <div id="reply-banner" class="hidden bg-fs-header px-3 py-1.5 rounded-t-md flex items-center justify-between text-xs text-fs-muted border-b border-[#3f4147]/40">
+                <div class="flex items-center space-x-2 truncate">
+                  <i class="fa-solid fa-reply text-fs-purple text-xs"></i>
+                  <span>Replying to <strong id="reply-user-name" class="text-fs-light">User</strong></span>
+                </div>
+                <button onclick="cancelReply()" class="hover:text-fs-light"><i class="fa-solid fa-xmark"></i></button>
+              </div>
+
+              <!-- Input Bar -->
+              <div class="bg-fs-hover rounded-lg flex items-center px-4 py-2.5 space-x-3">
+                <input type="file" id="chat-attachment-input" accept="image/*" class="hidden" onchange="handleAttachmentUpload(event)">
+                <button onclick="document.getElementById('chat-attachment-input').click()" class="text-fs-muted hover:text-fs-light transition-colors p-1.5 rounded-full bg-[#4e5058]/40 hover:bg-fs-purple text-xs flex items-center justify-center w-6 h-6" title="Upload Image Attachment">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+
+                <input type="text" id="message-input" onkeydown="handleInputKeydown(event)" placeholder="Message..." class="bg-transparent flex-1 text-sm text-fs-light outline-none placeholder-fs-muted">
+
+                <div class="flex items-center space-x-2 text-fs-muted">
+                  <button onclick="toggleEmojiPicker()" class="hover:text-fs-purpleLight text-lg transition-colors" title="Add Emoji">
+                    <i class="fa-regular fa-face-smile"></i>
+                  </button>
+                  <button onclick="sendMessage()" class="bg-fs-purple hover:bg-fs-purpleDark text-white p-1.5 rounded-md transition-colors text-xs px-3 font-semibold flex items-center space-x-1">
+                    <span>Send</span>
+                    <i class="fa-solid fa-paper-plane text-[10px]"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Emoji Popover -->
+              <div id="emoji-picker" class="hidden absolute right-6 bottom-20 w-72 bg-fs-header border border-white/10 rounded-xl shadow-2xl p-3 z-30 animate-scaleUp">
+                <div class="text-xs font-bold text-fs-muted mb-2 uppercase tracking-wider flex justify-between items-center">
+                  <span>Select Emoji</span>
+                  <span class="text-[10px] text-fs-purpleSoft">FS Emojis 💜</span>
+                </div>
+                <div class="grid grid-cols-6 gap-2 text-xl max-h-48 overflow-y-auto p-1">
+                  <button onclick="insertEmoji('💜')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">💜</button>
+                  <button onclick="insertEmoji('✨')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">✨</button>
+                  <button onclick="insertEmoji('🚀')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">🚀</button>
+                  <button onclick="insertEmoji('🔥')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">🔥</button>
+                  <button onclick="insertEmoji('💻')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">💻</button>
+                  <button onclick="insertEmoji('🎨')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">🎨</button>
+                  <button onclick="insertEmoji('👍')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">👍</button>
+                  <button onclick="insertEmoji('❤️')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">❤️</button>
+                  <button onclick="insertEmoji('😂')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">😂</button>
+                  <button onclick="insertEmoji('🎉')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">🎉</button>
+                  <button onclick="insertEmoji('👀')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">👀</button>
+                  <button onclick="insertEmoji('☕')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">☕</button>
+                </div>
+              </div>
+
+            </div>
           </div>
 
-          <!-- Chat Input Container -->
-          <div class="px-4 pb-5 pt-1 bg-fs-chat relative">
-            
-            <!-- Replying Banner -->
-            <div id="reply-banner" class="hidden bg-fs-header px-3 py-1.5 rounded-t-md flex items-center justify-between text-xs text-fs-muted border-b border-[#3f4147]/40">
-              <div class="flex items-center space-x-2 truncate">
-                <i class="fa-solid fa-reply text-fs-purple text-xs"></i>
-                <span>Replying to <strong id="reply-user-name" class="text-fs-light">User</strong></span>
-              </div>
-              <button onclick="cancelReply()" class="hover:text-fs-light"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-
-            <!-- Input Box Component -->
-            <div class="bg-fs-hover rounded-lg flex items-center px-4 py-2.5 space-x-3">
-              <!-- Upload Image/Attachment Button -->
-              <input type="file" id="chat-attachment-input" accept="image/*" class="hidden" onchange="handleAttachmentUpload(event)">
-              <button onclick="document.getElementById('chat-attachment-input').click()" class="text-fs-muted hover:text-fs-light transition-colors p-1.5 rounded-full bg-[#4e5058]/40 hover:bg-fs-purple text-xs flex items-center justify-center w-6 h-6" title="Upload Image Attachment">
-                <i class="fa-solid fa-plus"></i>
-              </button>
-
-              <!-- Text Input -->
-              <input type="text" id="message-input" onkeydown="handleInputKeydown(event)" placeholder="Message #general" class="bg-transparent flex-1 text-sm text-fs-light outline-none placeholder-fs-muted">
-
-              <!-- Input Right Controls -->
-              <div class="flex items-center space-x-2 text-fs-muted">
-                <button onclick="toggleEmojiPicker()" class="hover:text-fs-purpleLight text-lg transition-colors" title="Add Emoji">
-                  <i class="fa-regular fa-face-smile"></i>
-                </button>
-                <button onclick="sendMessage()" class="bg-fs-purple hover:bg-fs-purpleDark text-white p-1.5 rounded-md transition-colors text-xs px-3 font-semibold flex items-center space-x-1">
-                  <span>Send</span>
-                  <i class="fa-solid fa-paper-plane text-[10px]"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- Emoji Popover Picker -->
-            <div id="emoji-picker" class="hidden absolute right-6 bottom-20 w-72 bg-fs-header border border-white/10 rounded-xl shadow-2xl p-3 z-30 animate-scaleUp">
-              <div class="text-xs font-bold text-fs-muted mb-2 uppercase tracking-wider flex justify-between items-center">
-                <span>Select Emoji</span>
-                <span class="text-[10px] text-fs-purpleSoft">FS Emojis 💜</span>
-              </div>
-              <div class="grid grid-cols-6 gap-2 text-xl max-h-48 overflow-y-auto p-1">
-                <button onclick="insertEmoji('💜')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">💜</button>
-                <button onclick="insertEmoji('✨')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">✨</button>
-                <button onclick="insertEmoji('🚀')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">🚀</button>
-                <button onclick="insertEmoji('🔥')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">🔥</button>
-                <button onclick="insertEmoji('💻')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">💻</button>
-                <button onclick="insertEmoji('🎨')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">🎨</button>
-                <button onclick="insertEmoji('👍')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">👍</button>
-                <button onclick="insertEmoji('❤️')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">❤️</button>
-                <button onclick="insertEmoji('😂')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">😂</button>
-                <button onclick="insertEmoji('🎉')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">🎉</button>
-                <button onclick="insertEmoji('👀')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">👀</button>
-                <button onclick="insertEmoji('☕')" class="hover:bg-fs-hover p-1.5 rounded transition-transform active:scale-125">☕</button>
-              </div>
-            </div>
-
+          <!-- Friends Dashboard View -->
+          <div id="friends-dashboard" class="hidden flex-1 overflow-y-auto p-6">
+            <!-- Rendered dynamically -->
           </div>
 
         </div>
 
-        <!-- 4. Member List Sidebar -->
+        <!-- 4. Member Sidebar (For Servers) -->
         <aside id="member-sidebar" class="w-60 bg-fs-sidebar flex flex-col p-3 overflow-y-auto shrink-0 border-l border-[#1f2023] transition-all duration-200">
           <div id="member-list-content" class="space-y-4">
             <!-- Dynamic Member List -->
@@ -338,12 +319,12 @@
 
   </div>
 
-  <!-- Dynamic Modals Container -->
+  <!-- Dynamic Modal Container -->
   <div id="modal-container" class="relative z-50"></div>
 
-  <!-- JavaScript App Logic -->
+  <!-- Application Logic JavaScript -->
   <script>
-    // Audio Synth Engine for sound effects without external files
+    // Audio Synth Engine (Zero external audio URL dependencies)
     const SoundFX = {
       ctx: null,
       init() {
@@ -357,8 +338,8 @@
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(523.25, this.ctx.currentTime); // C5
-          osc.frequency.exponentialRampToValueAtTime(783.99, this.ctx.currentTime + 0.12); // G5
+          osc.frequency.setValueAtTime(523.25, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(783.99, this.ctx.currentTime + 0.12);
           gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.2);
           osc.connect(gain);
@@ -373,8 +354,8 @@
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(440, this.ctx.currentTime); // A4
-          osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.15); // A5
+          osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.15);
           gain.gain.setValueAtTime(0.09, this.ctx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
           osc.connect(gain);
@@ -385,37 +366,74 @@
       }
     };
 
-    // Helper: Generate Avatar SVG Data URL with User Initials
+    // Helper: Generate Initial SVG Avatar Data URL
     function createInitialAvatar(name, bgColor = '#7C3AED') {
       const initials = name ? name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'FS';
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
         <rect width="128" height="128" fill="${bgColor}" />
-        <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#FFFFFF" font-family="Inter, sans-serif" font-size="52" font-weight="bold">${initials}</text>
+        <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#FFFFFF" font-family="Inter, sans-serif" font-size="50" font-weight="bold">${initials}</text>
       </svg>`;
       return 'data:image/svg+xml;base64,' + btoa(svg);
     }
 
-    // Default Storage State Key
-    const STORAGE_KEY = 'FS_DISCORD_APP_STATE_V2';
+    const STORAGE_KEY = 'FS_DISCORD_REALTIME_STATE_V3';
+    const BROADCAST_CHANNEL_NAME = 'FS_APP_REALTIME_SYNC';
 
-    // Default Clean App State (Zero fake humans)
-    const defaultState = {
-      profile: {
-        id: 'user_me',
+    // Cross-tab Realtime Sync via BroadcastChannel API
+    const broadcast = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
+
+    // Initial Test Profiles for Dual-Tab Testing
+    const DEFAULT_PROFILES = [
+      {
+        id: 'user_alex',
         name: 'Alex Rivera',
-        tag: '1337',
         username: 'alex_rivera',
+        tag: '1337',
         avatar: createInitialAvatar('Alex Rivera', '#7C3AED'),
         bannerColor: '#7C3AED',
-        bannerImage: '',
         status: 'online',
         customStatus: 'Building on FS 💜',
-        bio: 'Frontend enthusiast & developer. Customizing my profile on FS!'
+        bio: 'Frontend enthusiast & developer.'
       },
-      friends: [], // User can add custom friends manually
-      activeServerId: 's_fs', // 'home' or server ID
+      {
+        id: 'user_sam',
+        name: 'Sam Vance',
+        username: 'sam_vance',
+        tag: '2026',
+        avatar: createInitialAvatar('Sam Vance', '#2563EB'),
+        bannerColor: '#2563EB',
+        status: 'online',
+        customStatus: 'Testing Direct Messaging!',
+        bio: 'Fullstack designer and chat power-user.'
+      },
+      {
+        id: 'user_maya',
+        name: 'Maya Lin',
+        username: 'maya_lin',
+        tag: '9900',
+        avatar: createInitialAvatar('Maya Lin', '#059669'),
+        bannerColor: '#059669',
+        status: 'idle',
+        customStatus: 'Designing UI themes 🎨',
+        bio: 'Product designer.'
+      }
+    ];
+
+    // Default Application State
+    const defaultState = {
+      currentUserId: 'user_alex',
+      profiles: DEFAULT_PROFILES,
+      friends: [
+        { id: 'f1', user1Id: 'user_alex', user2Id: 'user_sam', status: 'accepted' },
+        { id: 'f2', user1Id: 'user_alex', user2Id: 'user_maya', status: 'pending_outgoing' }
+      ],
+      activeView: 'home', // 'home' or 'server'
+      friendsTab: 'online', // 'online', 'all', 'pending', 'add_friend'
+      activeDMUserId: 'user_sam',
+      activeServerId: 's_fs',
       activeChannelId: 'c_welcome',
-      activeDMUserId: null,
+      userSearchQuery: '',
+      pendingAttachment: null,
       voice: {
         connected: false,
         channelId: null,
@@ -426,97 +444,145 @@
       userSelfMuted: false,
       userSelfDeafened: false,
       memberListVisible: true,
-      searchQuery: '',
-      pendingAttachment: null,
+      supabaseConfig: {
+        url: '',
+        anonKey: '',
+        connected: false
+      },
       servers: [
         {
           id: 's_fs',
           name: 'FS Community',
           iconText: 'FS',
           channels: [
-            { id: 'c_welcome', name: 'welcome', type: 'text', topic: 'Welcome to FS! Clean dark grey and vibrant purple chat.' },
-            { id: 'c_general', name: 'general', type: 'text', topic: 'General discussions and ideas.' },
-            { id: 'c_lounge', name: 'lounge', type: 'text', topic: 'Casual chat and chill room.' },
-            { id: 'v_lounge', name: '🔊 Lounge', type: 'voice' },
-            { id: 'v_dev', name: '🔊 Dev Sync', type: 'voice' }
+            { id: 'c_welcome', name: 'welcome', type: 'text', topic: 'Welcome to FS! Complete dark grey & purple workspace.' },
+            { id: 'c_general', name: 'general', type: 'text', topic: 'General discussions.' },
+            { id: 'v_lounge', name: '🔊 Lounge', type: 'voice' }
           ]
         }
       ],
       messages: {
         c_welcome: [
           {
-            id: 'm_welcome_1',
-            userId: 'user_me',
+            id: 'm_wel_1',
+            userId: 'user_alex',
             timestamp: 'Today at ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            content: 'Welcome to **FS**! 💜 Your clean, vibrant purple space with zero fake automated users. Customize your avatar, profile, and status in User Settings!',
-            reactions: [{ emoji: '💜', count: 1, users: ['user_me'] }]
+            content: 'Welcome to **FS**! 💜 Test private chats by switching accounts or opening 2 tabs side-by-side!',
+            reactions: [{ emoji: '💜', count: 1, users: ['user_alex'] }]
           }
         ],
-        c_general: [],
-        c_lounge: []
+        // DMs key format: "dm_user1_user2" (sorted alphabetically)
+        dm_user_alex_user_sam: [
+          {
+            id: 'm_dm_1',
+            userId: 'user_sam',
+            timestamp: 'Today at ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            content: 'Hey Alex! This direct message is private between us. Try sending an image attachment or emoji!',
+            reactions: [{ emoji: '🔥', count: 1, users: ['user_alex'] }]
+          }
+        ]
       }
     };
 
     // Load or initialize state
     let state = loadState();
+    let supabaseClient = null;
 
     function loadState() {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
           const parsed = JSON.parse(saved);
-          // Ensure profile fallback
-          if (!parsed.profile.avatar) parsed.profile.avatar = createInitialAvatar(parsed.profile.name);
           return parsed;
         }
       } catch(e) {}
       return defaultState;
     }
 
-    function saveState() {
+    function saveState(broadcastSync = true) {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        if (broadcastSync) {
+          broadcast.postMessage({ type: 'STATE_UPDATED', payload: state });
+        }
       } catch(e) {}
     }
 
-    // Get User Object by ID (Me or added Friend)
+    // Listen to cross-tab BroadcastChannel events
+    broadcast.onmessage = (event) => {
+      if (event.data && event.data.type === 'STATE_UPDATED') {
+        const currentActiveUser = state.currentUserId;
+        state = event.data.payload;
+        // Keep active logged in user for this tab if different
+        state.currentUserId = currentActiveUser;
+        renderAll();
+      }
+    };
+
+    // Initialize Supabase Client if Credentials Exist
+    function initSupabaseClient() {
+      if (state.supabaseConfig.url && state.supabaseConfig.anonKey && window.supabase) {
+        try {
+          supabaseClient = window.supabase.createClient(state.supabaseConfig.url, state.supabaseConfig.anonKey);
+          state.supabaseConfig.connected = true;
+          console.log('Supabase client connected successfully!');
+        } catch(e) {
+          state.supabaseConfig.connected = false;
+        }
+      } else {
+        state.supabaseConfig.connected = false;
+      }
+    }
+
+    // Get current logged-in user object
+    function getCurrentUser() {
+      return state.profiles.find(p => p.id === state.currentUserId) || state.profiles[0];
+    }
+
+    // Get any user object by ID
     function getUser(userId) {
-      if (userId === 'user_me') return state.profile;
-      return state.friends.find(f => f.id === userId) || {
+      return state.profiles.find(p => p.id === userId) || {
         id: userId,
         name: 'User',
-        tag: '0000',
         username: 'user',
+        tag: '0000',
         avatar: createInitialAvatar('User', '#4B5563'),
-        bannerColor: '#383a40',
         status: 'offline',
         customStatus: '',
         bio: 'FS User'
       };
     }
 
-    // Initialize App UI on load
-    window.addEventListener('DOMContentLoaded', () => {
-      renderServerList();
-      renderSidebar();
-      renderChatHeader();
-      renderMessages();
-      renderMemberList();
-      renderUserBar();
+    // Helper: DM Message Key helper (Alphabetically sorted IDs)
+    function getDMKey(user1Id, user2Id) {
+      const sorted = [user1Id, user2Id].sort();
+      return `dm_${sorted[0]}_${sorted[1]}`;
+    }
 
-      // Escape key modal close
+    // Initial render on load
+    window.addEventListener('DOMContentLoaded', () => {
+      initSupabaseClient();
+      renderAll();
+
       window.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeModal();
       });
     });
 
-    // --- RENDER FUNCTIONS ---
+    function renderAll() {
+      renderServerRail();
+      renderSidebar();
+      renderMainHeader();
+      renderMainBody();
+      renderUserBar();
+      renderMemberList();
+    }
 
     // 1. Render Left Server Rail
-    function renderServerList() {
-      const container = document.getElementById('server-list');
+    function renderServerRail() {
+      const container = document.getElementById('server-rail-list');
       container.innerHTML = state.servers.map(server => {
-        const isActive = state.activeServerId === server.id;
+        const isActive = state.activeView === 'server' && state.activeServerId === server.id;
         const pillClass = isActive ? 'h-10 opacity-100' : 'h-0 opacity-0 group-hover:h-5 group-hover:opacity-100';
         const bgClass = isActive ? 'bg-fs-purple text-white rounded-[16px]' : 'bg-fs-sidebar hover:bg-fs-purple text-fs-light hover:rounded-[16px] rounded-[24px]';
 
@@ -533,59 +599,70 @@
         `;
       }).join('');
 
-      // Home/DM Pill Status
       const homePill = document.getElementById('pill-home');
       if (homePill) {
-        homePill.className = `absolute left-0 w-[4px] bg-fs-purple rounded-r-full transition-all duration-200 ${state.activeServerId === 'home' ? 'h-10 opacity-100' : 'h-0 opacity-0 group-hover:h-5 group-hover:opacity-100'}`;
+        homePill.className = `absolute left-0 w-[4px] bg-fs-purple rounded-r-full transition-all duration-200 ${state.activeView === 'home' ? 'h-10 opacity-100' : 'h-0 opacity-0 group-hover:h-5 group-hover:opacity-100'}`;
       }
     }
 
-    // 2. Render Sidebar
+    // 2. Render Sidebar Navigation (DMs List or Channels List)
     function renderSidebar() {
       const headerContainer = document.getElementById('sidebar-header');
-      const channelsContainer = document.getElementById('channels-container');
-      const addFriendBtn = document.getElementById('btn-add-friend-top');
+      const contentContainer = document.getElementById('sidebar-content');
+      const me = getCurrentUser();
 
-      if (state.activeServerId === 'home') {
-        if (addFriendBtn) addFriendBtn.classList.remove('hidden');
-
+      if (state.activeView === 'home') {
         headerContainer.innerHTML = `
           <div class="font-bold text-fs-light text-sm flex items-center space-x-2">
             <span class="text-fs-purple">💜</span>
-            <span>FS Direct Messages</span>
+            <span>FS Workspace</span>
           </div>
         `;
 
-        channelsContainer.innerHTML = `
-          <div class="flex items-center justify-between text-xs font-bold text-fs-muted uppercase tracking-wider px-2 mb-2">
-            <span>Direct Messages</span>
-            <button onclick="openModal('add-friend')" class="hover:text-fs-purpleSoft text-xs" title="Add Contact">
-              <i class="fa-solid fa-plus"></i>
-            </button>
-          </div>
-          <div class="space-y-1">
-            ${state.friends.length === 0 ? `
-              <div class="p-3 text-center text-xs text-fs-muted bg-fs-darkest/40 rounded-lg border border-white/5 space-y-2">
-                <p>No added friends yet.</p>
-                <button onclick="openModal('add-friend')" class="text-xs text-fs-purpleSoft hover:underline font-semibold">Add a friend</button>
-              </div>
-            ` : state.friends.map(friend => `
-              <div onclick="openDM('${friend.id}')" class="flex items-center space-x-3 px-2 py-2 rounded-md hover:bg-fs-hover/60 cursor-pointer ${state.activeDMUserId === friend.id ? 'bg-fs-active text-white' : 'text-fs-muted hover:text-fs-light'} transition-colors">
-                <div class="relative shrink-0">
-                  <img src="${friend.avatar}" class="w-8 h-8 rounded-full object-cover">
-                  <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-fs-sidebar ${getStatusBg(friend.status)}"></div>
+        // Filter direct message friends list
+        const myFriendsList = getAcceptedFriends(me.id);
+
+        contentContainer.innerHTML = `
+          <!-- Friends Navigation Item -->
+          <button onclick="openFriendsDashboard()" class="w-full flex items-center space-x-3 px-2.5 py-2 rounded-md text-sm transition-colors ${state.activeDMUserId === null ? 'bg-fs-active text-white font-semibold' : 'text-fs-muted hover:bg-fs-hover/50 hover:text-fs-light'}">
+            <i class="fa-solid fa-user-group text-fs-purple"></i>
+            <span>Friends</span>
+            ${getPendingIncomingCount(me.id) > 0 ? `<span class="ml-auto bg-fs-red text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">${getPendingIncomingCount(me.id)}</span>` : ''}
+          </button>
+
+          <div class="pt-2">
+            <div class="flex items-center justify-between text-xs font-bold text-fs-muted uppercase tracking-wider px-2 mb-1">
+              <span>Direct Messages</span>
+              <button onclick="setFriendsTab('add_friend'); openFriendsDashboard();" class="hover:text-fs-purpleSoft text-xs" title="Add Contact">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            </div>
+
+            <div class="space-y-0.5">
+              ${myFriendsList.length === 0 ? `
+                <div class="p-3 text-center text-xs text-fs-muted bg-fs-darkest/40 rounded-lg border border-white/5 space-y-2 mt-2">
+                  <p>No direct messages yet.</p>
+                  <button onclick="setFriendsTab('add_friend'); openFriendsDashboard();" class="text-xs text-fs-purpleSoft hover:underline font-semibold">Add a friend</button>
                 </div>
-                <div class="min-w-0 flex-1">
-                  <div class="text-sm font-semibold truncate">${friend.name}</div>
-                  <div class="text-[11px] opacity-70 truncate">${friend.customStatus || '#' + friend.tag}</div>
-                </div>
-              </div>
-            `).join('')}
+              ` : myFriendsList.map(friend => {
+                const isActive = state.activeDMUserId === friend.id;
+                return `
+                  <div onclick="openDM('${friend.id}')" class="flex items-center space-x-3 px-2 py-2 rounded-md hover:bg-fs-hover/60 cursor-pointer ${isActive ? 'bg-fs-active text-white font-medium' : 'text-fs-muted hover:text-fs-light'} transition-colors group">
+                    <div class="relative shrink-0">
+                      <img src="${friend.avatar}" class="w-8 h-8 rounded-full object-cover">
+                      <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-fs-sidebar ${getStatusBg(friend.status)}"></div>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <div class="text-xs font-semibold truncate group-hover:text-fs-light">${friend.name}</div>
+                      <div class="text-[10px] opacity-70 truncate">${friend.customStatus || '#' + friend.tag}</div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
           </div>
         `;
       } else {
-        if (addFriendBtn) addFriendBtn.classList.add('hidden');
-
         const server = state.servers.find(s => s.id === state.activeServerId);
         if (!server) return;
 
@@ -597,14 +674,10 @@
         const textChannels = server.channels.filter(c => c.type === 'text');
         const voiceChannels = server.channels.filter(c => c.type === 'voice');
 
-        channelsContainer.innerHTML = `
-          <!-- Text Channels -->
+        contentContainer.innerHTML = `
           <div>
             <div class="flex items-center justify-between text-xs font-bold text-fs-muted uppercase tracking-wider px-2 mb-1">
-              <div class="flex items-center space-x-1">
-                <i class="fa-solid fa-chevron-down text-[9px]"></i>
-                <span>Text Channels</span>
-              </div>
+              <span>Text Channels</span>
               <i class="fa-solid fa-plus text-[10px] cursor-pointer hover:text-fs-light" onclick="openModal('create-channel')"></i>
             </div>
             <div class="space-y-0.5">
@@ -620,38 +693,20 @@
             </div>
           </div>
 
-          <!-- Voice Channels -->
           <div class="pt-3">
             <div class="flex items-center justify-between text-xs font-bold text-fs-muted uppercase tracking-wider px-2 mb-1">
-              <div class="flex items-center space-x-1">
-                <i class="fa-solid fa-chevron-down text-[9px]"></i>
-                <span>Voice Channels</span>
-              </div>
+              <span>Voice Channels</span>
             </div>
             <div class="space-y-0.5">
               ${voiceChannels.map(vc => {
                 const isConnected = state.voice.connected && state.voice.channelId === vc.id;
                 return `
-                  <div>
-                    <button onclick="connectVoice('${vc.id}', '${vc.name}')" class="w-full flex items-center justify-between px-2 py-1.5 rounded-md text-sm transition-colors ${isConnected ? 'bg-fs-hover text-fs-green font-semibold' : 'text-fs-muted hover:bg-fs-hover/50 hover:text-fs-light'}">
-                      <div class="flex items-center space-x-2 truncate">
-                        <i class="fa-solid fa-volume-high text-xs"></i>
-                        <span class="truncate">${vc.name.replace('🔊 ', '')}</span>
-                      </div>
-                      ${isConnected ? '<span class="text-[9px] bg-fs-green/20 text-fs-green px-1.5 py-0.5 rounded font-bold uppercase">Connected</span>' : ''}
-                    </button>
-                    ${isConnected ? `
-                      <div class="ml-6 my-1 flex items-center space-x-2 p-1 rounded bg-fs-darkest/50 border border-white/5">
-                        <img src="${state.profile.avatar}" class="w-5 h-5 rounded-full object-cover ring-2 ring-fs-green">
-                        <span class="text-xs text-fs-light truncate">${state.profile.name}</span>
-                        <div class="flex space-x-0.5 ml-auto pr-1">
-                          <span class="w-1 bg-fs-green voice-bar rounded-full"></span>
-                          <span class="w-1 bg-fs-green voice-bar rounded-full"></span>
-                          <span class="w-1 bg-fs-green voice-bar rounded-full"></span>
-                        </div>
-                      </div>
-                    ` : ''}
-                  </div>
+                  <button onclick="connectVoice('${vc.id}', '${vc.name}')" class="w-full flex items-center justify-between px-2 py-1.5 rounded-md text-sm transition-colors ${isConnected ? 'bg-fs-hover text-fs-green font-semibold' : 'text-fs-muted hover:bg-fs-hover/50 hover:text-fs-light'}">
+                    <div class="flex items-center space-x-2 truncate">
+                      <i class="fa-solid fa-volume-high text-xs"></i>
+                      <span class="truncate">${vc.name.replace('🔊 ', '')}</span>
+                    </div>
+                  </button>
                 `;
               }).join('')}
             </div>
@@ -660,53 +715,263 @@
       }
     }
 
-    // 3. Render Header
-    function renderChatHeader() {
-      const prefixEl = document.getElementById('chat-header-prefix');
-      const titleEl = document.getElementById('chat-header-title');
-      const topicEl = document.getElementById('chat-header-topic');
+    // 3. Render Top Header
+    function renderMainHeader() {
+      const container = document.getElementById('main-header');
+      const me = getCurrentUser();
 
-      if (state.activeServerId === 'home') {
-        const targetUser = getUser(state.activeDMUserId || 'user_me');
-        prefixEl.innerText = '@';
-        titleEl.innerText = targetUser.name;
-        topicEl.innerText = targetUser.customStatus || targetUser.bio || 'Direct Message on FS';
+      if (state.activeView === 'home' && state.activeDMUserId === null) {
+        // Friends Management Tab Header
+        container.innerHTML = `
+          <div class="flex items-center space-x-4 min-w-0">
+            <div class="flex items-center space-x-2 font-bold text-fs-light text-base border-r border-[#3f4147] pr-4">
+              <i class="fa-solid fa-user-group text-fs-purple"></i>
+              <span>Friends</span>
+            </div>
+
+            <!-- Friends Sub-Tabs -->
+            <div class="flex items-center space-x-1 text-xs font-semibold text-fs-muted">
+              <button onclick="setFriendsTab('online')" class="px-3 py-1.5 rounded-md transition-colors ${state.friendsTab === 'online' ? 'bg-fs-hover text-white font-bold' : 'hover:bg-fs-hover/40 hover:text-fs-light'}">Online</button>
+              <button onclick="setFriendsTab('all')" class="px-3 py-1.5 rounded-md transition-colors ${state.friendsTab === 'all' ? 'bg-fs-hover text-white font-bold' : 'hover:bg-fs-hover/40 hover:text-fs-light'}">All</button>
+              <button onclick="setFriendsTab('pending')" class="px-3 py-1.5 rounded-md transition-colors relative ${state.friendsTab === 'pending' ? 'bg-fs-hover text-white font-bold' : 'hover:bg-fs-hover/40 hover:text-fs-light'}">
+                Pending
+                ${getPendingIncomingCount(me.id) > 0 ? `<span class="ml-1.5 bg-fs-red text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">${getPendingIncomingCount(me.id)}</span>` : ''}
+              </button>
+              <button onclick="setFriendsTab('add_friend')" class="px-3 py-1.5 rounded-md transition-colors bg-fs-purple text-white hover:bg-fs-purpleDark font-bold ml-2">Add Friend</button>
+            </div>
+          </div>
+        `;
+      } else if (state.activeView === 'home' && state.activeDMUserId !== null) {
+        // Direct Message Chat Header
+        const friend = getUser(state.activeDMUserId);
+        container.innerHTML = `
+          <div class="flex items-center space-x-3 min-w-0">
+            <div class="relative">
+              <img src="${friend.avatar}" class="w-8 h-8 rounded-full object-cover">
+              <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-fs-chat ${getStatusBg(friend.status)}"></div>
+            </div>
+            <div class="font-bold text-fs-light text-base truncate">${friend.name}</div>
+            <span class="text-xs text-fs-muted truncate hidden sm:inline">@${friend.username} #${friend.tag}</span>
+          </div>
+
+          <div class="flex items-center space-x-3 text-fs-muted shrink-0">
+            <button onclick="openUserProfile('${friend.id}')" class="hover:text-fs-light text-xs font-semibold bg-fs-sidebar px-2.5 py-1 rounded border border-white/5 transition-colors">
+              View Profile
+            </button>
+          </div>
+        `;
       } else {
+        // Server Channel Header
         const server = state.servers.find(s => s.id === state.activeServerId);
         const channel = server ? server.channels.find(c => c.id === state.activeChannelId) : null;
-        prefixEl.innerText = '#';
-        titleEl.innerText = channel ? channel.name : 'general';
-        topicEl.innerText = channel ? (channel.topic || '') : '';
+
+        container.innerHTML = `
+          <div class="flex items-center space-x-3 min-w-0">
+            <span class="text-fs-purple text-lg font-bold">#</span>
+            <h2 class="font-bold text-fs-light text-base truncate">${channel ? channel.name : 'general'}</h2>
+            <div class="h-4 w-[1px] bg-[#3f4147] hidden md:block"></div>
+            <span class="text-xs text-fs-muted truncate hidden md:block">${channel ? channel.topic || '' : ''}</span>
+          </div>
+        `;
       }
     }
 
-    // 4. Render Messages Stream
-    function renderMessages() {
-      const stream = document.getElementById('messages-stream');
-      const channelMsgs = state.messages[state.activeChannelId] || [];
+    // 4. Render Main Body (Chat or Friends Dashboard)
+    function renderMainBody() {
+      const chatContainer = document.getElementById('chat-container');
+      const friendsDashboard = document.getElementById('friends-dashboard');
 
-      const filtered = state.searchQuery ? channelMsgs.filter(m => m.content.toLowerCase().includes(state.searchQuery.toLowerCase())) : channelMsgs;
+      if (state.activeView === 'home' && state.activeDMUserId === null) {
+        chatContainer.classList.add('hidden');
+        friendsDashboard.classList.remove('hidden');
+        renderFriendsDashboard();
+      } else {
+        friendsDashboard.classList.add('hidden');
+        chatContainer.classList.remove('hidden');
+        renderMessages();
+      }
+    }
 
-      if (filtered.length === 0) {
-        stream.innerHTML = `
-          <div class="flex flex-col items-center justify-center h-full text-fs-muted space-y-3 py-16">
-            <div class="w-16 h-16 rounded-full bg-fs-purple/10 flex items-center justify-center text-3xl text-fs-purple">
-              💜
+    // 5. Render Friends Dashboard Tab
+    function renderFriendsDashboard() {
+      const container = document.getElementById('friends-dashboard');
+      const me = getCurrentUser();
+
+      if (state.friendsTab === 'add_friend') {
+        container.innerHTML = `
+          <div class="max-w-2xl space-y-6 animate-fadeIn">
+            <div>
+              <h2 class="text-xl font-bold text-fs-light uppercase tracking-wide mb-1">Add Friend</h2>
+              <p class="text-xs text-fs-muted">You can add friends using their username and tag. (Example: <code class="bg-fs-darkest px-1.5 py-0.5 rounded text-fs-purpleSoft">sam_vance#2026</code>)</p>
             </div>
-            <div class="text-base font-bold text-fs-light">This is the start of the channel</div>
-            <div class="text-xs text-center max-w-sm text-fs-muted">No messages here yet. Type something below to kick off the chat!</div>
+
+            <div class="bg-fs-darkest p-4 rounded-xl border border-white/10 space-y-3">
+              <label class="text-xs font-bold text-fs-muted uppercase block">Friend Username#Tag</label>
+              <div class="flex items-center bg-fs-header rounded-lg border border-white/5 px-3 py-1 focus-within:border-fs-purple">
+                <input type="text" id="add-friend-input" placeholder="username#tag" class="w-full bg-transparent text-sm text-fs-light outline-none py-2 placeholder-fs-muted">
+                <button onclick="sendFriendRequest()" class="bg-fs-purple hover:bg-fs-purpleDark text-white font-semibold text-xs px-5 py-2 rounded-md transition-colors shrink-0">
+                  Send Friend Request
+                </button>
+              </div>
+              <div id="add-friend-feedback" class="text-xs hidden"></div>
+            </div>
+
+            <!-- Quick Dual-Tab Test Help Banner -->
+            <div class="bg-fs-purpleBg/40 border border-fs-purple/30 p-4 rounded-xl space-y-2">
+              <div class="flex items-center space-x-2 text-fs-purpleSoft font-bold text-sm">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Cross-Tab Realtime Testing</span>
+              </div>
+              <p class="text-xs text-fs-muted leading-relaxed">
+                Open this app in 2 browser tabs! Click the <i class="fa-solid fa-users-between-lines text-fs-purpleSoft"></i> icon in the left rail to switch user accounts in one tab. Friend requests and 1-on-1 direct messages will sync across tabs in real-time!
+              </p>
+            </div>
           </div>
         `;
         return;
       }
 
-      stream.innerHTML = filtered.map(msg => {
+      let friendsList = [];
+      if (state.friendsTab === 'online') {
+        friendsList = getAcceptedFriends(me.id).filter(f => f.status !== 'offline');
+      } else if (state.friendsTab === 'all') {
+        friendsList = getAcceptedFriends(me.id);
+      }
+
+      if (state.friendsTab === 'pending') {
+        const pendingIncoming = getPendingIncoming(me.id);
+        const pendingOutgoing = getPendingOutgoing(me.id);
+
+        container.innerHTML = `
+          <div class="space-y-6 max-w-3xl animate-fadeIn">
+            <div>
+              <div class="text-xs font-bold text-fs-muted uppercase tracking-wider mb-3">Incoming Requests — ${pendingIncoming.length}</div>
+              <div class="space-y-2">
+                ${pendingIncoming.length === 0 ? `
+                  <div class="text-xs text-fs-muted italic">No pending incoming requests.</div>
+                ` : pendingIncoming.map(user => `
+                  <div class="flex items-center justify-between bg-fs-darkest p-3 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
+                    <div class="flex items-center space-x-3">
+                      <img src="${user.avatar}" class="w-10 h-10 rounded-full object-cover">
+                      <div>
+                        <div class="font-bold text-sm text-fs-light">${user.name}</div>
+                        <div class="text-xs text-fs-muted">@${user.username} #${user.tag}</div>
+                      </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <button onclick="acceptFriendRequest('${user.id}')" class="bg-fs-green hover:bg-green-600 text-white p-2 rounded-full text-xs transition-colors" title="Accept">
+                        <i class="fa-solid fa-check px-1"></i>
+                      </button>
+                      <button onclick="declineFriendRequest('${user.id}')" class="bg-fs-hover hover:bg-fs-red text-fs-muted hover:text-white p-2 rounded-full text-xs transition-colors" title="Decline">
+                        <i class="fa-solid fa-xmark px-1"></i>
+                      </button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-white/5">
+              <div class="text-xs font-bold text-fs-muted uppercase tracking-wider mb-3">Outgoing Requests — ${pendingOutgoing.length}</div>
+              <div class="space-y-2">
+                ${pendingOutgoing.length === 0 ? `
+                  <div class="text-xs text-fs-muted italic">No pending outgoing requests.</div>
+                ` : pendingOutgoing.map(user => `
+                  <div class="flex items-center justify-between bg-fs-darkest p-3 rounded-xl border border-white/5">
+                    <div class="flex items-center space-x-3">
+                      <img src="${user.avatar}" class="w-10 h-10 rounded-full object-cover">
+                      <div>
+                        <div class="font-bold text-sm text-fs-light">${user.name}</div>
+                        <div class="text-xs text-fs-muted">@${user.username} #${user.tag}</div>
+                      </div>
+                    </div>
+                    <button onclick="declineFriendRequest('${user.id}')" class="text-xs text-fs-muted hover:text-fs-red px-3 py-1 rounded bg-fs-sidebar hover:bg-fs-hover transition-colors">
+                      Cancel Request
+                    </button>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // Render Online or All Friends
+      container.innerHTML = `
+        <div class="space-y-4 max-w-3xl animate-fadeIn">
+          <div class="text-xs font-bold text-fs-muted uppercase tracking-wider">
+            ${state.friendsTab === 'online' ? 'Online Friends' : 'All Friends'} — ${friendsList.length}
+          </div>
+
+          <div class="space-y-2">
+            ${friendsList.length === 0 ? `
+              <div class="flex flex-col items-center justify-center py-16 space-y-3 text-fs-muted">
+                <div class="w-16 h-16 rounded-full bg-fs-purple/10 flex items-center justify-center text-3xl text-fs-purple">💜</div>
+                <div class="font-bold text-fs-light">No friends found</div>
+                <button onclick="setFriendsTab('add_friend'); renderFriendsDashboard();" class="text-xs text-fs-purpleSoft hover:underline font-semibold">
+                  Add a friend with their username and tag
+                </button>
+              </div>
+            ` : friendsList.map(user => `
+              <div class="flex items-center justify-between bg-fs-sidebar/60 hover:bg-fs-sidebar p-3 rounded-xl border border-white/5 transition-colors group">
+                <div class="flex items-center space-x-3 min-w-0">
+                  <div class="relative shrink-0">
+                    <img src="${user.avatar}" class="w-10 h-10 rounded-full object-cover">
+                    <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-fs-sidebar ${getStatusBg(user.status)}"></div>
+                  </div>
+                  <div class="min-w-0">
+                    <div class="font-bold text-sm text-fs-light truncate">${user.name}</div>
+                    <div class="text-xs text-fs-muted truncate">${user.customStatus || '@' + user.username + ' #' + user.tag}</div>
+                  </div>
+                </div>
+
+                <div class="flex items-center space-x-2 shrink-0">
+                  <button onclick="openDM('${user.id}')" class="w-9 h-9 rounded-full bg-fs-darkest hover:bg-fs-purple text-fs-light hover:text-white flex items-center justify-center text-xs transition-colors" title="Message">
+                    <i class="fa-solid fa-comment"></i>
+                  </button>
+                  <button onclick="removeFriend('${user.id}')" class="w-9 h-9 rounded-full bg-fs-darkest hover:bg-fs-red text-fs-muted hover:text-white flex items-center justify-center text-xs transition-colors" title="Remove Friend">
+                    <i class="fa-solid fa-user-minus"></i>
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // 6. Render Messages Feed
+    function renderMessages() {
+      const stream = document.getElementById('messages-stream');
+      const me = getCurrentUser();
+
+      let msgKey = state.activeChannelId;
+      if (state.activeView === 'home' && state.activeDMUserId !== null) {
+        msgKey = getDMKey(me.id, state.activeDMUserId);
+      }
+
+      const channelMsgs = state.messages[msgKey] || [];
+
+      if (channelMsgs.length === 0) {
+        stream.innerHTML = `
+          <div class="flex flex-col items-center justify-center h-full text-fs-muted space-y-3 py-16">
+            <div class="w-16 h-16 rounded-full bg-fs-purple/10 flex items-center justify-center text-3xl text-fs-purple">
+              💜
+            </div>
+            <div class="text-base font-bold text-fs-light">This is the beginning of direct messaging</div>
+            <div class="text-xs text-center max-w-sm text-fs-muted">Say hello to kick off the conversation!</div>
+          </div>
+        `;
+        return;
+      }
+
+      stream.innerHTML = channelMsgs.map(msg => {
         const user = getUser(msg.userId);
-        const isSelf = msg.userId === 'user_me';
+        const isSelf = msg.userId === me.id;
 
         return `
           <div class="group relative flex space-x-3 hover:bg-fs-hover/30 p-2 -mx-2 rounded-lg transition-colors animate-slideUp">
-            <!-- Circular Avatar -->
             <img onclick="openUserProfile('${user.id}')" src="${user.avatar}" class="w-10 h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity shrink-0 border border-white/10">
             
             <div class="flex-1 min-w-0">
@@ -715,23 +980,20 @@
                 <span class="text-[11px] text-fs-muted">${msg.timestamp}</span>
               </div>
 
-              <!-- Content -->
               <div class="text-sm text-fs-light mt-0.5 leading-relaxed break-words">${escapeHTML(msg.content)}</div>
 
-              <!-- Attachment Image -->
               ${msg.attachment ? `
                 <div class="mt-2 max-w-md rounded-lg overflow-hidden border border-white/10 shadow-sm">
                   <img src="${msg.attachment}" class="w-full h-auto object-cover max-h-72">
                 </div>
               ` : ''}
 
-              <!-- Emoji Reactions -->
               ${msg.reactions && msg.reactions.length > 0 ? `
                 <div class="flex flex-wrap gap-1.5 mt-2">
                   ${msg.reactions.map((r, rIdx) => {
-                    const reactedByMe = r.users.includes('user_me');
+                    const reactedByMe = r.users.includes(me.id);
                     return `
-                      <button onclick="toggleReaction('${msg.id}', ${rIdx})" class="flex items-center space-x-1 px-2 py-0.5 rounded-md text-xs border transition-all ${reactedByMe ? 'bg-fs-purple/20 border-fs-purple text-fs-purpleSoft' : 'bg-fs-sidebar border-white/5 text-fs-muted hover:border-fs-muted'}">
+                      <button onclick="toggleReaction('${msgKey}', '${msg.id}', ${rIdx})" class="flex items-center space-x-1 px-2 py-0.5 rounded-md text-xs border transition-all ${reactedByMe ? 'bg-fs-purple/20 border-fs-purple text-fs-purpleSoft' : 'bg-fs-sidebar border-white/5 text-fs-muted hover:border-fs-muted'}">
                         <span>${r.emoji}</span>
                         <span class="font-semibold">${r.count}</span>
                       </button>
@@ -741,18 +1003,12 @@
               ` : ''}
             </div>
 
-            <!-- Message Action Toolbar -->
+            <!-- Hover Action Toolbar -->
             <div class="absolute right-2 -top-3 hidden group-hover:flex items-center bg-fs-header border border-white/10 rounded-md shadow-lg text-fs-muted px-1 py-0.5 space-x-1 z-10">
-              <button onclick="quickReact('${msg.id}', '💜')" class="hover:text-fs-light hover:bg-fs-hover p-1 rounded transition-colors" title="React 💜">💜</button>
-              <button onclick="quickReact('${msg.id}', '👍')" class="hover:text-fs-light hover:bg-fs-hover p-1 rounded transition-colors" title="React 👍">👍</button>
-              <button onclick="replyToMessage('${msg.id}')" class="hover:text-fs-light hover:bg-fs-hover p-1 rounded text-xs transition-colors" title="Reply">
-                <i class="fa-solid fa-reply"></i>
-              </button>
-              ${isSelf ? `
-                <button onclick="deleteMessage('${msg.id}')" class="hover:text-fs-red hover:bg-fs-hover p-1 rounded text-xs transition-colors" title="Delete Message">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
-              ` : ''}
+              <button onclick="quickReact('${msgKey}', '${msg.id}', '💜')" class="hover:text-fs-light p-1 rounded">💜</button>
+              <button onclick="quickReact('${msgKey}', '${msg.id}', '👍')" class="hover:text-fs-light p-1 rounded">👍</button>
+              <button onclick="replyToMessage('${msg.id}')" class="hover:text-fs-light p-1 rounded text-xs"><i class="fa-solid fa-reply"></i></button>
+              ${isSelf ? `<button onclick="deleteMessage('${msgKey}', '${msg.id}')" class="hover:text-fs-red p-1 rounded text-xs"><i class="fa-solid fa-trash"></i></button>` : ''}
             </div>
           </div>
         `;
@@ -761,31 +1017,32 @@
       stream.scrollTop = stream.scrollHeight;
     }
 
-    // 5. Render Member Sidebar List
+    // 7. Render Member List Sidebar (For Servers)
     function renderMemberList() {
       const container = document.getElementById('member-list-content');
-      if (!state.memberListVisible) return;
+      if (state.activeView === 'home') {
+        document.getElementById('member-sidebar').classList.add('hidden');
+        return;
+      }
 
-      // Real users list: user_me + custom added friends
-      const allMembers = [state.profile, ...state.friends];
-
+      document.getElementById('member-sidebar').classList.remove('hidden');
       container.innerHTML = `
         <div>
           <div class="text-xs font-bold text-fs-muted uppercase tracking-wider px-2 mb-2">
-            MEMBERS — ${allMembers.length}
+            MEMBERS — ${state.profiles.length}
           </div>
           <div class="space-y-1">
-            ${allMembers.map(user => `
-              <div onclick="openUserProfile('${user.id}')" class="flex items-center space-x-3 px-2 py-1.5 rounded-md hover:bg-fs-hover/60 cursor-pointer group transition-colors">
+            ${state.profiles.map(user => `
+              <div onclick="openUserProfile('${user.id}')" class="flex items-center space-x-3 px-2 py-1.5 rounded-md hover:bg-fs-hover/60 cursor-pointer transition-colors">
                 <div class="relative shrink-0">
-                  <img src="${user.avatar}" class="w-8 h-8 rounded-full object-cover border border-white/5">
+                  <img src="${user.avatar}" class="w-8 h-8 rounded-full object-cover">
                   <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-fs-sidebar ${getStatusBg(user.status)}"></div>
                 </div>
                 <div class="min-w-0 flex-1">
-                  <div class="text-sm font-semibold truncate ${user.id === 'user_me' ? 'text-fs-purpleSoft font-bold' : 'text-fs-light'}">
-                    ${user.name} ${user.id === 'user_me' ? ' (You)' : ''}
+                  <div class="text-xs font-semibold truncate ${user.id === state.currentUserId ? 'text-fs-purpleSoft font-bold' : 'text-fs-light'}">
+                    ${user.name}
                   </div>
-                  <div class="text-[11px] text-fs-muted truncate">${user.customStatus || '#' + user.tag}</div>
+                  <div class="text-[10px] text-fs-muted truncate">${user.customStatus || '#' + user.tag}</div>
                 </div>
               </div>
             `).join('')}
@@ -794,112 +1051,183 @@
       `;
     }
 
-    // 6. Render Bottom Left User Card
+    // 8. Render Bottom Left User Card
     function renderUserBar() {
-      const u = state.profile;
-      document.getElementById('user-bar-avatar').src = u.avatar;
-      document.getElementById('user-bar-name').innerText = u.name;
-      document.getElementById('user-bar-tag').innerText = '#' + u.tag;
-      document.getElementById('user-bar-status').className = `absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#232428] ${getStatusBg(u.status)}`;
+      const me = getCurrentUser();
+      document.getElementById('user-bar-avatar').src = me.avatar;
+      document.getElementById('user-bar-name').innerText = me.name;
+      document.getElementById('user-bar-tag').innerText = '#' + me.tag;
+      document.getElementById('user-bar-status').className = `absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#232428] ${getStatusBg(me.status)}`;
     }
 
-    // --- ACTIONS & NAVIGATION ---
+    // --- NAVIGATION LOGIC ---
 
-    function switchServer(serverId) {
-      state.activeServerId = serverId;
-      if (serverId !== 'home') {
-        const server = state.servers.find(s => s.id === serverId);
-        if (server && server.channels.length > 0) {
-          state.activeChannelId = server.channels[0].id;
-        }
+    function switchView(view) {
+      state.activeView = view;
+      if (view === 'home') {
+        state.activeDMUserId = null;
       }
       saveState();
-      renderServerList();
-      renderSidebar();
-      renderChatHeader();
-      renderMessages();
-      renderMemberList();
+      renderAll();
+    }
+
+    function switchServer(serverId) {
+      state.activeView = 'server';
+      state.activeServerId = serverId;
+      const server = state.servers.find(s => s.id === serverId);
+      if (server && server.channels.length > 0) {
+        state.activeChannelId = server.channels[0].id;
+      }
+      saveState();
+      renderAll();
     }
 
     function switchChannel(channelId) {
       state.activeChannelId = channelId;
       saveState();
-      renderSidebar();
-      renderChatHeader();
-      renderMessages();
+      renderAll();
     }
 
-    function openDM(userId) {
-      state.activeDMUserId = userId;
-      renderSidebar();
-      renderChatHeader();
-      renderMessages();
+    function openDM(friendUserId) {
+      state.activeView = 'home';
+      state.activeDMUserId = friendUserId;
+      saveState();
+      renderAll();
     }
 
-    function toggleMemberList() {
-      state.memberListVisible = !state.memberListVisible;
-      const sidebar = document.getElementById('member-sidebar');
-      const btn = document.getElementById('btn-member-toggle');
+    function openFriendsDashboard() {
+      state.activeView = 'home';
+      state.activeDMUserId = null;
+      saveState();
+      renderAll();
+    }
 
-      if (state.memberListVisible) {
-        sidebar.classList.remove('w-0', 'p-0', 'overflow-hidden');
-        sidebar.classList.add('w-60', 'p-3');
-        btn.classList.add('text-fs-purple');
-      } else {
-        sidebar.classList.remove('w-60', 'p-3');
-        sidebar.classList.add('w-0', 'p-0', 'overflow-hidden');
-        btn.classList.remove('text-fs-purple');
+    function setFriendsTab(tab) {
+      state.friendsTab = tab;
+      renderAll();
+    }
+
+    // Quick Local Account Switcher (For testing Dual accounts)
+    function quickToggleTestUser() {
+      const currentIndex = state.profiles.findIndex(p => p.id === state.currentUserId);
+      const nextIndex = (currentIndex + 1) % state.profiles.length;
+      state.currentUserId = state.profiles[nextIndex].id;
+      saveState(false); // Don't broadcast switch to other tab so dual tab works!
+      renderAll();
+    }
+
+    // --- FRIEND SYSTEM LOGIC ---
+
+    function getAcceptedFriends(userId) {
+      const friendRecords = state.friends.filter(f => f.status === 'accepted' && (f.user1Id === userId || f.user2Id === userId));
+      return friendRecords.map(f => {
+        const otherId = f.user1Id === userId ? f.user2Id : f.user1Id;
+        return getUser(otherId);
+      });
+    }
+
+    function getPendingIncoming(userId) {
+      const friendRecords = state.friends.filter(f => f.status === 'pending_outgoing' && f.user2Id === userId);
+      return friendRecords.map(f => getUser(f.user1Id));
+    }
+
+    function getPendingOutgoing(userId) {
+      const friendRecords = state.friends.filter(f => f.status === 'pending_outgoing' && f.user1Id === userId);
+      return friendRecords.map(f => getUser(f.user2Id));
+    }
+
+    function getPendingIncomingCount(userId) {
+      return getPendingIncoming(userId).length;
+    }
+
+    function sendFriendRequest() {
+      const input = document.getElementById('add-friend-input');
+      const feedback = document.getElementById('add-friend-feedback');
+      const val = input.value.trim().toLowerCase();
+      const me = getCurrentUser();
+
+      feedback.classList.remove('hidden', 'text-fs-green', 'text-fs-red');
+
+      if (!val.includes('#')) {
+        feedback.innerText = 'Please enter the full username and tag (e.g. sam_vance#2026)';
+        feedback.classList.add('text-fs-red');
+        return;
+      }
+
+      const [targetUsername, targetTag] = val.split('#');
+      const targetUser = state.profiles.find(p => p.username.toLowerCase() === targetUsername && p.tag === targetTag);
+
+      if (!targetUser) {
+        feedback.innerText = 'User not found. Try testing with sam_vance#2026 or maya_lin#9900!';
+        feedback.classList.add('text-fs-red');
+        return;
+      }
+
+      if (targetUser.id === me.id) {
+        feedback.innerText = 'You cannot add yourself as a friend.';
+        feedback.classList.add('text-fs-red');
+        return;
+      }
+
+      // Check existing relationship
+      const existing = state.friends.find(f => 
+        (f.user1Id === me.id && f.user2Id === targetUser.id) ||
+        (f.user1Id === targetUser.id && f.user2Id === me.id)
+      );
+
+      if (existing) {
+        if (existing.status === 'accepted') {
+          feedback.innerText = 'You are already friends with ' + targetUser.name + '!';
+        } else {
+          feedback.innerText = 'A friend request is already pending for this user.';
+        }
+        feedback.classList.add('text-fs-red');
+        return;
+      }
+
+      // Create outgoing pending request
+      state.friends.push({
+        id: 'f_' + Date.now(),
+        user1Id: me.id,
+        user2Id: targetUser.id,
+        status: 'pending_outgoing'
+      });
+
+      saveState();
+      input.value = '';
+      feedback.innerText = 'Friend request sent to ' + targetUser.name + '!';
+      feedback.classList.add('text-fs-green');
+      
+      setTimeout(() => renderAll(), 1000);
+    }
+
+    function acceptFriendRequest(senderUserId) {
+      const me = getCurrentUser();
+      const record = state.friends.find(f => f.user1Id === senderUserId && f.user2Id === me.id);
+      if (record) {
+        record.status = 'accepted';
+        saveState();
+        renderAll();
       }
     }
 
-    function handleSearch(val) {
-      state.searchQuery = val;
-      renderMessages();
+    function declineFriendRequest(otherUserId) {
+      const me = getCurrentUser();
+      state.friends = state.friends.filter(f => 
+        !((f.user1Id === me.id && f.user2Id === otherUserId) || (f.user1Id === otherUserId && f.user2Id === me.id))
+      );
+      saveState();
+      renderAll();
     }
 
-    // Voice Engine
-    function connectVoice(channelId, channelName) {
-      state.voice.connected = true;
-      state.voice.channelId = channelId;
-      state.voice.channelName = channelName;
-
-      SoundFX.playVoiceConnect();
-
-      const overlay = document.getElementById('voice-overlay');
-      document.getElementById('voice-channel-label').innerText = channelName;
-      overlay.classList.remove('hidden');
-
-      renderSidebar();
+    function removeFriend(friendUserId) {
+      declineFriendRequest(friendUserId);
+      if (state.activeDMUserId === friendUserId) {
+        state.activeDMUserId = null;
+      }
     }
 
-    function disconnectVoice() {
-      state.voice.connected = false;
-      state.voice.channelId = null;
-      document.getElementById('voice-overlay').classList.add('hidden');
-      renderSidebar();
-    }
-
-    function toggleVoiceMute() {
-      state.voice.muted = !state.voice.muted;
-      document.getElementById('voice-mute-btn').classList.toggle('text-fs-red', state.voice.muted);
-    }
-
-    function toggleVoiceDeafen() {
-      state.voice.deafened = !state.voice.deafened;
-      document.getElementById('voice-deafen-btn').classList.toggle('text-fs-red', state.voice.deafened);
-    }
-
-    function toggleUserMute() {
-      state.userSelfMuted = !state.userSelfMuted;
-      document.getElementById('btn-self-mute').classList.toggle('text-fs-red', state.userSelfMuted);
-    }
-
-    function toggleUserDeafen() {
-      state.userSelfDeafened = !state.userSelfDeafened;
-      document.getElementById('btn-self-deafen').classList.toggle('text-fs-red', state.userSelfDeafened);
-    }
-
-    // --- MESSAGING ---
+    // --- MESSAGING LOGIC ---
 
     function handleInputKeydown(e) {
       if (e.key === 'Enter' && !e.shiftKey) {
@@ -923,24 +1251,30 @@
     function sendMessage() {
       const input = document.getElementById('message-input');
       const text = input.value.trim();
-      
+      const me = getCurrentUser();
+
       if (!text && !state.pendingAttachment) return;
+
+      let msgKey = state.activeChannelId;
+      if (state.activeView === 'home' && state.activeDMUserId !== null) {
+        msgKey = getDMKey(me.id, state.activeDMUserId);
+      }
 
       const newMsg = {
         id: 'm_' + Date.now(),
-        userId: 'user_me',
+        userId: me.id,
         timestamp: 'Today at ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         content: text,
         attachment: state.pendingAttachment || null,
         reactions: []
       };
 
-      if (!state.messages[state.activeChannelId]) {
-        state.messages[state.activeChannelId] = [];
+      if (!state.messages[msgKey]) {
+        state.messages[msgKey] = [];
       }
 
-      state.messages[state.activeChannelId].push(newMsg);
-      
+      state.messages[msgKey].push(newMsg);
+
       input.value = '';
       state.pendingAttachment = null;
       cancelReply();
@@ -950,13 +1284,14 @@
       renderMessages();
     }
 
-    function toggleReaction(msgId, rIdx) {
-      const msgs = state.messages[state.activeChannelId] || [];
+    function toggleReaction(msgKey, msgId, rIdx) {
+      const msgs = state.messages[msgKey] || [];
       const msg = msgs.find(m => m.id === msgId);
+      const me = getCurrentUser();
       if (!msg) return;
 
       const reaction = msg.reactions[rIdx];
-      const userIdx = reaction.users.indexOf('user_me');
+      const userIdx = reaction.users.indexOf(me.id);
 
       if (userIdx > -1) {
         reaction.users.splice(userIdx, 1);
@@ -965,33 +1300,39 @@
           msg.reactions.splice(rIdx, 1);
         }
       } else {
-        reaction.users.push('user_me');
+        reaction.users.push(me.id);
         reaction.count++;
       }
       saveState();
       renderMessages();
     }
 
-    function quickReact(msgId, emoji) {
-      const msgs = state.messages[state.activeChannelId] || [];
+    function quickReact(msgKey, msgId, emoji) {
+      const msgs = state.messages[msgKey] || [];
       const msg = msgs.find(m => m.id === msgId);
+      const me = getCurrentUser();
       if (!msg) return;
 
       const existing = msg.reactions.find(r => r.emoji === emoji);
       if (existing) {
-        if (!existing.users.includes('user_me')) {
-          existing.users.push('user_me');
+        if (!existing.users.includes(me.id)) {
+          existing.users.push(me.id);
           existing.count++;
         }
       } else {
-        msg.reactions.push({ emoji, count: 1, users: ['user_me'] });
+        msg.reactions.push({ emoji, count: 1, users: [me.id] });
       }
       saveState();
       renderMessages();
     }
 
     function replyToMessage(msgId) {
-      const msgs = state.messages[state.activeChannelId] || [];
+      const me = getCurrentUser();
+      let msgKey = state.activeChannelId;
+      if (state.activeView === 'home' && state.activeDMUserId !== null) {
+        msgKey = getDMKey(me.id, state.activeDMUserId);
+      }
+      const msgs = state.messages[msgKey] || [];
       const msg = msgs.find(m => m.id === msgId);
       if (!msg) return;
 
@@ -1005,17 +1346,16 @@
       document.getElementById('reply-banner').classList.add('hidden');
     }
 
-    function deleteMessage(msgId) {
-      if (state.messages[state.activeChannelId]) {
-        state.messages[state.activeChannelId] = state.messages[state.activeChannelId].filter(m => m.id !== msgId);
+    function deleteMessage(msgKey, msgId) {
+      if (state.messages[msgKey]) {
+        state.messages[msgKey] = state.messages[msgKey].filter(m => m.id !== msgId);
         saveState();
         renderMessages();
       }
     }
 
     function toggleEmojiPicker() {
-      const picker = document.getElementById('emoji-picker');
-      picker.classList.toggle('hidden');
+      document.getElementById('emoji-picker').classList.toggle('hidden');
     }
 
     function insertEmoji(emoji) {
@@ -1025,25 +1365,22 @@
       input.focus();
     }
 
-    // --- PROFILE & SETTINGS MODALS ---
+    // --- MODALS & SETTINGS ---
 
     function openUserProfile(userId) {
       const user = getUser(userId);
-
       const modalContainer = document.getElementById('modal-container');
+      
       modalContainer.innerHTML = `
         <div class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
           <div class="bg-fs-darkest w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl border border-white/10 animate-scaleUp">
             
-            <!-- Banner -->
             <div class="h-28 relative" style="background-color: ${user.bannerColor || '#7C3AED'};">
-              ${user.bannerImage ? `<img src="${user.bannerImage}" class="w-full h-full object-cover">` : ''}
               <button onclick="closeModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center text-xs transition-colors">
                 <i class="fa-solid fa-xmark"></i>
               </button>
             </div>
 
-            <!-- Content -->
             <div class="px-5 pb-5 relative -mt-12">
               <div class="relative inline-block mb-3">
                 <img src="${user.avatar}" class="w-20 h-20 rounded-full border-4 border-fs-darkest object-cover">
@@ -1051,7 +1388,7 @@
               </div>
 
               <div class="font-bold text-lg text-fs-light leading-tight">${user.name}</div>
-              <div class="text-xs text-fs-muted mb-3">@${user.username || 'user'} #${user.tag || '0000'}</div>
+              <div class="text-xs text-fs-muted mb-3">@${user.username} #${user.tag}</div>
 
               ${user.customStatus ? `
                 <div class="bg-fs-sidebar p-2.5 rounded-lg text-xs text-fs-light mb-4 flex items-center space-x-2 border border-white/5">
@@ -1065,7 +1402,7 @@
               <div class="text-xs font-bold text-fs-muted uppercase tracking-wider mb-1">About Me</div>
               <div class="text-xs text-fs-light leading-relaxed mb-4">${escapeHTML(user.bio || 'No bio provided.')}</div>
 
-              ${user.id === 'user_me' ? `
+              ${user.id === state.currentUserId ? `
                 <button onclick="closeModal(); openModal('settings')" class="w-full bg-fs-purple hover:bg-fs-purpleDark text-white text-xs font-semibold py-2 rounded-md transition-colors flex items-center justify-center space-x-2">
                   <i class="fa-solid fa-pen-to-square"></i>
                   <span>Edit Profile</span>
@@ -1076,7 +1413,6 @@
                   <span>Message ${user.name}</span>
                 </button>
               `}
-
             </div>
 
           </div>
@@ -1086,25 +1422,29 @@
 
     function openModal(type) {
       const modalContainer = document.getElementById('modal-container');
+      const me = getCurrentUser();
 
       if (type === 'settings') {
-        const p = state.profile;
         modalContainer.innerHTML = `
           <div class="fixed inset-0 bg-fs-chat flex z-50 animate-fadeIn">
-            <!-- Sidebar -->
+            <!-- Settings Sidebar -->
             <div class="w-60 bg-fs-sidebar p-6 flex flex-col items-end shrink-0 border-r border-[#1f2023]">
               <div class="w-48 space-y-4">
                 <div class="text-xs font-bold text-fs-muted uppercase tracking-wider">User Settings</div>
                 <div class="space-y-1">
-                  <button class="w-full text-left px-3 py-2 rounded-md text-sm bg-fs-purple text-white font-semibold flex items-center space-x-2">
+                  <button onclick="switchSettingsTab('profile')" id="tab-btn-profile" class="w-full text-left px-3 py-2 rounded-md text-sm bg-fs-purple text-white font-semibold flex items-center space-x-2">
                     <i class="fa-solid fa-user-gear text-xs"></i>
-                    <span>Profile & Avatar</span>
+                    <span>My Profile</span>
+                  </button>
+                  <button onclick="switchSettingsTab('supabase')" id="tab-btn-supabase" class="w-full text-left px-3 py-2 rounded-md text-sm text-fs-muted hover:text-fs-light hover:bg-fs-hover flex items-center space-x-2">
+                    <i class="fa-solid fa-database text-xs text-fs-purpleSoft"></i>
+                    <span>Supabase Integration</span>
                   </button>
                 </div>
               </div>
             </div>
 
-            <!-- Content -->
+            <!-- Settings Content -->
             <div class="flex-1 p-8 overflow-y-auto max-w-2xl relative">
               <button onclick="closeModal()" class="absolute top-6 right-8 flex flex-col items-center text-fs-muted hover:text-fs-light">
                 <div class="w-8 h-8 rounded-full border border-fs-muted flex items-center justify-center text-xs mb-1">
@@ -1113,133 +1453,136 @@
                 <span class="text-[10px] font-bold">ESC</span>
               </button>
 
-              <h2 class="text-2xl font-bold text-fs-light mb-6 flex items-center space-x-2">
-                <span>User Profile Customization</span>
-                <span class="text-fs-purple">💜</span>
-              </h2>
+              <!-- Tab 1: Profile Customization -->
+              <div id="settings-tab-profile" class="space-y-6">
+                <h2 class="text-2xl font-bold text-fs-light flex items-center space-x-2">
+                  <span>Profile Customization</span>
+                  <span class="text-fs-purple">💜</span>
+                </h2>
 
-              <!-- Live Preview Card -->
-              <div class="bg-fs-darkest rounded-xl overflow-hidden border border-white/10 p-4 space-y-4 mb-6">
-                <div class="text-xs font-bold text-fs-muted uppercase">Live Preview</div>
-                <div class="flex items-center space-x-4 bg-fs-sidebar p-3 rounded-lg border border-white/5">
-                  <div class="relative">
-                    <img id="preview-avatar" src="${p.avatar}" class="w-16 h-16 rounded-full object-cover border-2 border-fs-purple">
-                    <div id="preview-status" class="absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-fs-sidebar ${getStatusBg(p.status)}"></div>
-                  </div>
-                  <div class="min-w-0 flex-1">
-                    <div id="preview-name" class="font-bold text-base text-fs-light">${escapeHTML(p.name)}</div>
-                    <div id="preview-tag" class="text-xs text-fs-muted">@${escapeHTML(p.username)} #${escapeHTML(p.tag)}</div>
-                    <div id="preview-custom" class="text-xs text-fs-purpleSoft mt-1">${escapeHTML(p.customStatus)}</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Form -->
-              <div class="space-y-5">
-                
-                <!-- Avatar Upload Section -->
-                <div class="bg-fs-darkest p-4 rounded-xl border border-white/5 space-y-3">
-                  <label class="text-xs font-bold text-fs-muted uppercase block">Avatar Picture</label>
-                  <div class="flex items-center space-x-4">
-                    <input type="file" id="avatar-file-input" accept="image/*" class="hidden" onchange="handleAvatarFileSelect(event)">
-                    <button onclick="document.getElementById('avatar-file-input').click()" class="bg-fs-purple hover:bg-fs-purpleDark text-white text-xs font-semibold px-4 py-2 rounded-md transition-colors flex items-center space-x-2">
-                      <i class="fa-solid fa-upload"></i>
-                      <span>Upload Image File</span>
-                    </button>
-                    <button onclick="generateInitialsAvatar()" class="bg-fs-sidebar hover:bg-fs-hover text-fs-light text-xs font-semibold px-3 py-2 rounded-md transition-colors border border-white/10">
-                      Reset to Initials
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Display Name & Username -->
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Display Name</label>
-                    <input type="text" id="input-name" value="${escapeHTML(p.name)}" oninput="updateLivePreview()" class="w-full bg-fs-darkest border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none focus:border-fs-purple">
-                  </div>
-                  <div>
-                    <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Username</label>
-                    <input type="text" id="input-username" value="${escapeHTML(p.username)}" oninput="updateLivePreview()" class="w-full bg-fs-darkest border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none focus:border-fs-purple">
-                  </div>
-                </div>
-
-                <!-- Tag & Status -->
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Tag (e.g. 1337)</label>
-                    <input type="text" id="input-tag" value="${escapeHTML(p.tag)}" oninput="updateLivePreview()" class="w-full bg-fs-darkest border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none focus:border-fs-purple">
-                  </div>
-                  <div>
-                    <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Online Status</label>
-                    <select id="input-status" onchange="updateLivePreview()" class="w-full bg-fs-darkest border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none focus:border-fs-purple">
-                      <option value="online" ${p.status === 'online' ? 'selected' : ''}>Online</option>
-                      <option value="idle" ${p.status === 'idle' ? 'selected' : ''}>Idle</option>
-                      <option value="dnd" ${p.status === 'dnd' ? 'selected' : ''}>Do Not Disturb</option>
-                      <option value="offline" ${p.status === 'offline' ? 'selected' : ''}>Invisible</option>
-                    </select>
-                  </div>
-                </div>
-
-                <!-- Custom Status & Banner Color -->
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Custom Status Message</label>
-                    <input type="text" id="input-custom-status" value="${escapeHTML(p.customStatus)}" oninput="updateLivePreview()" class="w-full bg-fs-darkest border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none focus:border-fs-purple">
-                  </div>
-                  <div>
-                    <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Profile Banner Color</label>
-                    <div class="flex space-x-2 items-center">
-                      <input type="color" id="input-banner-color" value="${p.bannerColor || '#7C3AED'}" class="w-10 h-9 bg-transparent cursor-pointer rounded border border-white/10">
-                      <input type="text" id="input-banner-hex" value="${p.bannerColor || '#7C3AED'}" class="flex-1 bg-fs-darkest border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none">
+                <div class="bg-fs-darkest rounded-xl overflow-hidden border border-white/10 p-4 space-y-3">
+                  <div class="text-xs font-bold text-fs-muted uppercase">Live Preview</div>
+                  <div class="flex items-center space-x-4 bg-fs-sidebar p-3 rounded-lg border border-white/5">
+                    <div class="relative">
+                      <img id="preview-avatar" src="${me.avatar}" class="w-16 h-16 rounded-full object-cover border-2 border-fs-purple">
+                      <div id="preview-status" class="absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-fs-sidebar ${getStatusBg(me.status)}"></div>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <div id="preview-name" class="font-bold text-base text-fs-light">${escapeHTML(me.name)}</div>
+                      <div id="preview-tag" class="text-xs text-fs-muted">@${escapeHTML(me.username)} #${escapeHTML(me.tag)}</div>
+                      <div id="preview-custom" class="text-xs text-fs-purpleSoft mt-1">${escapeHTML(me.customStatus)}</div>
                     </div>
                   </div>
                 </div>
 
-                <!-- Bio -->
-                <div>
-                  <label class="text-xs font-bold text-fs-muted uppercase block mb-1">About Me (Bio)</label>
-                  <textarea id="input-bio" rows="3" class="w-full bg-fs-darkest border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none focus:border-fs-purple">${escapeHTML(p.bio)}</textarea>
-                </div>
+                <div class="space-y-4">
+                  <div class="bg-fs-darkest p-4 rounded-xl border border-white/5 space-y-3">
+                    <label class="text-xs font-bold text-fs-muted uppercase block">Avatar Picture</label>
+                    <div class="flex items-center space-x-4">
+                      <input type="file" id="avatar-file-input" accept="image/*" class="hidden" onchange="handleAvatarFileSelect(event)">
+                      <button onclick="document.getElementById('avatar-file-input').click()" class="bg-fs-purple hover:bg-fs-purpleDark text-white text-xs font-semibold px-4 py-2 rounded-md transition-colors flex items-center space-x-2">
+                        <i class="fa-solid fa-upload"></i>
+                        <span>Upload Custom Image</span>
+                      </button>
+                      <button onclick="generateInitialsAvatar()" class="bg-fs-sidebar hover:bg-fs-hover text-fs-light text-xs font-semibold px-3 py-2 rounded-md transition-colors border border-white/10">
+                        Reset to Initials
+                      </button>
+                    </div>
+                  </div>
 
-                <div class="pt-4 flex justify-end space-x-3">
-                  <button onclick="closeModal()" class="px-5 py-2 text-xs font-semibold text-fs-muted hover:text-fs-light transition-colors">Cancel</button>
-                  <button onclick="saveProfileSettings()" class="bg-fs-purple hover:bg-fs-purpleDark text-white text-xs font-bold px-6 py-2.5 rounded-md transition-colors shadow-sm">
-                    Save Profile Changes
-                  </button>
-                </div>
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Display Name</label>
+                      <input type="text" id="input-name" value="${escapeHTML(me.name)}" oninput="updateLivePreview()" class="w-full bg-fs-darkest border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none focus:border-fs-purple">
+                    </div>
+                    <div>
+                      <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Username</label>
+                      <input type="text" id="input-username" value="${escapeHTML(me.username)}" oninput="updateLivePreview()" class="w-full bg-fs-darkest border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none focus:border-fs-purple">
+                    </div>
+                  </div>
 
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Tag (e.g. 1337)</label>
+                      <input type="text" id="input-tag" value="${escapeHTML(me.tag)}" oninput="updateLivePreview()" class="w-full bg-fs-darkest border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none focus:border-fs-purple">
+                    </div>
+                    <div>
+                      <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Online Status</label>
+                      <select id="input-status" onchange="updateLivePreview()" class="w-full bg-fs-darkest border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none focus:border-fs-purple">
+                        <option value="online" ${me.status === 'online' ? 'selected' : ''}>Online</option>
+                        <option value="idle" ${me.status === 'idle' ? 'selected' : ''}>Idle</option>
+                        <option value="dnd" ${me.status === 'dnd' ? 'selected' : ''}>Do Not Disturb</option>
+                        <option value="offline" ${me.status === 'offline' ? 'selected' : ''}>Invisible</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Custom Status Message</label>
+                    <input type="text" id="input-custom-status" value="${escapeHTML(me.customStatus)}" oninput="updateLivePreview()" class="w-full bg-fs-darkest border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none focus:border-fs-purple">
+                  </div>
+
+                  <div>
+                    <label class="text-xs font-bold text-fs-muted uppercase block mb-1">About Me (Bio)</label>
+                    <textarea id="input-bio" rows="3" class="w-full bg-fs-darkest border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none focus:border-fs-purple">${escapeHTML(me.bio)}</textarea>
+                  </div>
+
+                  <div class="pt-4 flex justify-end space-x-3">
+                    <button onclick="closeModal()" class="px-5 py-2 text-xs font-semibold text-fs-muted hover:text-fs-light">Cancel</button>
+                    <button onclick="saveProfileSettings()" class="bg-fs-purple hover:bg-fs-purpleDark text-white text-xs font-bold px-6 py-2.5 rounded-md transition-colors">
+                      Save Profile
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        `;
-      } else if (type === 'add-friend') {
-        modalContainer.innerHTML = `
-          <div class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
-            <div class="bg-fs-chat w-full max-w-md rounded-2xl p-6 shadow-2xl border border-white/10 animate-scaleUp">
-              <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-fs-light flex items-center space-x-2">
-                  <i class="fa-solid fa-user-plus text-fs-purple"></i>
-                  <span>Add Custom Contact</span>
-                </h3>
-                <button onclick="closeModal()" class="text-fs-muted hover:text-fs-light"><i class="fa-solid fa-xmark"></i></button>
+
+              <!-- Tab 2: Supabase Integration -->
+              <div id="settings-tab-supabase" class="hidden space-y-6">
+                <h2 class="text-2xl font-bold text-fs-light flex items-center space-x-2">
+                  <span>Supabase Realtime Engine</span>
+                  <i class="fa-solid fa-database text-fs-purple"></i>
+                </h2>
+
+                <p class="text-xs text-fs-muted leading-relaxed">
+                  By default, FS uses local storage &amp; cross-tab BroadcastChannel for zero-config offline testing. Enter your Supabase project credentials below to connect to a live cloud database!
+                </p>
+
+                <div class="bg-fs-darkest p-4 rounded-xl border border-white/10 space-y-4">
+                  <div>
+                    <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Supabase Project URL</label>
+                    <input type="text" id="input-sb-url" value="${state.supabaseConfig.url || ''}" placeholder="https://xyz.supabase.co" class="w-full bg-fs-header border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none focus:border-fs-purple">
+                  </div>
+
+                  <div>
+                    <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Supabase Anon API Key</label>
+                    <input type="password" id="input-sb-key" value="${state.supabaseConfig.anonKey || ''}" placeholder="eyJhbGciOiJIUzI1NiIsInR..." class="w-full bg-fs-header border border-white/10 rounded-md px-3 py-2 text-sm text-fs-light outline-none focus:border-fs-purple">
+                  </div>
+
+                  <div class="flex items-center justify-between pt-2">
+                    <div class="flex items-center space-x-2">
+                      <div class="w-2.5 h-2.5 rounded-full ${state.supabaseConfig.connected ? 'bg-fs-green' : 'bg-fs-yellow'}"></div>
+                      <span class="text-xs font-bold ${state.supabaseConfig.connected ? 'text-fs-green' : 'text-fs-yellow'}">
+                        ${state.supabaseConfig.connected ? 'Connected to Supabase Live' : 'Local / Cross-Tab Mode Active'}
+                      </span>
+                    </div>
+
+                    <button onclick="saveSupabaseConfig()" class="bg-fs-purple hover:bg-fs-purpleDark text-white text-xs font-bold px-5 py-2 rounded-md transition-colors">
+                      Connect Supabase
+                    </button>
+                  </div>
+                </div>
+
+                <div class="bg-fs-darkest p-4 rounded-xl border border-white/10 space-y-3">
+                  <div class="font-bold text-sm text-fs-light flex justify-between items-center">
+                    <span>Database Schema Instructions</span>
+                    <button onclick="copySQLSchema()" class="text-xs bg-fs-purple text-white font-semibold px-3 py-1 rounded hover:bg-fs-purpleDark">
+                      Copy SQL Schema
+                    </button>
+                  </div>
+                  <p class="text-xs text-fs-muted">Copy and run the PostgreSQL schema in your Supabase SQL Editor to set up tables for Realtime Messaging!</p>
+                </div>
               </div>
 
-              <div class="space-y-4">
-                <div>
-                  <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Friend's Display Name</label>
-                  <input type="text" id="friend-name" placeholder="Jordan Lee" class="w-full bg-fs-darkest border border-white/10 rounded-md p-2.5 text-sm text-fs-light outline-none focus:border-fs-purple">
-                </div>
-                <div>
-                  <label class="text-xs font-bold text-fs-muted uppercase block mb-1">Tag (e.g. 2026)</label>
-                  <input type="text" id="friend-tag" placeholder="2026" class="w-full bg-fs-darkest border border-white/10 rounded-md p-2.5 text-sm text-fs-light outline-none focus:border-fs-purple">
-                </div>
-
-                <div class="flex justify-end space-x-3 pt-2">
-                  <button onclick="closeModal()" class="px-4 py-2 text-xs text-fs-muted hover:text-fs-light">Cancel</button>
-                  <button onclick="addCustomFriend()" class="bg-fs-purple hover:bg-fs-purpleDark text-white text-xs font-semibold px-5 py-2 rounded-md transition-colors">Add Contact</button>
-                </div>
-              </div>
             </div>
           </div>
         `;
@@ -1248,7 +1591,7 @@
           <div class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
             <div class="bg-fs-chat w-full max-w-md rounded-2xl p-6 shadow-2xl border border-white/10 text-center animate-scaleUp">
               <h3 class="text-xl font-bold text-fs-light mb-1">Create Your Server</h3>
-              <p class="text-xs text-fs-muted mb-4">Give your server a personality with a name.</p>
+              <p class="text-xs text-fs-muted mb-4">Give your new server a name.</p>
 
               <input type="text" id="new-server-name" placeholder="FS Workspace" class="w-full bg-fs-darkest border border-white/10 rounded-md p-2.5 text-sm text-fs-light outline-none mb-4 focus:border-fs-purple">
 
@@ -1276,11 +1619,18 @@
       }
     }
 
+    function switchSettingsTab(tab) {
+      document.getElementById('settings-tab-profile').classList.toggle('hidden', tab !== 'profile');
+      document.getElementById('settings-tab-supabase').classList.toggle('hidden', tab !== 'supabase');
+
+      document.getElementById('tab-btn-profile').className = `w-full text-left px-3 py-2 rounded-md text-sm font-semibold flex items-center space-x-2 ${tab === 'profile' ? 'bg-fs-purple text-white' : 'text-fs-muted hover:text-fs-light'}`;
+      document.getElementById('tab-btn-supabase').className = `w-full text-left px-3 py-2 rounded-md text-sm font-semibold flex items-center space-x-2 ${tab === 'supabase' ? 'bg-fs-purple text-white' : 'text-fs-muted hover:text-fs-light'}`;
+    }
+
     function closeModal() {
       document.getElementById('modal-container').innerHTML = '';
     }
 
-    // Avatar File Reader Base64 Handler
     let tempAvatarBase64 = null;
 
     function handleAvatarFileSelect(e) {
@@ -1296,7 +1646,8 @@
     }
 
     function generateInitialsAvatar() {
-      const name = document.getElementById('input-name').value || 'FS';
+      const me = getCurrentUser();
+      const name = document.getElementById('input-name').value || me.name;
       tempAvatarBase64 = createInitialAvatar(name, '#7C3AED');
       document.getElementById('preview-avatar').src = tempAvatarBase64;
     }
@@ -1315,46 +1666,29 @@
     }
 
     function saveProfileSettings() {
-      state.profile.name = document.getElementById('input-name').value.trim() || 'Alex Rivera';
-      state.profile.username = document.getElementById('input-username').value.trim() || 'alex_rivera';
-      state.profile.tag = document.getElementById('input-tag').value.trim() || '1337';
-      state.profile.status = document.getElementById('input-status').value;
-      state.profile.customStatus = document.getElementById('input-custom-status').value.trim();
-      state.profile.bannerColor = document.getElementById('input-banner-hex').value.trim() || '#7C3AED';
-      state.profile.bio = document.getElementById('input-bio').value.trim();
+      const me = getCurrentUser();
+      me.name = document.getElementById('input-name').value.trim() || 'Alex Rivera';
+      me.username = document.getElementById('input-username').value.trim() || 'alex_rivera';
+      me.tag = document.getElementById('input-tag').value.trim() || '1337';
+      me.status = document.getElementById('input-status').value;
+      me.customStatus = document.getElementById('input-custom-status').value.trim();
+      me.bio = document.getElementById('input-bio').value.trim();
 
       if (tempAvatarBase64) {
-        state.profile.avatar = tempAvatarBase64;
+        me.avatar = tempAvatarBase64;
       }
 
       saveState();
-      renderUserBar();
-      renderMemberList();
-      renderMessages();
+      renderAll();
       closeModal();
     }
 
-    function addCustomFriend() {
-      const name = document.getElementById('friend-name').value.trim();
-      const tag = document.getElementById('friend-tag').value.trim() || '2026';
-      if (!name) return;
+    function saveSupabaseConfig() {
+      state.supabaseConfig.url = document.getElementById('input-sb-url').value.trim();
+      state.supabaseConfig.anonKey = document.getElementById('input-sb-key').value.trim();
 
-      const newFriend = {
-        id: 'friend_' + Date.now(),
-        name,
-        tag,
-        username: name.toLowerCase().replace(/\s+/g, '_'),
-        avatar: createInitialAvatar(name, '#8B5CF6'),
-        bannerColor: '#8B5CF6',
-        status: 'online',
-        customStatus: 'Connected on FS 💜',
-        bio: 'Custom contact added on FS.'
-      };
-
-      state.friends.push(newFriend);
+      initSupabaseClient();
       saveState();
-      renderSidebar();
-      renderMemberList();
       closeModal();
     }
 
@@ -1389,7 +1723,54 @@
       closeModal();
     }
 
-    // Helper: HTML Escaper
+    function copySQLSchema() {
+      const sql = `-- FS Realtime Supabase PostgreSQL Database Schema
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  username TEXT NOT NULL,
+  tag TEXT NOT NULL,
+  avatar TEXT,
+  status TEXT DEFAULT 'online',
+  custom_status TEXT,
+  bio TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+CREATE TABLE IF NOT EXISTS public.friends (
+  id TEXT PRIMARY KEY,
+  user1_id TEXT NOT NULL,
+  user2_id TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending_outgoing',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+CREATE TABLE IF NOT EXISTS public.direct_messages (
+  id TEXT PRIMARY KEY,
+  channel_key TEXT NOT NULL,
+  sender_id TEXT NOT NULL,
+  recipient_id TEXT NOT NULL,
+  content TEXT NOT NULL,
+  attachment TEXT,
+  reactions JSONB DEFAULT '[]'::jsonb,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+-- Enable Supabase Realtime for Direct Messages
+ALTER PUBLICATION supabase_realtime ADD TABLE public.direct_messages;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.friends;`;
+
+      const el = document.createElement('textarea');
+      el.value = sql;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+
+      alert('Supabase SQL Schema script copied to clipboard!');
+    }
+
+    // Helper Functions
     function escapeHTML(str) {
       if (!str) return '';
       return str.replace(/[&<>'"]/g, 
@@ -1403,7 +1784,6 @@
       );
     }
 
-    // Helper: Map status to background color
     function getStatusBg(status) {
       switch(status) {
         case 'online': return 'bg-fs-green';
